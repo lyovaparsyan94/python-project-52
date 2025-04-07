@@ -14,7 +14,7 @@ class Tasks(models.Model):
     creator = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name='creator', verbose_name=gettext_lazy('Creator'), )
     executor = models.ForeignKey(get_user_model(), on_delete=models.PROTECT, related_name='executor', null=True, blank=True, verbose_name=gettext_lazy('Executor'))
     description = models.TextField(gettext_lazy('description'), blank=True)
-    label = models.ManyToManyField(Labels, through='LabelsTasksReal', related_name='label', blank=True, verbose_name=gettext_lazy('Labels'),)
+    labels = models.ManyToManyField(Labels, through='LabelsTasksReal', related_name='labels', blank=True, verbose_name=gettext_lazy('Labels'),)
 
 
     def __str__(self):

@@ -13,5 +13,5 @@ class TasksForm(ModelForm):
             'description',
             'status',
             'executor',
-            'label'
+            'labels'
         ]

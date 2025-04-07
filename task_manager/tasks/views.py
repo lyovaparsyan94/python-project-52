@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView, DetailView
 from task_manager.tasks.forms import TasksForm
 from task_manager.mixins import AuthRequired
 from django.urls import reverse_lazy
@@ -42,3 +42,8 @@ class TasksDelete(AuthRequired, NoPermissionHandleMixin, CheckUser, SuccessMessa
     template_name = 'tasks/delete.html'
     success_url = reverse_lazy('tasks:list')
     success_message = gettext('Task delete successfull')
+
+
+class TaskClick(AuthRequired, NoPermissionHandleMixin, DetailView):
+    model = Tasks
+    template_name = 'tasks/click.html'

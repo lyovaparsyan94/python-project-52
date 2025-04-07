@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 14:07+0300\n"
+"POT-Creation-Date: 2025-03-06 14:53+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -72,15 +72,18 @@ msgstr ""
 msgid "name"
 msgstr "Имя"
 
-#: task_manager/tasks/models.py:12 task_manager/templates/tasks/list.html:40
+#: task_manager/tasks/models.py:12 task_manager/templates/tasks/click.html:33
+#: task_manager/templates/tasks/list.html:40
 msgid "Status"
 msgstr "Статус"
 
-#: task_manager/tasks/models.py:14 task_manager/templates/tasks/list.html:39
+#: task_manager/tasks/models.py:14 task_manager/templates/tasks/click.html:25
+#: task_manager/templates/tasks/list.html:39
 msgid "Creator"
 msgstr "Создатель"
 
-#: task_manager/tasks/models.py:15 task_manager/templates/tasks/list.html:38
+#: task_manager/tasks/models.py:15 task_manager/templates/tasks/click.html:29
+#: task_manager/templates/tasks/list.html:38
 msgid "Executor"
 msgstr "Исполнитель"
 
@@ -90,6 +93,7 @@ msgstr "Описание"
 
 #: task_manager/tasks/models.py:17 task_manager/templates/base.html:48
 #: task_manager/templates/labels/list.html:8
+#: task_manager/templates/tasks/click.html:42
 msgid "Labels"
 msgstr "Метки"
 
@@ -198,6 +202,7 @@ msgstr "Изменить"
 
 #: task_manager/templates/labels/list.html:31
 #: task_manager/templates/statuses/list.html:31
+#: task_manager/templates/tasks/click.html:55
 #: task_manager/templates/tasks/list.html:55
 #: task_manager/templates/users/list.html:29
 msgid "Delete"
@@ -205,6 +210,7 @@ msgstr "Удалить"
 
 #: task_manager/templates/labels/update.html:8
 #: task_manager/templates/statuses/update.html:8
+#: task_manager/templates/tasks/click.html:53
 #: task_manager/templates/tasks/update.html:8
 #: task_manager/templates/users/update.html:8
 msgid "Update"
@@ -220,6 +226,18 @@ msgstr "Подтвердить выход"
 
 #: task_manager/templates/statuses/list.html:12
 msgid "Create status"
+msgstr "Создать статус"
+
+#: task_manager/templates/tasks/click.html:13
+#, fuzzy
+#| msgid "Create task"
+msgid "View task"
+msgstr "Создать задачу"
+
+#: task_manager/templates/tasks/click.html:37
+#, fuzzy
+#| msgid "Create status"
+msgid "created at"
 msgstr "Создать статус"
 
 #: task_manager/templates/tasks/list.html:31

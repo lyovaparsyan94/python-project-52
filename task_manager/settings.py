@@ -14,6 +14,8 @@ from pathlib import Path
 import os
 from django.urls import reverse_lazy
 from dotenv import load_dotenv
+import dj_database_url
+
 
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,7 +33,7 @@ SECRET_KEY = 'django-insecure-9@41^^77+x4vdx#u$)^2hee_4t%6basw8qzup1mucj4kbx!zlx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['webserver']
+ALLOWED_HOSTS = ['webserver', '127.0.0.1']
 
 
 # Application definition
@@ -89,25 +91,9 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 
 import os
 
-DATABASE_ENGINE = os.getenv("DB_ENGINE", "sqlite3")
-if DATABASE_ENGINE == "postgresql":
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv("DB_NAME", "mydb"),
-            'USER': os.getenv("DB_USER", "myuser"),
-            'PASSWORD': os.getenv("DB_PASSWORD", "mypassword"),
-            'HOST': os.getenv("DB_HOST", "localhost"),
-            'PORT': os.getenv("DB_PORT", "5432"),
-        }
-    }
-else:  # SQLite3 по умолчанию
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / "db.sqlite3",
-        }
-    }
+DATABASES = {
+    'default': dj_database_url.config(default=os.getenv('DATABASE','db.sqlite3'))
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -134,7 +120,7 @@ AUTH_USER_MODEL = 'users.User'
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 

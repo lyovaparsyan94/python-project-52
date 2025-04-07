@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from task_manager.labels.models import Labels
 from task_manager.labels.forms import LabelForm
@@ -6,6 +6,8 @@ from django.urls import reverse_lazy
 from task_manager.mixins import AuthRequired
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext
+from django.contrib import messages
+
 
 
 # Create your views here.
@@ -38,5 +40,9 @@ class LabelsDelete(AuthRequired, SuccessMessageMixin, DeleteView):
     model = Labels
     success_url = reverse_lazy('labels:list')
     success_message = gettext('Label delete')
-
+    def post(self, request, *args, **kwargs):
+        if self.get_object().labels.all().exists():
+            messages.error(self.request, gettext('label to delete unreal'))
+            return redirect('labels:list')
+        return super().post(request, *args, **kwargs)
 

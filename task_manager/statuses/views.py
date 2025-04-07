@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from task_manager.statuses.models import Statuses
 from task_manager.statuses.forms import StatusForm
@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from task_manager.mixins import AuthRequired
 from django.contrib.messages.views import SuccessMessageMixin
 from django.utils.translation import gettext
-
+from django.contrib import messages
 
 # Create your views here.
 
@@ -38,5 +38,9 @@ class StatusesDeleteView(AuthRequired, SuccessMessageMixin, DeleteView):
     model = Statuses
     success_url = reverse_lazy('statuses:list')
     success_message = gettext('Status delete')
-
+    def post(self, request, *args, **kwargs):
+        if self.get_object().status.all().exists():
+            messages.error(self.request, gettext('status to delete unreal'))
+            return redirect('statuses:list')
+        return super().post(request, *args, **kwargs)
 

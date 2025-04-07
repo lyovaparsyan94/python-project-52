@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-06 14:53+0300\n"
+"POT-Creation-Date: 2025-03-20 13:31+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,17 +27,21 @@ msgstr ""
 msgid "Name"
 msgstr "Имя"
 
-#: task_manager/labels/views.py:23
+#: task_manager/labels/views.py:25
 msgid "Label create"
 msgstr "Метка успешно создана"
 
-#: task_manager/labels/views.py:32
+#: task_manager/labels/views.py:34
 msgid "Label update"
 msgstr "Метка успешно изменена"
 
-#: task_manager/labels/views.py:40
+#: task_manager/labels/views.py:42
 msgid "Label delete"
 msgstr "Метка успешно удалена"
+
+#: task_manager/labels/views.py:45
+msgid "label to delete unreal"
+msgstr "Невозможно удалить метку, потому что она используется"
 
 #: task_manager/mixins.py:9
 msgid "Fast log in young bad boy"
@@ -55,6 +59,10 @@ msgstr "Статус успешно изменен"
 msgid "Status delete"
 msgstr "Статус успешно удален"
 
+#: task_manager/statuses/views.py:43
+msgid "status to delete unreal"
+msgstr "Невозможно удалить статус, потому что он используется"
+
 #: task_manager/tasks/filter.py:18
 msgid "Only own tasks"
 msgstr "Только свои задачи"
@@ -65,8 +73,7 @@ msgstr "Метка"
 
 #: task_manager/tasks/mixins.py:16
 msgid "task can be delete or update only user which created"
-msgstr ""
-"Задача может быть обновлена или удалена только пользователем которым создана"
+msgstr "Задачу может удалить только ее автор"
 
 #: task_manager/tasks/models.py:11
 msgid "name"
@@ -247,8 +254,7 @@ msgstr "Создать задачу"
 #: task_manager/templates/users copy/mixins.py:16
 #: task_manager/users/mixins.py:16
 msgid "user can be delete or update only user which created"
-msgstr ""
-"Обновить или удалить задачу может только пользователь который ее создал"
+msgstr "У вас нет прав для изменения другого пользователя."
 
 #: task_manager/templates/users copy/views.py:25 task_manager/users/views.py:25
 msgid "User register successfull"

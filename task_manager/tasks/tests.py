@@ -4,8 +4,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from task_manager.tasks.models import Tasks
 from task_manager.statuses.models import Statuses
+from task_manager.tasks.filter import TaskFilter
 from task_manager.labels.models import Labels
-
 
 class TasksTest(TestCase):
     @classmethod
@@ -28,20 +28,19 @@ class TasksTest(TestCase):
         cls.executor.save()
 
         cls.status = Statuses.objects.create(name="oka")
-        cls.status2 = Statuses.objects.create(name="Slava")
-
+        cls.status2 = Statuses.objects.create(name='Slava')
     def setUp(self):
         """Логиним пользователя перед каждым тестом"""
-        login_successful = self.client.login(username="volkovor777228",
-                                             password="1234")
+        login_successful = self.client.login(username="volkovor777228", password="1234")
         self.assertTrue(login_successful, "Не удалось залогинить пользователя!")
+
 
     def test_create_task(self):
         """Проверка создания задачи"""
         data_task = {
             "name": "enjoy",
             "description": "gsgsd",
-            "status": self.status.pk,
+            "status": self.status.pk,  
             "executor": self.executor.pk,
         }
         response = self.client.post(reverse("tasks:create"), data_task)
@@ -81,8 +80,7 @@ class TasksTest(TestCase):
 
         updated_task = Tasks.objects.get(pk=task.pk)
         self.assertEqual(updated_task.name, data_task_update["name"])
-        self.assertEqual(updated_task.description,
-                         data_task_update["description"])
+        self.assertEqual(updated_task.description, data_task_update["description"])
 
     def test_delete_task(self):
         """Проверка удаления задачи"""
@@ -128,11 +126,11 @@ class TasksTest(TestCase):
             executor=None,
         )
 
-        response = self.client.get(reverse("tasks:list"),
-                                   {"status": self.status.pk})
+        response = self.client.get(reverse("tasks:list"), {'status': self.status.pk})
         self.assertContains(response, task1.name)
         self.assertContains(response, task2.name)
         self.assertNotContains(response, task3.name)
+
 
     def test_filter_tasks_by_executor(self):
         """Проверка фильтрации задач по исполнителю"""
@@ -151,9 +149,7 @@ class TasksTest(TestCase):
             executor=self.user,
         )
 
-        response = self.client.get(
-            reverse("tasks:list"), {"executor": self.executor.pk}
-        )
+        response = self.client.get(reverse("tasks:list"), {'executor': self.executor.pk})
         self.assertContains(response, task1.name)
         self.assertNotContains(response, task2.name)
 
@@ -177,8 +173,7 @@ class TasksTest(TestCase):
             executor=self.user,
         )
 
-        response = self.client.get(reverse("tasks:list"),
-                                   {"task_label": label.pk})
+        response = self.client.get(reverse("tasks:list"), {'task_label': label.pk})
         self.assertContains(response, task1.name)
         self.assertNotContains(response, task2.name)
 

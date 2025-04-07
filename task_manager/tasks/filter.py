@@ -1,9 +1,13 @@
-from django_filters import FilterSet
+from django_filters import FilterSet, CharFilter
 from task_manager.tasks.models import Tasks
+import django_filters
+from task_manager.statuses.models import Statuses
+from django.contrib.auth import get_user_model
 from task_manager.labels.models import Labels
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django_filters import BooleanFilter, ModelChoiceFilter
+from django_filters import FilterSet, BooleanFilter, ModelChoiceFilter
+
 
 
 class TaskFilter(FilterSet):
@@ -16,7 +20,7 @@ class TaskFilter(FilterSet):
 
     task_label = ModelChoiceFilter(
         queryset=Labels.objects.all(),
-        field_name="labels",
+        field_name="label",
         label=_("Label"),
     )
 

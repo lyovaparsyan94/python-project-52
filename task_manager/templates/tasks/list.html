@@ -24,8 +24,8 @@
 </div>
 
   <div>
-      <button type="submit" class="btn btn-primary">{% translate 'Show' %}</button>
-      <a href="{% url 'tasks:list' %}" class="btn btn-secondary">{% translate 'reset filtres' %}</a>
+      <button type="submit" class="btn btn-primary">Фильтровать</button>
+      <a href="{% url 'tasks:list' %}" class="btn btn-secondary">Сбросить фильтры</a>
   </div>
 </form>
     <a class="btn btn-primary mb-3" href="{% url 'tasks:create' %}">{% translate 'Create task' %}</a>
@@ -44,7 +44,7 @@
           {% for task in tasks_list %}
           <tr>
             <td>{{ task.id }}</td>
-            <td> <a href="{% url 'tasks:click' task.id %}">{{ task.name }}</a></td>
+            <td>{{ task.name }}</td>
             <td>{{ task.created_at }}</td>
             <td>{{ task.executor }}</td>
             <td>{{ task.creator }}</td>

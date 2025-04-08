@@ -24,8 +24,8 @@
 </div>
 
   <div>
-      <button type="submit" class="btn btn-primary">Показать</button>
-      <a href="{% url 'tasks:list' %}" class="btn btn-secondary">Сбросить фильтры</a>
+      <button type="submit" class="btn btn-primary">{% translate 'Show' %}</button>
+      <a href="{% url 'tasks:list' %}" class="btn btn-secondary">{% translate 'reset filtres' %}</a>
   </div>
 </form>
     <a class="btn btn-primary mb-3" href="{% url 'tasks:create' %}">{% translate 'Create task' %}</a>

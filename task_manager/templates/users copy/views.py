@@ -1,5 +1,4 @@
-from django.shortcuts import render
-from django.views.generic import ListView, TemplateView, CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth import get_user_model
 from task_manager.users.forms import Create, Update
 from task_manager.mixins import AuthRequired

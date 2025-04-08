@@ -7,22 +7,44 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('labels', '0001_initial'),
-        ('tasks', '0002_alter_tasks_creator'),
+        ("labels", "0001_initial"),
+        ("tasks", "0002_alter_tasks_creator"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LabelsTasksReal',
+            name="LabelsTasksReal",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('label', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='labels.labels')),
-                ('task', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tasks.tasks')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "label",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="labels.labels"
+                    ),
+                ),
+                (
+                    "task",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="tasks.tasks"
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='tasks',
-            name='label',
-            field=models.ManyToManyField(related_name='label', through='tasks.LabelsTasksReal', to='labels.labels'),
+            model_name="tasks",
+            name="label",
+            field=models.ManyToManyField(
+                related_name="label",
+                through="tasks.LabelsTasksReal",
+                to="labels.labels",
+            ),
         ),
     ]

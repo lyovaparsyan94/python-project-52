@@ -6,6 +6,4 @@ class LabelForm(ModelForm):
 
     class Meta:
         model = Labels
-        fields = [
-            'name'
-        ]
+        fields = ["name"]

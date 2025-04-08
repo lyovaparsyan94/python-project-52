@@ -6,14 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('labels', '0001_initial'),
-        ('tasks', '0003_labelstasksreal_tasks_label'),
+        ("labels", "0001_initial"),
+        ("tasks", "0003_labelstasksreal_tasks_label"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='tasks',
-            name='label',
-            field=models.ManyToManyField(blank=True, related_name='label', through='tasks.LabelsTasksReal', to='labels.labels'),
+            model_name="tasks",
+            name="label",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="label",
+                through="tasks.LabelsTasksReal",
+                to="labels.labels",
+            ),
         ),
     ]

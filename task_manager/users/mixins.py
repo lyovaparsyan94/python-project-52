@@ -11,12 +11,15 @@ class CheckUser(UserPassesTestMixin):
         if user == self.request.user:
             return True
         return False
-    
+
     def dispatch(self, request, *args, **kwargs):
-        self.permission_denied_message = gettext('user can be delete or update only user which created')
-        self.permission_denied_url = reverse_lazy('users:list')
+        self.permission_denied_message = gettext(
+            "user can be delete or update only user which created"
+        )
+        self.permission_denied_url = reverse_lazy("users:list")
         return super().dispatch(request, *args, **kwargs)
-        
+
+
 class NoPermissionHandleMixin:
     permission_denied_message = ""
     permission_denied_url = reverse_lazy("users:list")

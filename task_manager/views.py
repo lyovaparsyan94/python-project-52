@@ -6,16 +6,16 @@ from django.contrib.messages import info
 
 
 class IndexView(TemplateView):
-    template_name = 'index.html'
+    template_name = "index.html"
 
 
 class Login(SuccessMessageMixin, LoginView):
-    template_name = 'login.html'
-    success_message = gettext('You are log in')
+    template_name = "login.html"
+    success_message = gettext("You are log in")
 
 
 class Logout(LogoutView):
     def dispatch(self, request, *args, **kwargs):
         res = super().dispatch(request, *args, **kwargs)
-        info(request, gettext('You are log out'))
+        info(request, gettext("You are log out"))
         return res

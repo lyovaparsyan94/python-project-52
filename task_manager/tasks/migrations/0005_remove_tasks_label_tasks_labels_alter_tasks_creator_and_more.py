@@ -8,35 +8,58 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('labels', '0002_alter_labels_name'),
-        ('statuses', '0002_alter_statuses_name'),
-        ('tasks', '0004_alter_tasks_label'),
+        ("labels", "0002_alter_labels_name"),
+        ("statuses", "0002_alter_statuses_name"),
+        ("tasks", "0004_alter_tasks_label"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='tasks',
-            name='label',
+            model_name="tasks",
+            name="label",
         ),
         migrations.AddField(
-            model_name='tasks',
-            name='labels',
-            field=models.ManyToManyField(blank=True, related_name='labels', through='tasks.LabelsTasksReal', to='labels.labels', verbose_name='Labels'),
+            model_name="tasks",
+            name="labels",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="labels",
+                through="tasks.LabelsTasksReal",
+                to="labels.labels",
+                verbose_name="Labels",
+            ),
         ),
         migrations.AlterField(
-            model_name='tasks',
-            name='creator',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='creator', to=settings.AUTH_USER_MODEL, verbose_name='Creator'),
+            model_name="tasks",
+            name="creator",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="creator",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Creator",
+            ),
         ),
         migrations.AlterField(
-            model_name='tasks',
-            name='executor',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='executor', to=settings.AUTH_USER_MODEL, verbose_name='Executor'),
+            model_name="tasks",
+            name="executor",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="executor",
+                to=settings.AUTH_USER_MODEL,
+                verbose_name="Executor",
+            ),
         ),
         migrations.AlterField(
-            model_name='tasks',
-            name='status',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='status', to='statuses.statuses', verbose_name='Status'),
+            model_name="tasks",
+            name="status",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="status",
+                to="statuses.statuses",
+                verbose_name="Status",
+            ),
         ),
     ]

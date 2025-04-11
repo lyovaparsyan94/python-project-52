@@ -1,5 +1,5 @@
 dev:
-	uv run python3 manage.py runserver
+	uv run python manage.py runserver 0.0.0.0:9000
 
 translate:
 	uv run django-admin makemessages --locale ru

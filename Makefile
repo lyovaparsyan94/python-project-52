@@ -1,5 +1,5 @@
 dev:
-		uv run manage.py runserver
+		uv run python manage.py runserver 0.0.0.0:9000
 build:
 		./build.sh
 render-start:

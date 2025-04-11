@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block bootstrap5_title %}
+{{ title }}
+{% endblock %}
+
+{% block bootstrap5_content %}
+<div class="card text-start">
+    <div class="card-header">
+        <h2>{{ task.name }}</h2>
+    </div>
+    <div class="card-body">
+        <p class="card-text">{{ task.description }}</p>
+        <hr>
+        <dl class="row">
+            <dt class="col-sm-3">{{ author }}</dt>
+            <dd class="col-sm-9">{{ task.author }}</dd>
+            <dt class="col-sm-3">{{ performer }}</dt>
+            <dd class="col-sm-9">{{ task.executor }}</dd>
+            <dt class="col-sm-3">{{ status }}</dt>
+            <dd class="col-sm-9">{{ task.status }}</dd>
+            <dt class="col-sm-3">{{ createdate }}</dt>
+            <dd class="col-sm-9">{{ task.created_at|date:"d.m.Y H:i" }}</dd>
+            <dt class="col-sm-3">{{ update }}</dt>
+            <dd class="col-sm-9">{{ task.updated_at|date:"d.m.Y H:i" }}</dd>
+        </dl>
+        </dl>
+        <p class="fw-bold">{{ labels }}:</p>
+        <ul>
+            {% for label in task.labels.all %}
+            <li>{{ label }}</li>
+            {% endfor %}
+        </ul>
+        <a href="{% url 'task_update' task.id %}">{{ edit }}</a>
+        <br>
+        <a href="{% url 'task_delete' task.id %}">{{ delete }}</a>
+    </div>
+</div>
+{% endblock %}

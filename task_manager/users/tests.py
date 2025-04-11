@@ -1,82 +1,133 @@
-from django.test import TestCase
-from django.urls import reverse
+from pathlib import Path
+
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
+from django.test import Client, TestCase
+from django.urls import reverse
+from yaml import CLoader, load
+
+User = get_user_model()
+path = (
+    Path(__file__)
+    .resolve()
+    .parent.parent.joinpath("fixtures", "test_values.yaml")
+)
 
 
-class UserTest(TestCase):
+class UserTestCase(TestCase):
+    fixtures = ["users.yaml"]
 
-    def test_create(self):
-        data_user = {
-            "username": "volkovor777228",
-            "first_name": "Lev",
-            "last_name": "Smith",
-            "password1": "1234",
-            "password2": "1234",
-        }
-        response = self.client.post(reverse("users:create"), data_user)
+    def setUp(self):
+        self.client = Client()
+        self.user1 = User.objects.get(id=1)
+        self.user2 = User.objects.get(id=2)
+        self.user_count = User.objects.count()
+        with path.open() as f:
+            self.data = load(f, Loader=CLoader)
+        self.valid_data = self.data.get("new_user")
+        self.update_data = self.data.get("update_user")
+
+
+class UserViewsTest(UserTestCase):
+    def test_users_list(self):
+        response = self.client.get(reverse("users_list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "users/users_list.html")
+        self.assertEqual(User.objects.count(), self.user_count)
+
+    def test_create_user(self):
+        response = self.client.get(reverse("user_create"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "form.html")
+
+        response = self.client.post(
+            reverse("user_create"),
+            self.valid_data,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(User.objects.count(), self.user_count + 1)
+        self.assertEqual(
+            User.objects.filter(pk=self.user_count + 1)[0].username,
+            self.valid_data.get("username"),
+        )
         self.assertRedirects(response, reverse("login"))
 
-        # Проверка, что пользователь был создан
-        User = get_user_model()
-        self.assertTrue(User.objects.filter(username="volkovor777228").exists())
+    def test_update_user(self):
+        # user not authenticated
+        user1 = self.user1
+        response = self.client.get(reverse("user_update", args=[user1.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
 
-    def test_update(self):
-        # Создание пользователя
-        data_user = {
-            "username": "volkovor777228",
-            "first_name": "Lev",
-            "last_name": "Smith",
-            "password1": "1234",
-            "password2": "1234",
-        }
-        response = self.client.post(reverse("users:create"), data_user)
+        response = self.client.post(reverse("user_update", args=[user1.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
 
-        # Вход в систему с правильными данными
-        self.client.login(username=data_user["username"], password="1234")
+        # user is authenticated
+        user2 = self.user2
+        self.client.force_login(user2)
+        response = self.client.get(reverse("user_update", args=[user2.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "form.html")
 
-        # Обновление данных пользователя
-        data_user_update = {
-            "username": "volkovor777228",
-            "first_name": "Lev228",
-            "last_name": "Smith777",
-            "password1": "1234",
-            "password2": "1234",
-        }
-        user = get_user_model().objects.get(username=data_user["username"])
         response = self.client.post(
-            reverse("users:update", args=[user.id]), data_user_update
+            reverse("user_update", args=[user2.id]), self.update_data
         )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("users_list"))
+        updated_user = User.objects.get(id=user2.id)
+        self.assertEqual(
+            updated_user.username, self.update_data.get("username")
+        )
+        self.assertEqual(updated_user.email, self.update_data.get("email"))
 
-        # Проверка перенаправления
-        self.assertRedirects(response, reverse("users:list"))
+        # user is authenticated, but tried to update another user
+        response = self.client.get(reverse("user_update", args=[user1.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("users_list"))
 
-    def test_delete(self):
-        data_user = {
-            "username": "volkovor777228",
-            "first_name": "Lev228",
-            "last_name": "Smith777",
-            "password1": "1234",
-            "password2": "1234",
-        }
-        response = self.client.post(reverse("users:create"), data_user)
-        self.client.login(username=data_user["username"], password="1234")
-        user = get_user_model().objects.get(username=data_user["username"])
-        response = self.client.post(reverse("users:delete", args=[user.id]))
-        self.assertRedirects(response, reverse("users:list"))
-        with self.assertRaises(ObjectDoesNotExist):
-            get_user_model().objects.get(username=data_user["username"])
+        response = self.client.post(
+            reverse("user_update", args=[user1.id]), self.update_data
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("users_list"))
+        self.assertNotEqual(user1.username, self.update_data.get("username"))
 
-    def test_read(self):
-        data_user = {
-            "username": "volkovor777228",
-            "first_name": "Lev228",
-            "last_name": "Smith777",
-            "password1": "1234",
-            "password2": "1234",
-        }
-        self.client.post(reverse("users:create"), data_user)
-        user = get_user_model().objects.get(username=data_user["username"])
-        self.assertEqual(user.first_name, data_user["first_name"])
-        self.assertEqual(user.last_name, data_user["last_name"])
-        self.assertEqual(user.username, data_user["username"])
+    def test_delete_user(self):
+        # user not authenticated
+        user1 = self.user1
+        response = self.client.get(reverse("user_delete", args=[user1.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
+
+        response = self.client.post(reverse("user_delete", args=[user1.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
+
+        # user is authenticated
+        user2 = self.user2
+        self.client.force_login(user2)
+        response = self.client.get(reverse("user_delete", args=[user2.id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "delete.html")
+
+        response = self.client.post(reverse("user_delete", args=[user2.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("users_list"))
+        self.assertEqual(User.objects.count(), self.user_count - 1)
+        with self.assertRaises(User.DoesNotExist):
+            User.objects.get(id=user2.id)
+
+        # user is authenticated, but tried to delete another user
+        self.client.force_login(user1)
+        response = self.client.get(
+            reverse("user_delete", args=[self.user_count])
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("users_list"))
+
+        response = self.client.post(
+            reverse("user_delete", args=[self.user_count])
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("users_list"))
+        self.assertEqual(User.objects.count(), self.user_count - 1)

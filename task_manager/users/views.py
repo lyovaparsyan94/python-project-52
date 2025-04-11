@@ -1,49 +1,79 @@
-from django.views.generic import (
-    ListView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-)
 from django.contrib.auth import get_user_model
-from task_manager.users.forms import Create, Update
-from task_manager.mixins import AuthRequired
-from django.urls import reverse_lazy
-from django.utils.translation import gettext
 from django.contrib.messages.views import SuccessMessageMixin
-from task_manager.users.mixins import CheckUser, NoPermissionHandleMixin
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
-# Create your views here.
+from task_manager.mixins import LoginRequiredMixin, SelfAccessOnlyMixin
+from task_manager.users.forms import (
+    UserChangeForm,
+    UserCreationForm,
+)
+
+User = get_user_model()
 
 
-class UsersListView(ListView):
-    template_name = "users/list.html"
-    model = get_user_model()
+class UserListView(ListView):
+    model = User
+    template_name = "users/users_list.html"
+    context_object_name = "users"
+    ordering = ["id"]
+    extra_context = {
+        "title": _("Users"),
+        "username": _("Username"),
+        "full_name": _("Full name"),
+        "created_at": _("Creation date"),
+        "edit": _("Edit"),
+        "delete": _("Delete"),
+    }
 
 
-class UsersCreate(SuccessMessageMixin, CreateView):
-    model = get_user_model()
-    template_name = "users/create.html"
-    form_class = Create
+class UserCreateView(SuccessMessageMixin, CreateView):
+    model = User
+    template_name = "form.html"
+    form_class = UserCreationForm
     success_url = reverse_lazy("login")
-    success_message = gettext("User register successfull")
+    success_message = _("User was registered successfully")
+    extra_context = {"title": _("Registration"), "button_name": _("Register")}
 
 
-class UsersUpdate(
-    AuthRequired, NoPermissionHandleMixin,
-    CheckUser, SuccessMessageMixin, UpdateView
+class UserUpdateView(
+    LoginRequiredMixin,
+    SelfAccessOnlyMixin,
+    SuccessMessageMixin,
+    UpdateView,
 ):
-    model = get_user_model()
-    form_class = Update
-    template_name = "users/update.html"
-    success_url = "/users/"
-    success_message = gettext("User update successfull")
+    permission_denied_url = reverse_lazy("users_list")
+    permission_denied_message = _(
+        "You don't have rights to change another user"
+    )
+    form_class = UserChangeForm
+    model = User
+    template_name = "form.html"
+    success_url = reverse_lazy("users_list")
+    success_message = _("User was updated successfully")
+    extra_context = {
+        "button_name": _("Update"),
+        "title": _("Update user"),
+    }
 
 
-class UsersDelete(
-    AuthRequired, NoPermissionHandleMixin,
-    CheckUser, SuccessMessageMixin, DeleteView
+class UserDeleteView(
+    LoginRequiredMixin,
+    SelfAccessOnlyMixin,
+    SuccessMessageMixin,
+    DeleteView,
 ):
-    model = get_user_model()
-    template_name = "users/delete.html"
-    success_url = "/users/"
-    success_message = gettext("User delete successfull")
+    permission_denied_url = reverse_lazy("users_list")
+    permission_denied_message = _(
+        "You don't have rights to delete another user"
+    )
+    template_name = "delete.html"
+    model = User
+    success_url = reverse_lazy("users_list")
+    success_message = _("User was deleted successfully")
+    extra_context = {
+        "title": _("Delete user"),
+        "button_name": _("Yes, delete"),
+        "question": _("Are you sure you want to delete"),
+    }

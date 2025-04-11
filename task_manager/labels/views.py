@@ -1,51 +1,69 @@
-from django.shortcuts import redirect
-from django.views.generic import (
-    ListView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-)
-from task_manager.labels.models import Labels
-from task_manager.labels.forms import LabelForm
-from django.urls import reverse_lazy
-from task_manager.mixins import AuthRequired
 from django.contrib.messages.views import SuccessMessageMixin
-from django.utils.translation import gettext
-from django.contrib import messages
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+
+from task_manager.labels.forms import LabelCreationForm
+from task_manager.labels.models import Label
+from task_manager.mixins import LoginRequiredMixin, ProtectErrorMixin
 
 
-# Create your views here.
+class LabelListView(LoginRequiredMixin, ListView):
+    model = Label
+    template_name = "labels/labels_list.html"
+    context_object_name = "labels"
+    ordering = ["id"]
+    extra_context = {
+        "title": _("Labels"),
+        "create": _("Create label"),
+        "edit": _("Edit"),
+        "delete": _("Delete"),
+    }
 
 
-class LabelsListView(AuthRequired, ListView):
-    template_name = "labels/list.html"
-    model = Labels
+class LabelCreateView(
+    LoginRequiredMixin, SuccessMessageMixin, CreateView
+):
+    model = Label
+    template_name = "form.html"
+    form_class = LabelCreationForm
+    success_url = reverse_lazy("labels_list")
+    success_message = _("Label was created successfully")
+    extra_context = {"title": _("Create label"), "button_name": _("Create")}
 
 
-class LabelsCreate(AuthRequired, SuccessMessageMixin, CreateView):
-    template_name = "labels/create.html"
-    model = Labels
-    form_class = LabelForm
-    success_url = reverse_lazy("labels:list")
-    success_message = gettext("Label create")
+class LabelUpdateView(
+    LoginRequiredMixin,
+    SuccessMessageMixin,
+    UpdateView,
+):
+    form_class = LabelCreationForm
+    model = Label
+    template_name = "form.html"
+    success_url = reverse_lazy("labels_list")
+    success_message = _("Label was updated successfully")
+    extra_context = {
+        "title": _("Update label"),
+        "button_name": _("Update"),
+    }
 
 
-class LabelsUpdate(AuthRequired, SuccessMessageMixin, UpdateView):
-    template_name = "statuses/update.html"
-    model = Labels
-    form_class = LabelForm
-    success_url = reverse_lazy("labels:list")
-    success_message = gettext("Label update")
-
-
-class LabelsDelete(AuthRequired, SuccessMessageMixin, DeleteView):
-    template_name = "labels/delete.html"
-    model = Labels
-    success_url = reverse_lazy("labels:list")
-    success_message = gettext("Label delete")
-
-    def post(self, request, *args, **kwargs):
-        if self.get_object().labels.all().exists():
-            messages.error(self.request, gettext("label to delete unreal"))
-            return redirect("labels:list")
-        return super().post(request, *args, **kwargs)
+class LabelDeleteView(
+    LoginRequiredMixin,
+    ProtectErrorMixin,
+    SuccessMessageMixin,
+    DeleteView,
+):
+    template_name = "delete.html"
+    model = Label
+    success_url = reverse_lazy("labels_list")
+    success_message = _("Label was deleted successfully")
+    protected_object_url = reverse_lazy("labels_list")
+    protected_object_message = _(
+        "Cannot delete this label because it is being used"
+    )
+    extra_context = {
+        "title": _("Delete label"),
+        "button_name": _("Yes, delete"),
+        "question": _("Are you sure you want to delete"),
+    }

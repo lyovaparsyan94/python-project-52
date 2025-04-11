@@ -1,53 +1,141 @@
-from django.test import TestCase
+from pathlib import Path
+
+from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
 from django.urls import reverse
-from django.core.exceptions import ObjectDoesNotExist
-from task_manager.labels.models import Labels
+from yaml import CLoader, load
+
+from task_manager.labels.models import Label
+
+User = get_user_model()
+path = (
+    Path(__file__)
+    .resolve()
+    .parent.parent.joinpath("fixtures", "test_values.yaml")
+)
 
 
-class LabelTest(TestCase):
+class LabelTestCase(TestCase):
+    fixtures = ["labels.yaml"]
 
     def setUp(self):
-        data_user = {
-            "username": "volkovor777228",
-            "first_name": "Lev",
-            "last_name": "Smith",
-            "password1": "1234",
-            "password2": "1234",
-        }
-        self.client.post(reverse("users:create"), data_user)
+        self.client = Client()
+        self.user = User.objects.get(id=2)
+        self.label1 = Label.objects.get(id=1)
+        self.label2 = Label.objects.get(id=2)
+        self.count = Label.objects.count()
+        with path.open() as f:
+            self.data = load(f, Loader=CLoader)
+        self.valid_data = self.data.get("new_label")
+        self.update_data = self.data.get("update_label")
 
-        # Вход в систему с правильными данными
-        self.client.login(username=data_user["username"], password="1234")
 
-    def test_create(self):
-        data_label = {"name": "enjoy"}
-        response = self.client.post(reverse("labels:create"), data_label)
-        self.assertRedirects(response, reverse("labels:list"))
+class LabelViewsTest(LabelTestCase):
+    def test_labels_list(self):
+        # user not authenticated
+        response = self.client.get(reverse("labels_list"))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
 
-        label = Labels.objects.get(name=data_label["name"])
-        self.assertEqual(label.name, data_label["name"])
+        # user is authenticated
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("labels_list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "labels/labels_list.html")
+        self.assertEqual(Label.objects.count(), self.count)
 
-    def test_update(self):
-        data_label = {"name": "enjoy"}
-        self.client.post(reverse("labels:create"), data_label)
-        label = Labels.objects.get(name=data_label["name"])
+    def test_create_label(self):
+        # user not authenticated
+        response = self.client.get(reverse("label_create"))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
 
-        self.assertEqual(label.name, data_label["name"])
+        response = self.client.post(
+            reverse("label_create"),
+            self.valid_data,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
 
-        data_label_update = {"name": "Enjoys"}
-        self.client.post(reverse("labels:update", args=[label.id]),
-                         data_label_update)
-        label_new = Labels.objects.get(name=data_label_update["name"])
-        self.assertEqual(label_new.name, data_label_update["name"])
+        # user is authenticated
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("label_create"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "form.html")
 
-    def test_delete(self):
-        data_label = {"name": "enjoy"}
-        self.client.post(reverse("labels:create"), data_label)
-        label = Labels.objects.get(name=data_label["name"])
+        response = self.client.post(
+            reverse("label_create"),
+            self.valid_data,
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("labels_list"))
+        self.assertEqual(Label.objects.count(), self.count + 1)
+        self.assertEqual(
+            Label.objects.filter(pk=self.count + 1)[0].name,
+            self.valid_data.get("name"),
+        )
 
-        self.assertEqual(label.name, data_label["name"])
+    def test_update_label(self):
+        # user not authenticated
+        id = self.label1.id
+        response = self.client.get(reverse("label_update", args=[id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
 
-        self.client.post(reverse("labels:delete", args=[label.id]))
+        response = self.client.post(
+            reverse("label_update", args=[id]), self.update_data
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
 
-        with self.assertRaises(ObjectDoesNotExist):
-            Labels.objects.get(name=data_label["name"])
+        # user is authenticated
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("label_update", args=[id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "form.html")
+
+        response = self.client.post(
+            reverse("label_update", args=[id]), self.update_data
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("labels_list"))
+        self.assertEqual(
+            Label.objects.get(id=id).name,
+            self.update_data.get("name"),
+        )
+
+    def test_delete_label(self):
+        # user not authenticated
+        id = self.label1.id
+        response = self.client.get(reverse("label_delete", args=[id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
+
+        response = self.client.post(reverse("label_delete", args=[id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("login"))
+
+        # user is authenticated
+        self.client.force_login(self.user)
+        response = self.client.get(reverse("label_delete", args=[id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "delete.html")
+
+        response = self.client.post(reverse("label_delete", args=[id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("labels_list"))
+        self.assertEqual(Label.objects.count(), self.count - 1)
+        with self.assertRaises(Label.DoesNotExist):
+            Label.objects.get(id=id)
+
+        # user is authenticated, but label used by task
+        id = self.label2.id
+        response = self.client.get(reverse("label_delete", args=[id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "delete.html")
+
+        response = self.client.post(reverse("label_delete", args=[id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse("labels_list"))
+        self.assertEqual(Label.objects.count(), self.count - 1)
+        self.assertEqual(Label.objects.get(id=id).name, self.label2.name)

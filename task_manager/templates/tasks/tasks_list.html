@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load django_bootstrap5 %}
+
+{% load i18n %}
+
+{% block bootstrap5_title %}
+{{ title }}
+{% endblock %}
+
+{% block bootstrap5_content %}
+<div>
+    <h1>{{ title }}</h1>
+    <a href="{% url 'task_create' %}">
+        <button type="button" class="btn btn-primary">{{ create }}</button>
+    </a>
+    <div class="card my-3">
+        <div class="card-body bg-light">
+            <form method="get" class="my-4">
+                {% bootstrap_form filter.form %}
+                <button type="submit" class="btn btn-primary">{{ find }}</button>
+            </form>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">{% trans 'Name' %}</th>
+                <th scope="col">{% trans 'Status' %}</th>
+                <th scope="col">{% trans 'Author' %}</th>
+                <th scope="col">{% trans 'Performer' %}</th>
+                <th scope="col">{% trans 'Creation date' %}</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.id }}</td>
+                <td><a href="{% url 'task_info' task.id %}">{{ task.name }}</a></td>
+                <td>{{ task.status }}</td>
+                <td>{{ task.author }}</td>
+                <td>{{ task.executor }}</td>
+                <td>{{ task.created_at|date:"d.m.Y H:i" }}</td>
+                <td>
+                    <a href="{% url 'task_update' task.id %}">{{ edit }}</a>
+                    <br>
+                    <a href="{% url 'task_delete' task.id %}">{{ delete }}</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

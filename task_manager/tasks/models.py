@@ -1,51 +1,36 @@
-from django.db import models
-from django.utils import timezone
-from task_manager.statuses.models import Statuses
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy
-from task_manager.labels.models import Labels
+from django.db import models
+from django.utils.translation import gettext_lazy as _
 
-# Create your models here.
+from task_manager.labels.models import Label
+from task_manager.statuses.models import Status
+
+User = get_user_model()
 
 
-class Tasks(models.Model):
-    name = models.CharField(gettext_lazy("name"), max_length=255, unique=True)
-    status = models.ForeignKey(
-        Statuses,
-        related_name="status",
-        blank=False,
-        on_delete=models.PROTECT,
-        verbose_name=gettext_lazy("Status"),
+class Task(models.Model):
+    name = models.CharField(
+        max_length=255, blank=False, unique=True, verbose_name=_("name")
     )
-    created_at = models.DateTimeField(default=timezone.now)
-    creator = models.ForeignKey(
-        get_user_model(),
+    description = models.TextField(blank=False, verbose_name=_("Description"))
+    author = models.ForeignKey(
+        User,
         on_delete=models.PROTECT,
-        related_name="creator",
-        verbose_name=gettext_lazy("Creator"),
+        verbose_name=_("Author"),
+        related_name=_("Author"),
+    )
+    status = models.ForeignKey(
+        Status, on_delete=models.PROTECT, verbose_name=_("Status")
     )
     executor = models.ForeignKey(
-        get_user_model(),
+        User,
         on_delete=models.PROTECT,
-        related_name="executor",
-        null=True,
-        blank=True,
-        verbose_name=gettext_lazy("Executor"),
+        verbose_name=_("Executor"),
+        related_name=_("Executor"),
     )
-    description = models.TextField(gettext_lazy("description"), blank=True)
-    labels = models.ManyToManyField(
-        Labels,
-        through="LabelsTasksReal",
-        related_name="labels",
-        blank=True,
-        verbose_name=gettext_lazy("Labels"),
-    )
+    labels = models.ManyToManyField(Label, blank=True, verbose_name=_("Labels"))
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-
         return self.name
-
-
-class LabelsTasksReal(models.Model):
-    task = models.ForeignKey(Tasks, on_delete=models.CASCADE)
-    label = models.ForeignKey(Labels, on_delete=models.CASCADE)

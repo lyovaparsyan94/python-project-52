@@ -1,19 +1,11 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% load i18n %}
-{% block content %}
-<div class="container wrapper flex-grow-1">
-    <h1 class="my-4">
-        {% translate "Welcome to Hexlet!" %}
-    </h1>
-    
-    <h1 class="my-4"></h1>
-    <div class="card">
-        <div class="card-body p-5 bg-light">
-            <div class="display-4">{% translate "Hello from Hexlet!" %}</div>
-            <p class="lead">{% translate "Practical programming courses" %}</p>
-            <hr>
-            <a class="btn btn-primary btn-lg" href="https://ru.hexlet.io">{% translate "Learn more" %}</a>
-        </div>
-    </div>
-</div>
+
+{% block bootstrap5_content %}
+<div class="bg-light p-5 rounded">
+    <h1>{% trans 'Task manager' %}</h1>
+    <p class="lead">{% trans 'Manage your tasks with this simple Django-based web application.' %}</p>
+    <a class="btn btn-lg btn-primary" href="{% url 'user_create' %}" role="button">{% trans 'Try now' %}</a>
+  </div>
 {% endblock %}

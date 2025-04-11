@@ -1,28 +1,28 @@
-from django_filters import FilterSet
-from task_manager.tasks.models import Tasks
-from task_manager.labels.models import Labels
-from django import forms
+import django_filters
+from django.forms.widgets import CheckboxInput
 from django.utils.translation import gettext_lazy as _
-from django_filters import BooleanFilter, ModelChoiceFilter
+
+from task_manager.labels.models import Label
+from task_manager.tasks.models import Task
 
 
-class TaskFilter(FilterSet):
-    own_tasks = BooleanFilter(
-        widget=forms.CheckboxInput(),
-        field_name="creator",
-        method="filter_own_tasks",
-        label=_("Only own tasks"),
+class TaskFilter(django_filters.FilterSet):
+    user_tasks = django_filters.BooleanFilter(
+        label=_("Only my own tasks"),
+        method="filter_user_tasks",
+        widget=CheckboxInput,
     )
-
-    task_label = ModelChoiceFilter(
-        queryset=Labels.objects.all(),
-        field_name="labels",
+    labels = django_filters.ModelChoiceFilter(
         label=_("Label"),
+        queryset=Label.objects.all(),
     )
+
+    def filter_user_tasks(self, queryset, name, value):
+        if value:
+            user = self.request.user
+            return queryset.filter(author=user)
+        return queryset
 
     class Meta:
-        model = Tasks
-        fields = ["status", "executor", "task_label", "own_tasks"]
-
-    def filter_own_tasks(self, queryset, name, value):
-        return queryset.filter(creator=self.request.user) if value else queryset
+        model = Task
+        fields = ["status", "executor", "labels"]

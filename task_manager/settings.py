@@ -16,11 +16,9 @@ from django.urls import reverse_lazy
 from dotenv import load_dotenv
 import dj_database_url
 
-
 load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(
@@ -36,7 +34,6 @@ SECRET_KEY = "django-insecure-9@41^^77+x4vdx#u$)^2hee_4t%6basw8qzup1mucj4kbx!zlx
 DEBUG = True
 
 ALLOWED_HOSTS = ["webserver", "127.0.0.1"]
-
 
 # Application definition
 
@@ -57,6 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -86,14 +84,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "task_manager.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
-
 DATABASES = {
-    "default": dj_database_url.config(default=os.getenv("DATABASE", "db.sqlite3"))
+    # "default": dj_database_url.config(default=os.getenv("DATABASE", "db.sqlite3"))
+    "default": dj_database_url.config(default=os.getenv("DATABASE", "postgres"))
 }
 
 # Password validation
@@ -104,7 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     # {
-    #'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    # 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     # },
     # {
     #    'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -114,9 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
     # },
 ]
 
-
 AUTH_USER_MODEL = "users.User"
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/

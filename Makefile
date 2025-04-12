@@ -19,7 +19,7 @@ build:
 	./build.sh
 
 render-start:
-	.venv/bin/python -m gunicorn --chdir hexlet-code --bind 0.0.0.0:$PORT task_manager.wsgi
+	.venv/bin/gunicorn --chdir hexlet-code --bind 0.0.0.0:$PORT task_manager.wsgi
 
 collectstatic:
 	uv run python manage.py collectstatic --noinput

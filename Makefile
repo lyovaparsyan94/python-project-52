@@ -19,7 +19,7 @@ build:
 	./build.sh
 
 render-start:
-	poetry run gunicorn task_manager.wsgi
+	gunicorn task_manager.wsgi
 
 collectstatic:
 	uv run python manage.py collectstatic --noinput

@@ -5,10 +5,10 @@ echo "Скачиваем uv..."
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.local/bin/env
 
-# При необходимости расширяем PATH (если требуется для Python)
+# При необходимости расширяем PATH (если требуется для python3)
 export PATH=$PATH:/usr/local/python3/bin
 
-echo "Устанавливаем gunicorn..."
+echo "Устанавливаем gunicorn (если не указан в зависимостях)..."
 pip3 install gunicorn
 
 echo "Синхронизируем зависимости..."

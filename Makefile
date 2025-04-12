@@ -19,7 +19,7 @@ build:
 	./build.sh
 
 render-start:
-	gunicorn task_manager.wsgi 
+	uv run gunicorn task_manager.asgi:application -k uvicorn.workers.UvicornWorker
 	
 collectstatic:
 	uv run python manage.py collectstatic --noinput

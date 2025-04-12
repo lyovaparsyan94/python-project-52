@@ -1,18 +1,25 @@
 dev:
-		uv run manage.py runserver
-build:
-		./build.sh
-render-start:
-		gunicorn task_manager.wsgi
-lint:
-		uv run ruff check
-lint-fix:
-		uv run ruff check --fix
-install:
-		uv sync
-collectstatic:
-		uv run manage.py collectstatic --no-input
+	uv run python3 manage.py runserver
+
+translate:
+	uv run django-admin makemessages --locale ru
+	uv run python manage.py compilemessages
+
 migrate:
-		uv run manage.py migrate
-compilemessages:
-		uv run manage.py compilemessages
+	uv run python3 manage.py makemigrations
+	uv run python3 manage.py migrate
+
+tests:
+	uv run python3 manage.py test
+
+install:
+	uv sync
+
+build:
+	./build.sh
+
+render-start:
+	gunicorn task_manager.wsgi
+
+collectstatic:
+	uv run python manage.py collectstatic --noinput

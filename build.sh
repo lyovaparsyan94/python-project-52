@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
-# Скачиваем uv
+# скачиваем uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
 source $HOME/.local/bin/env
 
-# Обновляем pip, устанавливаем gunicorn системно
-pip install --upgrade pip
-pip install gunicorn
-
-# Делаем make-процедуры: установка, статика, миграции
-make install
-make collectstatic
-make migrate
-make compilemessages
+# здесь добавьте все необходимые команды для установки вашего проекта
+# команду установки зависимостей, сборки статики, применения миграций и другие
+export PATH=$PATH:/usr/local/python3/bin && pip3 install gunicorn && make install && make collectstatic && make migrate

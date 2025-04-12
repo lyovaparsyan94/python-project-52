@@ -16,4 +16,4 @@ build:
 
 # Цель старта: запускает сервер через uv, который гарантирует, что нужное окружение активно
 render-start:
-	uv run gunicorn task_manager.wsgi
+	gunicorn task_manager.wsgi

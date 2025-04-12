@@ -6,8 +6,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 # Используем точку вместо source для совместимости во всех POSIX-оболочках
 . $HOME/.local/bin/env
 
-echo "Устанавливаем gunicorn..."
-pip3 install gunicorn
+#echo "Устанавливаем gunicorn..."
+#pip3 install gunicorn
 
 echo "Синхронизируем зависимости..."
 make install

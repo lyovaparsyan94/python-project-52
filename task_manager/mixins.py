@@ -1,71 +1,10 @@
-from django.contrib import messages
-from django.contrib.auth.mixins import (
-    LoginRequiredMixin as DjangoLoginRequiredMixin,
-)
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models.deletion import ProtectedError
-from django.shortcuts import redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.translation import gettext
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
 
 
-class LoginRequiredMixin(DjangoLoginRequiredMixin):
-    login_url = reverse_lazy("login")
-    redirect_field_name = None
-    access_denied_message = _("You are not authorized! Please, log in.")
-
+class AuthRequired(LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(
-                request, messages.ERROR, self.access_denied_message
-            )
-            return self.handle_no_permission()
+        self.permission_denied_message = gettext("Fast log in young bad boy")
+        self.permission_denied_url = reverse_lazy("login")
         return super().dispatch(request, *args, **kwargs)
-
-
-class SelfAccessOnlyMixin(UserPassesTestMixin):
-    permission_denied_url = None
-    permission_denied_message = _("Permission denied")
-
-    def test_func(self):
-        return self.get_object() == self.request.user
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result:
-            messages.add_message(
-                request, messages.ERROR, self.permission_denied_message
-            )
-            return redirect(self.permission_denied_url)
-        return super().dispatch(request, *args, **kwargs)
-
-
-class AuthorAccessOnlyMixin(UserPassesTestMixin):
-    permission_denied_url = None
-    permission_denied_message = _("Permission denied")
-
-    def test_func(self):
-        return self.get_object().author == self.request.user
-
-    def dispatch(self, request, *args, **kwargs):
-        user_test_result = self.get_test_func()()
-        if not user_test_result:
-            messages.add_message(
-                request, messages.ERROR, self.permission_denied_message
-            )
-            return redirect(self.permission_denied_url)
-        return super().dispatch(request, *args, **kwargs)
-
-
-class ProtectErrorMixin:
-    protected_object_url = None
-    protected_object_message = _(
-        "Cannot delete object because it is being used"
-    )
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().post(request, *args, **kwargs)
-        except ProtectedError:
-            messages.error(request, self.protected_object_message)
-            return redirect(self.protected_object_url)

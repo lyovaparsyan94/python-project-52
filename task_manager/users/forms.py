@@ -1,37 +1,42 @@
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import (
-    SetPasswordMixin,
-)
-from django.contrib.auth.forms import (
-    UserChangeForm as DjangoUserChangeForm,
-)
-from django.contrib.auth.forms import (
-    UserCreationForm as DjangoUserCreationForm,
-)
+from django.core.exceptions import ValidationError
 
 
-class UserCreationForm(DjangoUserCreationForm):
-    class Meta(DjangoUserCreationForm.Meta):
+class Create(UserCreationForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    class Meta:
         model = get_user_model()
-        fields = (
+        fields = [
             "first_name",
             "last_name",
             "username",
-            "email",
-        ) + DjangoUserCreationForm.Meta.fields
-
-
-class UserChangeForm(SetPasswordMixin, DjangoUserChangeForm):
-    password = None
-    password1, password2 = SetPasswordMixin.create_password_fields()
-
-    class Meta(DjangoUserChangeForm.Meta):
-        model = get_user_model()
-        fields = (
-            "first_name",
-            "last_name",
-            "username",
-            "email",
             "password1",
             "password2",
-        )
+        ]
+
+
+class Update(Create):
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        if (
+            username
+            and (self._meta.model.objects
+            .filter(username__iexact=username).exists())
+            and self.instance.username != username
+        ):
+            self._update_errors(
+                ValidationError(
+                    {
+                        "username": self.instance.unique_error_message(
+                            self._meta.model, ["username"]
+                        )
+                    }
+                )
+            )
+        else:
+            return username

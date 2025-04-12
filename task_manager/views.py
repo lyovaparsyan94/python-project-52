@@ -1,21 +1,21 @@
-from django.contrib import messages
-from django.contrib.auth.views import LoginView as DjangoLoginView
-from django.contrib.auth.views import LogoutView as DjangoLogoutView
+from django.views.generic import TemplateView
+from django.contrib.auth.views import LoginView, LogoutView
+from django.utils.translation import gettext
 from django.contrib.messages.views import SuccessMessageMixin
-from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
+from django.contrib.messages import info
 
 
-class LoginView(SuccessMessageMixin, DjangoLoginView):
-    template_name = "form.html"
-    next_page = reverse_lazy("index")
-    success_message = _("You were logged in")
-    extra_context = {"title": _("Log In"), "button_name": _("Enter")}
+class IndexView(TemplateView):
+    template_name = "index.html"
 
 
-class LogoutView(DjangoLogoutView):
-    next_page = reverse_lazy("index")
+class Login(SuccessMessageMixin, LoginView):
+    template_name = "login.html"
+    success_message = gettext("You are log in")
 
+
+class Logout(LogoutView):
     def dispatch(self, request, *args, **kwargs):
-        messages.add_message(request, messages.INFO, _("You were logged out"))
-        return super().dispatch(request, *args, **kwargs)
+        res = super().dispatch(request, *args, **kwargs)
+        info(request, gettext("You are log out"))
+        return res

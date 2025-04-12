@@ -1,25 +1,19 @@
-dev:
-	uv run python3 manage.py runserver
-
-translate:
-	uv run django-admin makemessages --locale ru
-	uv run python manage.py compilemessages
-
-migrate:
-	uv run python3 manage.py makemigrations
-	uv run python3 manage.py migrate
-
-tests:
-	uv run python3 manage.py test
-
+# Синхронизация зависимостей через uv (обязательно для создания окружения)
 install:
 	uv sync
 
+# Сбор статических файлов
+collectstatic:
+	uv run python manage.py collectstatic --noinput
+
+# Применение миграций
+migrate:
+	uv run python manage.py migrate
+
+# Цель сборки: запускает скрипт сборки
 build:
 	./build.sh
 
+# Цель старта: запускает сервер через uv, который гарантирует, что нужное окружение активно
 render-start:
-	gunicorn task_manager.wsgi
-
-collectstatic:
-	uv run python manage.py collectstatic --noinput
+	uv run gunicorn task_manager.wsgi

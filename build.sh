@@ -3,12 +3,10 @@ set -e
 
 echo "Скачиваем uv..."
 curl -LsSf https://astral.sh/uv/install.sh | sh
-source $HOME/.local/bin/env
+# Используем точку вместо source для совместимости во всех POSIX-оболочках
+. $HOME/.local/bin/env
 
-# При необходимости расширяем PATH (если требуется для python3)
-export PATH=$PATH:/usr/local/python3/bin
-
-echo "Устанавливаем gunicorn (если не указан в зависимостях)..."
+echo "Устанавливаем gunicorn..."
 pip3 install gunicorn
 
 echo "Синхронизируем зависимости..."
@@ -19,5 +17,9 @@ make collectstatic
 
 echo "Применяем миграции..."
 make migrate
+
+# Если нужны переводы – раскомментируйте следующие строки:
+# echo "Компилируем переводы..."
+# uv run python manage.py compilemessages
 
 echo "Build script выполнен успешно."

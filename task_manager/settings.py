@@ -31,13 +31,13 @@ STATIC_ROOT = os.path.join(
 SECRET_KEY = "django-insecure-9@41^^77+x4vdx#u$)^2hee_4t%6basw8qzup1mucj4kbx!zlx"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = [
     "webserver",
+    "localhost",
     "127.0.0.1",
     "https://python-project-52-g7qr.onrender.com/",
-    "*",
 ]
 
 # Application definition

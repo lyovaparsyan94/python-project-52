@@ -3,7 +3,7 @@ dev:
 build:
 		./build.sh
 render-start:
-		uv run gunicorn task_manager.wsgi
+		gunicorn task_manager.wsgi
 lint:
 		uv run ruff check
 lint-fix:

@@ -26,5 +26,3 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["task_manager"]
-postgresql://postgress:VnVEfVkM6XWpLxl0ifXRccsn68oTiMvo@dpg-cvdtui1u0jms73baclkg-a/postgres_thc9
-postgresql://postgress:VnVEfVkM6XWpLxl0ifXRccsn68oTiMvo@dpg-cvdtui1u0jms73baclkg-a.oregon-postgres.render.com/postgres_thc9

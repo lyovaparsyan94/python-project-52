@@ -1,15 +1,13 @@
-{% load i18n %}
-{% load django_bootstrap5 %}
-{% get_current_language as LANGUAGE_CODE %}
-
+{% load django_bootstrap5 i18n %}
 
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE }}">
+<html lang="en">
   <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>{% translate 'hexlet task manager' %}</title>
-    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" rel="stylesheet">
-    <script crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <title>Task manager Hexlet</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
   </head>
   <body class="d-flex flex-column min-vh-100">
     <nav class="navbar navbar-expand-lg navbar-light bg-light ms-3">
@@ -17,52 +15,52 @@
       <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'users:list' %}">{% translate 'Users' %}</a>
-          </li>
-        </ul>
-        <ul class="navbar-nav">
-          
-          
-          {% if user.is_authenticated %}
-            <form action="{% url 'logout' %}" method="post">
+        <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'user_list' %}">{% translate 'Users' %}</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            {% if request.user.is_authenticated %}
+
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'status_list' %}">{% translate 'Statuses' %}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'task_list' %}">{% translate 'Tasks' %}</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'label_list' %}">{% translate 'Labels' %}</a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <form action="{% url 'user_list' %}" class="nav-link" method="post" class="form">
               {% csrf_token %}
-              <input type="submit" class="btn nav-link" value="{% translate 'Logout' %}">
+              <a class="nav-link" href="{% url 'user_logout' %}">{% translate "Exit" %}</a>
             </form>
+          </ul>
 
-          {% else %}
+            {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">{% translate 'Login' %}</a>
+              <a class="nav-link" href="{% url 'user_login' %}">{% translate "Entrance" %}</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'users:create' %}">{% translate 'Registration' %}</a>
+              <a class="nav-link" href="{% url 'user_create' %}">{% translate "Registration" %}</a>
             </li>
-          {% endif %}
-          {% if user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'statuses:list' %}">{% translate 'Statuses' %}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'labels:list' %}">{% translate 'Labels' %}</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'tasks:list' %}">{% translate 'Tasks' %}</a>
-          </li>
-          {% endif %}
-        </ul>
-      </div>
+            {% endif %}
+          </ul>
+
     </nav>
-    {% bootstrap_messages %}
-
-    <main>
-        {% block content %}
-        {% endblock %}
-    </main>
+    <div class="container">
+      {% include 'messages.html' %}
+    </div>
+    <div class="container wrapper flex-grow-1">
+      {% block content %}{% endblock %}
+    </div>
     <footer>
       <div class="container my-5 pt-4 border-top">
-        <a target="_blank" href="https://ru.hexlet.io">{% translate 'Hexlet' %}</a>
+        <a target="_blank" href="https://ru.hexlet.io">Hexlet</a>
       </div>
     </footer>
   </body>

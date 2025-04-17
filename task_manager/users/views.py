@@ -25,7 +25,7 @@ class UsersCreate(SuccessMessageMixin, CreateView):
     template_name = "users/create.html"
     form_class = Create
     success_url = reverse_lazy("login")
-    success_message = gettext("User register successfull")
+    success_message = gettext("Пользователь успешно зарегистрирован")
 
 
 class UsersUpdate(
@@ -36,7 +36,7 @@ class UsersUpdate(
     form_class = Update
     template_name = "users/update.html"
     success_url = "/users/"
-    success_message = gettext("User update successfull")
+    success_message = gettext("Пользователь успешно изменен")
 
 
 class UsersDelete(
@@ -46,4 +46,4 @@ class UsersDelete(
     model = get_user_model()
     template_name = "users/delete.html"
     success_url = "/users/"
-    success_message = gettext("User delete successfull")
+    success_message = gettext("Пользователь успешно удален")

@@ -24,8 +24,8 @@
           </li>
         </ul>
         <ul class="navbar-nav">
-          
-          
+
+
           {% if user.is_authenticated %}
             <form action="{% url 'logout' %}" method="post">
               {% csrf_token %}
@@ -34,10 +34,10 @@
 
           {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">{% translate 'Login' %}</a>
+              <a class="nav-link" href="{% url 'login' %}">{% translate 'Login' %}Вход</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'users:create' %}">{% translate 'Registration' %}</a>
+              <a class="nav-link" href="{% url 'users:create' %}">{% translate 'Registration' %}Регистрация</a>
             </li>
           {% endif %}
           {% if user.is_authenticated %}

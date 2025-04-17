@@ -9,13 +9,13 @@
     
           </h1>
           
-    <a class="btn btn-primary mb-3" href="{% url 'labels:create' %}">{% translate 'Create label' %}</a>
+    <a class="btn btn-primary mb-3" href="{% url 'labels:create' %}">Создать метку</a>
     <table class="table table-striped">
         <thead>
           <tr>
-            <th>{% translate 'ID' %}</th>
-            <th>{% translate 'Name' %}</th>
-            <th>{% translate 'Creation Date' %}</th>
+            <th>айди</th>
+            <th>Имя пользователя</th>
+            <th>Дата создания</th>
             <th></th>
           </tr>
         </thead>
@@ -26,9 +26,9 @@
             <td>{{ label.name }}</td>
             <td>{{ label.created_at }}</td>
             <td>
-              <a href="{% url 'labels:update' label.id%}">{% translate 'Edit' %}</a>
+              <a href="{% url 'labels:update' label.id%}">Редактировать</a>
               <br>
-              <a href="{% url 'labels:delete' label.id %}">{% translate 'Delete' %}</a>
+              <a href="{% url 'labels:delete' label.id %}">Удалить</a>
             </td>
           </tr>
           {% endfor %}

@@ -29,7 +29,7 @@
           {% if user.is_authenticated %}
             <form action="{% url 'logout' %}" method="post">
               {% csrf_token %}
-              <input type="submit" class="btn nav-link" value="{% translate 'Logout' %}">
+              <input type="submit" class="btn nav-link" value="Выход">
             </form>
 
           {% else %}

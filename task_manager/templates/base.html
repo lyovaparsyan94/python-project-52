@@ -34,10 +34,10 @@
 
           {% else %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'login' %}">{% translate 'Login' %}Вход</a>
+              <a class="nav-link" href="{% url 'login' %}">Вход</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'users:create' %}">{% translate 'Registration' %}Регистрация</a>
+              <a class="nav-link" href="{% url 'users:create' %}">Регистрация</a>
             </li>
           {% endif %}
           {% if user.is_authenticated %}

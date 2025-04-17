@@ -17,5 +17,5 @@ class Login(SuccessMessageMixin, LoginView):
 class Logout(LogoutView):
     def dispatch(self, request, *args, **kwargs):
         res = super().dispatch(request, *args, **kwargs)
-        info(request, gettext("You are log out"))
+        info(request, gettext("Вы разлогинены"))
         return res

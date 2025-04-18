@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1 class="my-4">
-    {% translate 'Tasks' %}
+    Задачи
 </h1>
 
 <!-- Форма фильтрации -->
@@ -24,20 +24,20 @@
 </div>
 
   <div>
-      <button type="submit" class="btn btn-primary">{% translate 'Show' %}</button>
-      <a href="{% url 'tasks:list' %}" class="btn btn-secondary">{% translate 'reset filtres' %}</a>
+      <button type="submit" class="btn btn-primary">Показать</button>
+      <a href="{% url 'tasks:list' %}" class="btn btn-secondary">Сбросить фильтры</a>
   </div>
 </form>
-    <a class="btn btn-primary mb-3" href="{% url 'tasks:create' %}">{% translate 'Create task' %}</a>
+    <a class="btn btn-primary mb-3" href="{% url 'tasks:create' %}">Создать задачу</a>
     <table class="table table-striped">
         <thead>
           <tr>
-            <th>{% translate 'ID' %}</th>
-            <th>{% translate 'Name' %}</th>
-            <th>{% translate 'Creation Date' %}</th>
-            <th>{% translate 'Executor' %}</th>
-            <th>{% translate 'Creator' %}</th>
-            <th>{% translate 'Status' %}</th>
+            <th>айди</th>
+            <th>Имя</th>
+            <th>Дата создания</th>
+            <th>Исполнитель</th>
+            <th>Создатель</th>
+            <th>Статус</th>
           </tr>
         </thead>
         <tbody>
@@ -50,9 +50,9 @@
             <td>{{ task.creator }}</td>
             <td>{{ task.status }}</td>
             <td>
-              <a href="{% url 'tasks:update' task.id%}">{% translate 'Edit' %}</a>
+              <a href="{% url 'tasks:update' task.id%}">Изменить</a>
               <br>
-              <a href="{% url 'tasks:delete' task.id %}">{% translate 'Delete' %}</a>
+              <a href="{% url 'tasks:delete' task.id %}">Удалить</a>
             </td>
           </tr>
           {% endfor %}

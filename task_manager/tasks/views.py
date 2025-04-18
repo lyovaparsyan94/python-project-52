@@ -27,7 +27,7 @@ class TasksCreate(AuthRequired, SuccessMessageMixin, CreateView):
     form_class = TasksForm
     template_name = "tasks/create.html"
     success_url = reverse_lazy("tasks:list")
-    success_message = gettext("Task create successfull")
+    success_message = gettext("Задача успешно создана")
 
     def form_valid(self, form):
         form.instance.creator = self.request.user
@@ -39,7 +39,7 @@ class TasksUpdate(AuthRequired, SuccessMessageMixin, UpdateView):
     form_class = TasksForm
     template_name = "tasks/update.html"
     success_url = reverse_lazy("tasks:list")
-    success_message = gettext("Task update successfull")
+    success_message = gettext("Задача успешно изменена")
 
 
 class TasksDelete(
@@ -49,7 +49,7 @@ class TasksDelete(
     model = Tasks
     template_name = "tasks/delete.html"
     success_url = reverse_lazy("tasks:list")
-    success_message = gettext("Task delete successfull")
+    success_message = gettext("Задача успешно удалена")
 
 
 class TaskClick(AuthRequired, NoPermissionHandleMixin, DetailView):

@@ -13,7 +13,7 @@ make install
 
 echo "Компилируем переводы..."
 uv run python manage.py compilemessages
-
+make translate
 echo "Собираем статику..."
 make collectstatic
 

@@ -9,20 +9,20 @@ from task_manager.labels.models import Labels
 
 
 class Tasks(models.Model):
-    name = models.CharField(gettext_lazy("Имя"), max_length=255, unique=True)
+    name = models.CharField(gettext_lazy("name"), max_length=255, unique=True)
     status = models.ForeignKey(
         Statuses,
         related_name="status",
         blank=False,
         on_delete=models.PROTECT,
-        verbose_name=gettext_lazy("Статус"),
+        verbose_name=gettext_lazy("Status"),
     )
     created_at = models.DateTimeField(default=timezone.now)
     creator = models.ForeignKey(
         get_user_model(),
         on_delete=models.PROTECT,
         related_name="creator",
-        verbose_name=gettext_lazy("Создатель"),
+        verbose_name=gettext_lazy("Creator"),
     )
     executor = models.ForeignKey(
         get_user_model(),
@@ -30,15 +30,15 @@ class Tasks(models.Model):
         related_name="executor",
         null=True,
         blank=True,
-        verbose_name=gettext_lazy("Исполнитель"),
+        verbose_name=gettext_lazy("Executor"),
     )
-    description = models.TextField(gettext_lazy("Описание"), blank=True)
+    description = models.TextField(gettext_lazy("description"), blank=True)
     labels = models.ManyToManyField(
         Labels,
         through="LabelsTasksReal",
         related_name="labels",
         blank=True,
-        verbose_name=gettext_lazy("Метки"),
+        verbose_name=gettext_lazy("Labels"),
     )
 
     def __str__(self):

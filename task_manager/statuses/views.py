@@ -26,7 +26,7 @@ class StatusesCreateView(AuthRequired, SuccessMessageMixin, CreateView):
     model = Statuses
     form_class = StatusForm
     success_url = reverse_lazy("statuses:list")
-    success_message = gettext("Статус успешно создан")
+    success_message = gettext("Status create")
 
 
 class StatusesUpdateView(AuthRequired, SuccessMessageMixin, UpdateView):
@@ -34,17 +34,17 @@ class StatusesUpdateView(AuthRequired, SuccessMessageMixin, UpdateView):
     model = Statuses
     form_class = StatusForm
     success_url = reverse_lazy("statuses:list")
-    success_message = gettext("Статус успешно изменен")
+    success_message = gettext("Status update")
 
 
 class StatusesDeleteView(AuthRequired, SuccessMessageMixin, DeleteView):
     template_name = "statuses/delete.html"
     model = Statuses
     success_url = reverse_lazy("statuses:list")
-    success_message = gettext("Статус успешно удален")
+    success_message = gettext("Status delete")
 
     def post(self, request, *args, **kwargs):
         if self.get_object().status.all().exists():
-            messages.error(self.request, gettext("Невозможно удалить статус, потому что он используется"))
+            messages.error(self.request, gettext("status to delete unreal"))
             return redirect("statuses:list")
         return super().post(request, *args, **kwargs)

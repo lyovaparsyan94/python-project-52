@@ -27,7 +27,7 @@ class LabelsCreate(AuthRequired, SuccessMessageMixin, CreateView):
     model = Labels
     form_class = LabelForm
     success_url = reverse_lazy("labels:list")
-    success_message = gettext("Метка успешно создана")
+    success_message = gettext("Label create")
 
 
 class LabelsUpdate(AuthRequired, SuccessMessageMixin, UpdateView):
@@ -35,17 +35,17 @@ class LabelsUpdate(AuthRequired, SuccessMessageMixin, UpdateView):
     model = Labels
     form_class = LabelForm
     success_url = reverse_lazy("labels:list")
-    success_message = gettext("Метка успешно изменена")
+    success_message = gettext("Label update")
 
 
 class LabelsDelete(AuthRequired, SuccessMessageMixin, DeleteView):
     template_name = "labels/delete.html"
     model = Labels
     success_url = reverse_lazy("labels:list")
-    success_message = gettext("Метка успешно удалена")
+    success_message = gettext("Label delete")
 
     def post(self, request, *args, **kwargs):
         if self.get_object().labels.all().exists():
-            messages.error(self.request, gettext("Невозможно удалить метку, потому что она используется"))
+            messages.error(self.request, gettext("label to delete unreal"))
             return redirect("labels:list")
         return super().post(request, *args, **kwargs)

@@ -3,16 +3,16 @@
 {% block content %}
 
 <h1 class="my-4">
-    Пользователи
+    {% translate 'Users' %}
 </h1>
           
 <table class="table table-striped">
   <thead>
     <tr>
-      <th>айди</th>
-      <th>Имя пользователя</th>
-      <th>Полное имя</th>
-      <th>Дата создания</th>
+      <th>{% translate 'ID' %}</th>
+      <th>{% translate 'Username' %}</th>
+      <th>{% translate 'Full Name' %}</th>
+      <th>{% translate 'Creation Date' %}</th>
       <th></th>
     </tr>
   </thead>
@@ -24,9 +24,9 @@
       <td>{{ user.get_full_name }}</td>
       <td>{{ user.date_joined }}</td>
       <td>
-        <a href="{% url 'users:update' user.id%}">Изменить</a>
+        <a href="{% url 'users:update' user.id%}">{% translate 'Edit' %}</a>
         <br>
-        <a href="{% url 'users:delete' user.id %}">Удалить</a>
+        <a href="{% url 'users:delete' user.id %}">{% translate 'Delete' %}</a>
       </td>
     </tr>
     {% endfor %}

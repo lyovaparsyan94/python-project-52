@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy
 
 
 class Statuses(models.Model):
-    name = models.CharField(gettext_lazy("Имя"), max_length=255, unique=True)
+    name = models.CharField(gettext_lazy("Name"), max_length=255, unique=True)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

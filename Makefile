@@ -10,10 +10,10 @@ migrate:
 	uv run python3 manage.py migrate
 
 tests:
-	uv run python3 manage.py test
+	uv run pytest -vv task_manager/users/tests.py
 
 install:
-	uv sync
+	uv pip install -r requirements.txt
 
 lint:
 	uv run flake8 task_manager

@@ -30,6 +30,7 @@ class TestUser:
                 email='testuser3@example.com'
             )
 
-    def test_load_users(self, transactional_db, django_user_model):
-        users = django_user_model.objects.all()
-        assert len(users) == 3 
+    def test_load_users(self, django_db_blocker, django_user_model):
+        with django_db_blocker.unblock():
+            users = django_user_model.objects.all()
+            assert len(users) == 3 

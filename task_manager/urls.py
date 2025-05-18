@@ -1,5 +1,5 @@
 """
-URL configuration for task_manager project.
+URL configuration for hexlet_code project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.1/topics/http/urls/
@@ -14,19 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-
 from django.contrib import admin
 from django.urls import path, include
-from task_manager.views import IndexView, Logout, Login
-
+from django.conf.urls.i18n import i18n_patterns
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("", IndexView.as_view(), name="index"),
-    path("users/", include("task_manager.users.urls")),
-    path("statuses/", include("task_manager.statuses.urls")),
-    path("tasks/", include("task_manager.tasks.urls")),
-    path("labels/", include("task_manager.labels.urls")),
-    path("login/", Login.as_view(), name="login"),
-    path("logout/", Logout.as_view(), name="logout"),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]
+
+urlpatterns += i18n_patterns(
+    path('', include('task_manager.tasks.urls')),
+    path('admin/', admin.site.urls),
+)

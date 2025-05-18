@@ -1,6 +1,14 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+from .models import User
+
+
+class UserForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name", "username", "password1", "password2")
 
 
 class Create(UserCreationForm):

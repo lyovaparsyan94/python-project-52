@@ -1,29 +1,7 @@
 ### Hexlet tests and linter status:
-[![Actions Status](https://github.com/Mamina1radost/python-project-52/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/Mamina1radost/python-project-52/actions)
+[![Actions Status](https://github.com/erzhan12/python-project-52/actions/workflows/hexlet-check.yml/badge.svg)](https://github.com/erzhan12/python-project-52/actions)
 
-# Task Manager
+### Application Demo
 
-## Prerequisites
-- Python 3.10 or higher
-- UV package manager
+[View the deployed application](https://python-project-52-joe4.onrender.com)
 
-## Development
-
-```bash
-# Install dependencies
-make install
-
-# Run migrations
-make migrate
-
-# Format code
-make format
-
-# Check code
-make lint
-
-# Fix linting issues
-make fix
-
-# Run local server
-make dev

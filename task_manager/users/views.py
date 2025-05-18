@@ -1,49 +1,47 @@
-from django.views.generic import (
-    ListView,
-    CreateView,
-    UpdateView,
-    DeleteView,
-)
-from django.contrib.auth import get_user_model
-from task_manager.users.forms import Create, Update
-from task_manager.mixins import AuthRequired
-from django.urls import reverse_lazy
-from django.utils.translation import gettext
+from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
-from task_manager.users.mixins import CheckUser, NoPermissionHandleMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.contrib import messages
+from django.shortcuts import redirect
 
-# Create your views here.
+from .models import User
+from .forms import UserForm
+from .mixins import UserPermissionMixin
 
 
-class UsersListView(ListView):
+class UserListView(ListView):
+    model = User
     template_name = "users/list.html"
-    model = get_user_model()
+    context_object_name = "users"
 
 
-class UsersCreate(SuccessMessageMixin, CreateView):
-    model = get_user_model()
+class UserCreateView(SuccessMessageMixin, CreateView):
+    model = User
+    form_class = UserForm
     template_name = "users/create.html"
-    form_class = Create
     success_url = reverse_lazy("login")
-    success_message = gettext("User register successfull")
+    success_message = _("User successfully registered")
 
 
-class UsersUpdate(
-    AuthRequired, NoPermissionHandleMixin,
-    CheckUser, SuccessMessageMixin, UpdateView
-):
-    model = get_user_model()
-    form_class = Update
+class UserUpdateView(LoginRequiredMixin, UserPermissionMixin, SuccessMessageMixin, UpdateView):
+    model = User
+    form_class = UserForm
     template_name = "users/update.html"
-    success_url = "/users/"
-    success_message = gettext("User update successfull")
+    success_url = reverse_lazy("users:list")
+    success_message = _("User successfully updated")
 
 
-class UsersDelete(
-    AuthRequired, NoPermissionHandleMixin,
-    CheckUser, SuccessMessageMixin, DeleteView
-):
-    model = get_user_model()
+class UserDeleteView(LoginRequiredMixin, UserPermissionMixin, SuccessMessageMixin, DeleteView):
+    model = User
     template_name = "users/delete.html"
-    success_url = "/users/"
-    success_message = gettext("User delete successfull")
+    success_url = reverse_lazy("users:list")
+    success_message = _("User successfully deleted")
+
+    def delete(self, request, *args, **kwargs):
+        if self.get_object().tasks.exists():
+            messages.error(request, _("Cannot delete user because it is used"))
+            return redirect("users:list")
+        return super().delete(request, *args, **kwargs)

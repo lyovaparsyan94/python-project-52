@@ -48,12 +48,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_bootstrap5",
-    "task_manager",
+    "task_manager.tasks.apps.TasksConfig",
     "task_manager.users.apps.UsersConfig",
     "task_manager.statuses.apps.StatusesConfig",
-    "task_manager.tasks.apps.TasksConfig",
     "task_manager.labels.apps.LabelsConfig",
 ]
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -93,7 +93,12 @@ WSGI_APPLICATION = "task_manager.wsgi.application"
 
 
 DATABASES = {
-    "default": dj_database_url.config(default=os.getenv("DATABASE", "db.sqlite3"))
+    "default": dj_database_url.config(default=os.getenv("DATABASE", "sqlite:///db.sqlite"))
+    # 'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
 
 # Password validation
@@ -134,7 +139,7 @@ USE_TZ = True
 LANGUAGES = [("en", "English"), ("ru", "Русский")]
 
 LOCALE_PATHS = [
-    os.path.join(BASE_DIR, "locale"),
+    os.path.join(BASE_DIR, "task_manager", "locale"),
 ]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

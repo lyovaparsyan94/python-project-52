@@ -1,51 +1,62 @@
 from django.db import models
-from django.utils import timezone
-from task_manager.statuses.models import Statuses
-from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy
-from task_manager.labels.models import Labels
-
-# Create your models here.
+from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 
 
-class Tasks(models.Model):
-    name = models.CharField(gettext_lazy("name"), max_length=255, unique=True)
-    status = models.ForeignKey(
-        Statuses,
-        related_name="status",
-        blank=False,
-        on_delete=models.PROTECT,
-        verbose_name=gettext_lazy("Status"),
-    )
-    created_at = models.DateTimeField(default=timezone.now)
-    creator = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.PROTECT,
-        related_name="creator",
-        verbose_name=gettext_lazy("Creator"),
-    )
-    executor = models.ForeignKey(
-        get_user_model(),
-        on_delete=models.PROTECT,
-        related_name="executor",
-        null=True,
-        blank=True,
-        verbose_name=gettext_lazy("Executor"),
-    )
-    description = models.TextField(gettext_lazy("description"), blank=True)
-    labels = models.ManyToManyField(
-        Labels,
-        through="LabelsTasksReal",
-        related_name="labels",
-        blank=True,
-        verbose_name=gettext_lazy("Labels"),
-    )
+class Status(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name=_('Имя'))
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-
         return self.name
 
 
-class LabelsTasksReal(models.Model):
-    task = models.ForeignKey(Tasks, on_delete=models.CASCADE)
-    label = models.ForeignKey(Labels, on_delete=models.CASCADE)
+class Label(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name=_('Имя'))
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Task(models.Model):
+    name = models.CharField(
+        max_length=100,
+        unique=True,
+        verbose_name=_('Имя')
+    )
+    description = models.TextField(
+        null=True,
+        blank=True,
+        verbose_name=_('Описание')
+    )
+    status = models.ForeignKey(
+        "Status",
+        on_delete=models.CASCADE,
+        verbose_name=_('Статус'),
+        related_name="tasks"
+    )
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name='created_by',
+        verbose_name=_('Автор')
+    )
+    executor = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name='executor',
+        verbose_name=_('Исполнитель'),
+        null=True,
+        blank=True
+    )
+    labels = models.ManyToManyField(
+        Label,
+        related_name="tasks",
+        verbose_name=_('Метки'),
+        blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name

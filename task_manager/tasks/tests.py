@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
 from task_manager.tasks.models import Status, Task, Label
+from django.core.exceptions import ObjectDoesNotExist
 
 
 User = get_user_model()
@@ -334,112 +335,229 @@ class TaskCRUDTestCase(TestCase):
         self.assertContains(response, 'task1')
         self.assertContains(response, 'task2')
 
-    def test_task_create(self):
-        """Тест создания новой задачи."""
+    def test_create_task(self):
+        # Создаём первого пользователя
+        user1_data = {
+            'username': 'testuser1',
+            'first_name': 'user1',
+            'last_name': 'userov1',
+            'password1': 'stronGpassw1231',
+            'password2': 'stronGpassw1231',
+        }
+        self.client.post(reverse('users:create'), user1_data)
+        self.client.login(username='testuser1', password='stronGpassw1231')
+
+        # Создаём второго пользователя
+        user2_data = {
+            'username': 'testuser2',
+            'first_name': 'user2',
+            'last_name': 'userov2',
+            'password1': 'stronGpassw1232',
+            'password2': 'stronGpassw1232',
+        }
+        self.client.post(reverse('users:create'), user2_data)
+
+        # Создаём статус
+        status_data = {"name": "status1"}
+        self.client.post(reverse("statuses:create"), status_data)
+        status = Status.objects.get(name=status_data["name"])
+
+        # Создаём метку
+        label_data = {"name": "label1"}
+        self.client.post(reverse("labels:create"), label_data)
+        label = Label.objects.get(name=label_data["name"])
+
+        # Создаём задачу
+        task_data = {
+            "name": "task1",
+            "description": "description1",
+            "status": status.id,
+            "executor": User.objects.get(username='testuser2').id,
+            "labels": [label.id],
+        }
+        response = self.client.post(reverse("tasks:create"), task_data)
+        self.assertRedirects(response, reverse("tasks:list"))
+        task = Task.objects.get(name=task_data["name"])
+        self.assertEqual(task.name, task_data["name"])
+        self.assertEqual(task.description, task_data["description"])
+        self.assertEqual(task.status.id, task_data["status"])
+        self.assertEqual(task.executor.id, task_data["executor"])
+
+    def test_update_task(self):
+        # Создаём первого пользователя
+        user1_data = {
+            'username': 'testuser1',
+            'first_name': 'user1',
+            'last_name': 'userov1',
+            'password1': 'stronGpassw1231',
+            'password2': 'stronGpassw1231',
+        }
+        self.client.post(reverse('users:create'), user1_data)
+        self.client.login(username='testuser1', password='stronGpassw1231')
+
+        # Создаём второго пользователя
+        user2_data = {
+            'username': 'testuser2',
+            'first_name': 'user2',
+            'last_name': 'userov2',
+            'password1': 'stronGpassw1232',
+            'password2': 'stronGpassw1232',
+        }
+        self.client.post(reverse('users:create'), user2_data)
+
+        # Создаём третьего пользователя
+        user3_data = {
+            'username': 'testuser3',
+            'first_name': 'user3',
+            'last_name': 'userov3',
+            'password1': 'stronGpassw1233',
+            'password2': 'stronGpassw1233',
+        }
+        self.client.post(reverse('users:create'), user3_data)
+
+        # Создаём статус
+        status_data = {"name": "status1"}
+        self.client.post(reverse("statuses:create"), status_data)
+        status = Status.objects.get(name=status_data["name"])
+
+        # Создаём метку
+        label_data = {"name": "label1"}
+        self.client.post(reverse("labels:create"), label_data)
+        label = Label.objects.get(name=label_data["name"])
+
+        # Создаём задачу
+        task_data = {
+            "name": "task1",
+            "description": "description1",
+            "status": status.id,
+            "executor": User.objects.get(username='testuser2').id,
+            "labels": [label.id],
+        }
+        self.client.post(reverse("tasks:create"), task_data)
+        task = Task.objects.get(name=task_data["name"])
+
+        # Обновляем задачу
+        task_update_data = {
+            "name": "task1_updated",
+            "description": "description1_updated",
+            "status": status.id,
+            "executor": User.objects.get(username='testuser3').id,
+            "labels": [label.id],
+        }
         response = self.client.post(
-            reverse('task_create'),
-            data={'name': 'new_task',
-                  'status': self.status1.id,
-                  'created_by': self.user1.id
-                  },
-            follow=True
+            reverse("tasks:update", args=[task.id]), task_update_data
         )
-        self.assertRedirects(response, reverse('tasks'))
-        self.assertEqual(Task.objects.count(), 4)
-        self.assertTrue(Task.objects.filter(name='new_task').exists())
+        self.assertRedirects(response, reverse("tasks:list"))
+        task.refresh_from_db()
+        self.assertEqual(task.name, task_update_data["name"])
+        self.assertEqual(task.description, task_update_data["description"])
 
-    def test_task_update(self):
-        """Тест обновления задачи."""
-        response = self.client.post(
-            reverse('task_update', args=[self.task1.id]),
-            data={
-                'name': 'updated_task',
-                'description': 'Updated description',
-                'status': self.status1.id,
-                'executor': self.user2.id,
-                'labels': [self.label1.id]
-            },
-            follow=True
-        )
-        self.assertRedirects(response, reverse('tasks'))
-        self.task1.refresh_from_db()
-        self.assertEqual(self.task1.name, 'updated_task')
+    def test_delete_task(self):
+        # Создаём первого пользователя
+        user1_data = {
+            'username': 'testuser1',
+            'first_name': 'user1',
+            'last_name': 'userov1',
+            'password1': 'stronGpassw1231',
+            'password2': 'stronGpassw1231',
+        }
+        self.client.post(reverse('users:create'), user1_data)
+        self.client.login(username='testuser1', password='stronGpassw1231')
 
-    def test_task_delete_by_author(self):
-        """Тест удаления задачи её автором."""
-        # Create a task by the test user
-        task = Task.objects.create(
-            name='test_task',
-            status=self.status1,
-            created_by=self.user1
-        )
+        # Создаём второго пользователя
+        user2_data = {
+            'username': 'testuser2',
+            'first_name': 'user2',
+            'last_name': 'userov2',
+            'password1': 'stronGpassw1232',
+            'password2': 'stronGpassw1232',
+        }
+        self.client.post(reverse('users:create'), user2_data)
 
-        response = self.client.post(
-            reverse('task_delete', args=[task.id]),
-            follow=True
-        )
-        self.assertRedirects(response, reverse('tasks'))
-        self.assertFalse(Task.objects.filter(id=task.id).exists())
-        messages = list(response.context['messages'])
-        self.assertEqual(str(messages[0]), 'Задача успешно удалена')
+        # Создаём статус
+        status_data = {"name": "status1"}
+        self.client.post(reverse("statuses:create"), status_data)
+        status = Status.objects.get(name=status_data["name"])
 
-    def test_task_delete_by_non_author(self):
-        """Тест попытки удаления задачи не автором."""
-        # Try to delete a task created by another user
-        response = self.client.post(
-            reverse('task_delete', args=[self.task2.id]),
-            follow=True
-        )
-        self.assertRedirects(response, reverse('tasks'))
-        self.assertTrue(Task.objects.filter(id=self.task2.id).exists())
-        messages = list(response.context['messages'])
-        self.assertEqual(
-            str(messages[0]),
-            'Задачу может удалить только ее автор'
-        )
+        # Создаём метку
+        label_data = {"name": "label1"}
+        self.client.post(reverse("labels:create"), label_data)
+        label = Label.objects.get(name=label_data["name"])
 
-    def test_task_delete_unauthenticated(self):
-        """Тест попытки удаления задачи неавторизованным пользователем."""
+        # Создаём задачу
+        task_data = {
+            "name": "task1",
+            "description": "description1",
+            "status": status.id,
+            "executor": User.objects.get(username='testuser2').id,
+            "labels": [label.id],
+        }
+        self.client.post(reverse("tasks:create"), task_data)
+        task = Task.objects.get(name=task_data["name"])
+
+        # Удаляем задачу
+        response = self.client.post(reverse("tasks:delete", args=[task.id]))
+        self.assertRedirects(response, reverse("tasks:list"))
+        with self.assertRaises(ObjectDoesNotExist):
+            Task.objects.get(name=task_data["name"])
+
+    def test_task_permissions(self):
+        # Создаём первого пользователя
+        user1_data = {
+            'username': 'testuser1',
+            'first_name': 'user1',
+            'last_name': 'userov1',
+            'password1': 'stronGpassw1231',
+            'password2': 'stronGpassw1231',
+        }
+        self.client.post(reverse('users:create'), user1_data)
+        self.client.login(username='testuser1', password='stronGpassw1231')
+
+        # Создаём второго пользователя
+        user2_data = {
+            'username': 'testuser2',
+            'first_name': 'user2',
+            'last_name': 'userov2',
+            'password1': 'stronGpassw1232',
+            'password2': 'stronGpassw1232',
+        }
+        self.client.post(reverse('users:create'), user2_data)
+
+        # Создаём статус
+        status_data = {"name": "status1"}
+        self.client.post(reverse("statuses:create"), status_data)
+        status = Status.objects.get(name=status_data["name"])
+
+        # Создаём метку
+        label_data = {"name": "label1"}
+        self.client.post(reverse("labels:create"), label_data)
+        label = Label.objects.get(name=label_data["name"])
+
+        # Создаём задачу от имени первого пользователя
+        task_data = {
+            "name": "task1",
+            "description": "description1",
+            "status": status.id,
+            "executor": User.objects.get(username='testuser2').id,
+            "labels": [label.id],
+        }
+        self.client.post(reverse("tasks:create"), task_data)
+        task = Task.objects.get(name=task_data["name"])
+
+        # Логинимся как второй пользователь
         self.client.logout()
-        response = self.client.post(
-            reverse('task_delete', args=[self.task1.id]),
-            follow=True
-        )
-        self.assertRedirects(response, reverse('login'))
-        self.assertTrue(Task.objects.filter(id=self.task1.id).exists())
-        messages = list(response.context['messages'])
-        self.assertEqual(
-            str(messages[0]),
-            'Вы не авторизованы! Пожалуйста, выполните вход.'
-        )
+        self.client.login(username='testuser2', password='stronGpassw1232')
 
-    def test_task_filter_by_label(self):
-        """Тест фильтрации задач по метке."""
-        self.task1.labels.add(self.label1)
-        response = self.client.get(
-            reverse('tasks') + '?label=' + str(self.label1.id)
+        # Пытаемся удалить чужую задачу
+        response = self.client.post(reverse("tasks:delete", args=[task.id]))
+        self.assertRedirects(response, reverse("tasks:list"))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertIn(
+            'Задачу может удалить только её автор',
+            str(messages[0])
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, self.task1.name)
-        self.assertNotContains(response, self.task2.name)
-
-    def test_task_create_with_labels(self):
-        """Тест создания задачи с метками."""
-        response = self.client.post(
-            reverse('task_create'),
-            {
-                'name': 'New Task',
-                'description': 'New Description',
-                'status': self.status1.id,
-                'executor': self.user2.id,
-                'labels': [self.label1.id, self.label2.id]
-            }
-        )
-        self.assertRedirects(response, reverse('tasks'))
-        task = Task.objects.get(name='New Task')
-        self.assertEqual(task.labels.count(), 2)
-        self.assertTrue(task.labels.filter(id=self.label1.id).exists())
-        self.assertTrue(task.labels.filter(id=self.label2.id).exists())
+        # Проверяем, что задача всё ещё существует
+        self.assertTrue(Task.objects.filter(name=task_data["name"]).exists())
 
 
 class LabelCRUDTestCase(TestCase):

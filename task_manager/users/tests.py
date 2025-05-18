@@ -1,10 +1,40 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 
+User = get_user_model()
+
 
 class UserTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        # Создаем тестовых пользователей
+        self.user1 = User.objects.create_user(
+            username='testuser1',
+            password='testpass123',
+            first_name='Test',
+            last_name='User1',
+            email='testuser1@example.com'
+        )
+        self.user2 = User.objects.create_user(
+            username='testuser2',
+            password='testpass123',
+            first_name='Test',
+            last_name='User2',
+            email='testuser2@example.com'
+        )
+        self.user3 = User.objects.create_user(
+            username='testuser3',
+            password='testpass123',
+            first_name='Test',
+            last_name='User3',
+            email='testuser3@example.com'
+        )
+
+    def test_load_users(self, transactional_db, django_user_model):
+        users = django_user_model.objects.all()
+        assert len(users) == 3
 
     def test_create(self):
         data_user = {

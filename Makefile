@@ -10,7 +10,7 @@ migrate:
 	uv run python3 manage.py migrate
 
 tests:
-	uv run pytest -vv task_manager/users/tests.py
+	uv run python3 manage.py test task_manager.users.tests
 
 install:
 	uv pip install -r requirements.txt

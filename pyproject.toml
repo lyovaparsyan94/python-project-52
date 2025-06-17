@@ -1,12 +1,12 @@
 [project]
 authors = [
-    {name = "some name", email = "some@gmail.com"},
+    {name = "Alina Makarovskaya", email = "makarovskaya1307@gmail.com"},
 ]
 name = "hexlet-code"
 version = "0.1.0"
-description = "Project - Task Manager"
+description = "Project #4 - Task Manager"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 dependencies = [
     "dj-database-url>=2.3.0",
     "django>=5.2",
@@ -35,5 +35,3 @@ packages = ["task_manager"]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "task_manager.settings"
 python_files = ["test_*.py", "*_test.py", "testing/python/*.py"]
-
-

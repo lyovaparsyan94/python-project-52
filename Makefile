@@ -7,9 +7,6 @@ migrate:
 start:
 	uv run manage.py runserver 0.0.0.0:8000
 
-setup:
-	uv run python3 manage.py migrate
-
 test:
 	uv run python3 manage.py test
 
@@ -38,4 +35,4 @@ lint:
 format-app:
 	uv run ruff check --fix task_manager
 
-check: test lint 
+check: test lint

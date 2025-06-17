@@ -5,6 +5,7 @@ install:
 	uv sync
 
 setup:
+	uv run python manage.py makemigrations
 	uv run python manage.py migrate
 	uv run python manage.py loaddata task_manager/fixtures/data.json
 

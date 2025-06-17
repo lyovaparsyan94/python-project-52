@@ -11,8 +11,7 @@ setup:
 	uv run python3 manage.py migrate
 
 test:
-	uv run python3 manage.py migrate
-	uv run pytest -vv tests
+	uv run python3 manage.py test
 
 testcov:
 	uv run coverage run --source='.' manage.py test

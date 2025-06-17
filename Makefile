@@ -7,8 +7,12 @@ migrate:
 start:
 	uv run manage.py runserver 0.0.0.0:8000
 
+setup:
+	uv run python3 manage.py migrate
+
 test:
-	uv run python3 manage.py test
+	uv run python3 manage.py migrate
+	uv run pytest -vv tests
 
 testcov:
 	uv run coverage run --source='.' manage.py test

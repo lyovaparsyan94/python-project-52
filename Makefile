@@ -37,7 +37,7 @@ collectstatic:
 	uv run python manage.py collectstatic --noinput --clear
 
 test:
-	uv run python manage.py test
+	uv run pytest -vv tests
 
 write-fixture:
 	uv run python manage.py dumpdata > task_manager/fixtures/data.json

@@ -37,6 +37,7 @@ collectstatic:
 	uv run python manage.py collectstatic --noinput --clear
 
 test:
+	uv run python manage.py migrate
 	uv run pytest -vv tests
 
 write-fixture:

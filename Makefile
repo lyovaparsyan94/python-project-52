@@ -1,44 +1,42 @@
 dev:
-		uv run python manage.py runserver
+	uv run python manage.py runserver
 
 install:
-		uv sync
+	uv sync
 
 setup:
-		uv run python manage.py migrate
-		uv run python manage.py loaddata task_manager/fixtures/data.json
+	uv run python manage.py migrate
+	uv run python manage.py loaddata task_manager/fixtures/data.json
 
 build:
-		./build.sh
+	./build.sh
 
 check:
-	 	uv run ruff check .
+	uv run ruff check .
 
 render-start:
-		gunicorn task_manager.wsgi
+	gunicorn task_manager.wsgi
 
 start:
 	uv run manage.py runserver 0.0.0.0:8000
 
 start2:
-		uv run gunicorn task_manager.wsgi
+	uv run gunicorn task_manager.wsgi
 
 migrations:
-		uv run python manage.py makemigrations
+	uv run python manage.py makemigrations
 
 migrate:
-		uv run python manage.py migrate
+	uv run python manage.py migrate
 
 create-su:
-		uv run python manage.py make_su
+	uv run python manage.py make_su
 
 collectstatic:
-		uv run python manage.py collectstatic --noinput --clear
+	uv run python manage.py collectstatic --noinput --clear
 
 test:
-		uv run python manage.py test
+	uv run python manage.py test
 
 write-fixture:
-		uv run python manage.py dumpdata > task_manager/fixtures/data.json
-
-
+	uv run python manage.py dumpdata > task_manager/fixtures/data.json

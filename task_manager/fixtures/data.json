@@ -6,12 +6,7 @@
       "first_name": "John",
       "last_name": "Snow",
       "username": "john_snow",
-      "password": "pbkdf2_sha256$1000000$OvLwBDYZBOueDmyaipdz63$5EVyXkMKQ5F7BsV5NZgvUf7u/MkumiLplgXV4QJUG2M=",
-      "is_superuser": false,
-      "is_staff": false,
-      "is_active": true,
-      "date_joined": "2025-01-01T00:00:00Z",
-      "email": ""
+      "password": "pbkdf2_sha256$1000000$OvLwBDYZBOueDmyaipdz63$5EVyXkMKQ5F7BsV5NZgvUf7u/MkumiLplgXV4QJUG2M="
     }
   },
   {
@@ -21,12 +16,7 @@
       "first_name": "Daenerys",
       "last_name": "Targaryen",
       "username": "daenerys_t",
-      "password": "pbkdf2_sha256$1000000$OvLwBDYZBOueDmyaipdz63$5EVyXkMKQ5F7BsV5NZgvUf7u/MkumiLplgXV4QJUG2M=",
-      "is_superuser": false,
-      "is_staff": false,
-      "is_active": true,
-      "date_joined": "2025-01-01T00:00:00Z",
-      "email": ""
+      "password": "pbkdf2_sha256$1000000$OvLwBDYZBOueDmyaipdz63$5EVyXkMKQ5F7BsV5NZgvUf7u/MkumiLplgXV4QJUG2M="
     }
   },
   {
@@ -36,48 +26,35 @@
       "first_name": "Lawrence",
       "last_name": "Kulas",
       "username": "lawrence-kulas",
-      "password": "pbkdf2_sha256$1000000$OvLwBDYZBOueDmyaipdz63$5EVyXkMKQ5F7BsV5NZgvUf7u/MkumiLplgXV4QJUG2M=",
-      "is_superuser": false,
-      "is_staff": false,
-      "is_active": true,
-      "date_joined": "2025-01-01T00:00:00Z",
-      "email": ""
+      "password": "pbkdf2_sha256$1000000$OvLwBDYZBOueDmyaipdz63$5EVyXkMKQ5F7BsV5NZgvUf7u/MkumiLplgXV4QJUG2M="
     }
   },
   {
     "model": "tasks.status",
     "pk": 1,
     "fields": {
-      "name": "In progress",
-      "created_at": "2025-01-01T00:00:00Z",
-      "updated_at": "2025-01-01T00:00:00Z"
+      "name": "In progress"
     }
   },
   {
     "model": "tasks.status",
     "pk": 2,
     "fields": {
-      "name": "Completed",
-      "created_at": "2025-01-01T00:00:00Z",
-      "updated_at": "2025-01-01T00:00:00Z"
+      "name": "Completed"
     }
   },
   {
     "model": "tasks.label",
     "pk": 1,
     "fields": {
-      "name": "Bug",
-      "created_at": "2025-01-01T00:00:00Z",
-      "updated_at": "2025-01-01T00:00:00Z"
+      "name": "Bug"
     }
   },
   {
     "model": "tasks.label",
     "pk": 2,
     "fields": {
-      "name": "Enhancement",
-      "created_at": "2025-01-01T00:00:00Z",
-      "updated_at": "2025-01-01T00:00:00Z"
+      "name": "Enhancement"
     }
   },
   {
@@ -88,9 +65,7 @@
       "description": "Coordinate the Night's Watch to defend Castle Black from wildlings.",
       "status": 1,
       "author": 2,
-      "executor": 1,
-      "created_at": "2025-01-01T00:00:00Z",
-      "updated_at": "2025-01-01T00:00:00Z"
+      "executor": 1
     }
   },
   {
@@ -101,9 +76,7 @@
       "description": "Gather armies and political support to take the Iron Throne in King's Landing.",
       "status": 1,
       "author": 1,
-      "executor": 2,
-      "created_at": "2025-01-01T00:00:00Z",
-      "updated_at": "2025-01-01T00:00:00Z"
+      "executor": 2
     }
   }
 ]

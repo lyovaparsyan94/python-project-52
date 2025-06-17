@@ -1,0 +1,19 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light ms-3">
+    <a class="navbar-brand" href="/">Менеджер задач</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarToggleExternalContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarToggleExternalContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="/users/">Пользователи</a>
+        </li>
+      </ul>
+
+{% if user.is_authenticated %}      
+{% include 'auth_items.html' %}
+{% else %}
+{% include 'not_auth_items.html' %}
+{% endif %}
+    </div>
+</nav>

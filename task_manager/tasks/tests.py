@@ -1,204 +1,413 @@
+from django.contrib.auth import get_user_model
+from django.contrib.messages import get_messages
+from django.core.cache import cache
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
-from task_manager.tasks.models import Tasks
-from task_manager.statuses.models import Statuses
-from task_manager.labels.models import Labels
+
+from .consts import TasksConst
+from .models import Label, Status, Task
+
+User = get_user_model()
 
 
-class TasksTest(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        """Создание тестового пользователя, исполнителя и статуса"""
-        cls.user = get_user_model().objects.create(
-            username="volkovor777228",
-            first_name="Lev",
-            last_name="Smith",
-        )
-        cls.user.set_password("1234")
-        cls.user.save()
+class StatusTest(TestCase):
 
-        cls.executor = get_user_model().objects.create(
-            username="Slava",
-            first_name="Slava",
-            last_name="Petrov",
-        )
-        cls.executor.set_password("1234")
-        cls.executor.save()
-
-        cls.status = Statuses.objects.create(name="oka")
-        cls.status2 = Statuses.objects.create(name="Slava")
+    fixtures = ['data.json']
 
     def setUp(self):
-        """Логиним пользователя перед каждым тестом"""
-        login_successful = self.client.login(username="volkovor777228",
-                                             password="1234")
-        self.assertTrue(login_successful, "Не удалось залогинить пользователя!")
+        cache.clear()
+        self.status_id = 7
+        self.del_id = 14
+        self.test_name = 'совсем зависло'
+        self.exist_name = 'в работе'
+        self.user_data = {'username': 'happylarry', 'password': '123'}
+        self.status_data = {'name': self.test_name}
+        self.exists_status_data = {'name': self.exist_name}
 
-    def test_create_task(self):
-        """Проверка создания задачи"""
-        data_task = {
-            "name": "enjoy",
-            "description": "gsgsd",
-            "status": self.status.pk,
-            "executor": self.executor.pk,
-        }
-        response = self.client.post(reverse("tasks:create"), data_task)
+    def test_status_list(self):
+        response = self.client.get(reverse('tasks:status_list'))
+        self.assertEqual(response.status_code, 302)
+        self.client.login(**self.user_data)
+        response = self.client.get(reverse('tasks:status_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response.context)
+        items = response.context["items"]
+        self.assertTrue(len(items) > 0)
 
-        self.assertRedirects(response, reverse("tasks:list"))
-
-        task = Tasks.objects.get(name=data_task["name"])
-        self.assertEqual(task.name, data_task["name"])
-        self.assertEqual(task.description, data_task["description"])
-        self.assertEqual(task.status.pk, data_task["status"])
-        self.assertEqual(task.executor.pk, data_task["executor"])
-
-    def test_update_task(self):
-        """Проверка обновления задачи"""
-        data_task = {
-            "name": "enjoy",
-            "description": "gsgsd",
-            "status": self.status.pk,
-            "executor": self.executor.pk,
-        }
-        self.client.post(reverse("tasks:create"), data_task)
-
-        task = Tasks.objects.get(name=data_task["name"])
-        self.assertEqual(task.name, data_task["name"])
-
-        data_task_update = {
-            "name": "enjoy_updated",
-            "description": "new description",
-            "status": self.status.pk,
-            "executor": self.executor.pk,
-        }
+    def test_create(self):
         response = self.client.post(
-            reverse("tasks:update", args=[task.pk]), data_task_update
+            reverse('tasks:create_status'),
+            self.status_data,
+            follow=True
         )
 
-        self.assertRedirects(response, reverse("tasks:list"))
+        self.assertRedirects(response, reverse('login'))
+        self.client.login(**self.user_data)
 
-        updated_task = Tasks.objects.get(pk=task.pk)
-        self.assertEqual(updated_task.name, data_task_update["name"])
-        self.assertEqual(updated_task.description,
-                         data_task_update["description"])
+        response = self.client.post(
+            reverse('tasks:create_status'),
+            self.status_data,
+            follow=True
+        )
 
-    def test_delete_task(self):
-        """Проверка удаления задачи"""
-        data_task = {
-            "name": "enjoy",
-            "description": "gsgsd",
-            "status": self.status.pk,
-            "executor": self.executor.pk,
+        self.assertRedirects(response, reverse('tasks:status_list'))
+
+        self.assertTrue(Status.objects.filter(name=self.test_name).exists())
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.status_succ_create)
+
+        response = self.client.post(
+            reverse('tasks:create_status'),
+            self.exists_status_data,
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TasksConst.status_exist)
+
+    def test_update(self):
+
+        url = reverse('tasks:update_status', kwargs={'pk': self.status_id})
+
+        response = self.client.post(url, self.status_data, follow=True)
+
+        self.assertRedirects(response, reverse('login'))
+        self.client.login(**self.user_data)
+        
+        response = self.client.post(url, self.status_data, follow=True)
+
+        self.assertRedirects(response, reverse('tasks:status_list'))
+
+        status = Status.objects.filter(pk=self.status_id)[0]
+        self.assertEqual(status.name, self.test_name)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.status_succ_update)
+
+    def test_delete(self):
+
+        url = reverse('tasks:delete_status', kwargs={'pk': self.del_id})
+        url2 = reverse('tasks:delete_status', kwargs={'pk': self.status_id})
+
+        response = self.client.post(url, follow=True)
+
+        self.assertRedirects(response, reverse('login'))
+
+        self.client.login(**self.user_data)
+
+        response = self.client.post(url, follow=True)
+
+        self.assertRedirects(response, reverse('tasks:status_list'))
+
+        status = list(Status.objects.filter(pk=self.del_id))
+        self.assertEqual(len(status), 0)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.status_succ_delete)
+
+        response = self.client.post(url2, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TasksConst.status_used)
+
+
+class LabelTest(TestCase):
+
+    fixtures = ['data.json']
+
+    def setUp(self):
+        cache.clear()
+        self.label_id = 7
+        self.label_no_delete = 15
+        self.test_name = 'тестовая метка'
+        self.exist_name = 'not use label'
+        self.user_data = {'username': 'happylarry', 'password': '123'}
+        self.label_data = {'name': self.test_name}
+        self.exists_label_data = {'name': self.exist_name}
+
+    def test_label_list(self):
+        response = self.client.get(reverse('tasks:label_list'))
+        self.assertEqual(response.status_code, 302)
+        self.client.login(**self.user_data)
+        response = self.client.get(reverse('tasks:label_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('items', response.context)
+        items = response.context["items"]
+        self.assertTrue(len(items) > 0)
+
+    def test_create(self):
+        response = self.client.post(
+            reverse('tasks:create_label'),
+            self.label_data,
+            follow=True
+        )
+
+        self.assertRedirects(response, reverse('login'))
+        self.client.login(**self.user_data)
+
+        response = self.client.post(
+            reverse('tasks:create_label'),
+            self.label_data,
+            follow=True
+        )
+
+        self.assertRedirects(response, reverse('tasks:label_list'))
+
+        self.assertTrue(Label.objects.filter(name=self.test_name).exists())
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.label_succ_create)
+
+        response = self.client.post(
+            reverse('tasks:create_label'),
+            self.exists_label_data,
+            follow=True
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TasksConst.label_exist)
+
+    def test_update(self):
+
+        url = reverse('tasks:update_label', kwargs={'pk': self.label_id})
+
+        response = self.client.post(url, self.label_data, follow=True)
+
+        self.assertRedirects(response, reverse('login'))
+        self.client.login(**self.user_data)
+        
+        response = self.client.post(url, self.label_data, follow=True)
+
+        self.assertRedirects(response, reverse('tasks:label_list'))
+
+        label = Label.objects.filter(pk=self.label_id)[0]
+        self.assertEqual(label.name, self.test_name)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.label_succ_update)
+
+    def test_delete(self):
+        url = reverse('tasks:delete_label', kwargs={'pk': self.label_id})
+        url2 = reverse(
+            'tasks:delete_label',
+            kwargs={'pk': self.label_no_delete})
+
+        response = self.client.post(url, follow=True)
+
+        self.assertRedirects(response, reverse('login'))
+
+        self.client.login(**self.user_data)
+
+        response = self.client.post(url, follow=True)
+
+        self.assertRedirects(response, reverse('tasks:label_list'))
+
+        label = list(Label.objects.filter(pk=self.label_id))
+        self.assertEqual(len(label), 0)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.label_succ_delete)
+
+        response = self.client.post(url2, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TasksConst.label_used)
+
+
+class TaskTest(TestCase):
+
+    fixtures = ['data.json']
+
+    def setUp(self):
+        cache.clear()
+        self.status_id = 7
+        self. other_status_id = 10
+        self.user_id = 9
+        self.other_user_id = 9
+        self.task_id = 2
+        self.other_task_id = 3
+        self.task_name = 'testname'
+        self.test_descr = 'test description'
+        self.test_name = 'совсем зависло'
+        self.exist_name = 'в работе'
+        self.user_data = {'username': 'happylarry', 'password': '123'}
+        self.user_no_owner = {'username': 'harry777', 'password': '123'}
+        self.status_data = {'name': self.test_name}
+        self.exists_status_data = {'name': self.exist_name}
+
+    def test_create(self):
+
+        data = {
+            'name': self.test_name,
+            'description': self.test_descr,
+            'executor': self.user_id,
+            'status': self.status_id
         }
-        self.client.post(reverse("tasks:create"), data_task)
-        task = Tasks.objects.get(name=data_task["name"])
 
-        self.assertEqual(task.name, data_task["name"])
+        response = self.client.post(reverse('tasks:create_task'),
+                                    data,
+                                    follow=True)
 
-        response = self.client.post(reverse("tasks:delete", args=[task.pk]))
+        self.assertRedirects(response, reverse('login'))
 
-        self.assertRedirects(response, reverse("tasks:list"))
+        self.client.login(**self.user_data)
 
-        with self.assertRaises(ObjectDoesNotExist):
-            Tasks.objects.get(name=data_task["name"])
+        response = self.client.post(reverse('tasks:create_task'),
+                                    data,
+                                    follow=True)
 
-    def test_filter_tasks_by_status(self):
-        """Проверка фильтрации задач по статусу"""
-        task1 = Tasks.objects.create(
-            name="Task 1",
-            description="Description 1",
-            status=self.status,
-            creator=self.user,
-            executor=self.executor,
-        )
-        task2 = Tasks.objects.create(
-            name="Task 2",
-            description="Description 2",
-            status=self.status,
-            creator=self.user,
-            executor=None,
-        )
-        task3 = Tasks.objects.create(
-            name="Task 3",
-            description="Description 3",
-            status=self.status2,
-            creator=self.user,
-            executor=None,
-        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TasksConst.task_succ_create)
 
-        response = self.client.get(reverse("tasks:list"),
-                                   {"status": self.status.pk})
-        self.assertContains(response, task1.name)
-        self.assertContains(response, task2.name)
-        self.assertNotContains(response, task3.name)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.task_succ_create)
 
-    def test_filter_tasks_by_executor(self):
-        """Проверка фильтрации задач по исполнителю"""
-        task1 = Tasks.objects.create(
-            name="Task 1",
-            description="Description 1",
-            status=self.status,
-            creator=self.user,
-            executor=self.executor,
-        )
-        task2 = Tasks.objects.create(
-            name="Task 2",
-            description="Description 2",
-            status=self.status,
-            creator=self.user,
-            executor=self.user,
-        )
+        self.assertTrue(Task.objects.filter(name=self.test_name).exists())
+
+        response = self.client.post(reverse('tasks:create_task'),
+                                    data,
+                                    follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TasksConst.frm_unic_task)
+
+    def test_index(self):
+        response = self.client.get(reverse('tasks:task_list'), follow=True)
+
+        self.assertRedirects(response, reverse('login'))
+
+        self.client.login(**self.user_data)
+
+        response = self.client.get(reverse('tasks:task_list'), follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TasksConst.task_term)
+
+    def test_update(self):
+
+        self.client.login(**self.user_data)
+
+        data = {
+            'name': self.test_name,
+            'description': self.test_descr,
+            'executor': self.other_user_id,
+            'status': self.other_status_id
+        }
+
+        response = self.client.post(reverse('tasks:create_task'),
+                                    data,
+                                    follow=True)
+        self.client.logout()
+
+        data = {
+            'name': self.test_name+'abc',
+            'description': self.test_descr+'cde',
+            'executor': self.other_user_id,
+            'status': self.other_status_id
+        }
+
+        response = self.client.post(
+            reverse('tasks:update_task', kwargs={'pk': self.task_id}),
+            data,
+            follow=True)
+
+        self.assertRedirects(response, reverse('login'))
+
+        self.client.login(**self.user_data)
+
+        response = self.client.post(
+            reverse('tasks:update_task', kwargs={'pk': self.task_id}),
+            data,
+            follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TasksConst.task_succ_update)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.task_succ_update)
+
+        self.assertTrue(
+            Task.objects.filter(name=self.test_name+'abc').exists())
+
+        response = self.client.post(
+            reverse('tasks:update_task', kwargs={'pk': self.other_task_id}),
+            data,
+            follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TasksConst.frm_unic_task)
+
+    def test_detail(self):
+        response = self.client.get(
+            reverse('tasks:task_detail',
+                    kwargs={'pk': self.task_id}), follow=True)
+
+        self.assertRedirects(response, reverse('login'))
+
+        self.client.login(**self.user_data)
 
         response = self.client.get(
-            reverse("tasks:list"), {"executor": self.executor.pk}
-        )
-        self.assertContains(response, task1.name)
-        self.assertNotContains(response, task2.name)
+            reverse('tasks:task_detail',
+                    kwargs={'pk': self.task_id}), follow=True)
 
-    def test_filter_tasks_by_label(self):
-        """Проверка фильтрации задач по метке"""
-        label = Labels.objects.create(name="Important")
-        task1 = Tasks.objects.create(
-            name="Task 1",
-            description="Description 1",
-            status=self.status,
-            creator=self.user,
-            executor=self.executor,
-        )
-        task1.label.add(label)
+        task = Task.objects.filter(id=self.task_id).first()
 
-        task2 = Tasks.objects.create(
-            name="Task 2",
-            description="Description 2",
-            status=self.status,
-            creator=self.user,
-            executor=self.user,
-        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, task.name)
 
-        response = self.client.get(reverse("tasks:list"),
-                                   {"task_label": label.pk})
-        self.assertContains(response, task1.name)
-        self.assertNotContains(response, task2.name)
+    def test_delete(self):
+        url = reverse('tasks:delete_task', kwargs={'pk': self.task_id})
 
-    def test_list_tasks_view(self):
-        """Проверка отображения списка задач"""
-        task1 = Tasks.objects.create(
-            name="Task 1",
-            description="Description 1",
-            status=self.status,
-            creator=self.user,
-            executor=self.executor,
-        )
-        task2 = Tasks.objects.create(
-            name="Task 2",
-            description="Description 2",
-            status=self.status,
-            creator=self.user,
-            executor=None,
-        )
+        response = self.client.post(url, follow=True)
 
-        response = self.client.get(reverse("tasks:list"))
-        self.assertContains(response, task1.name)
-        self.assertContains(response, task2.name)
+        self.assertRedirects(response, reverse('login'))
+
+        self.client.login(**self.user_data)
+
+        data = {
+            'name': self.test_name,
+            'description': self.test_descr,
+            'executor': self.other_user_id,
+            'status': self.other_status_id
+        }
+
+        response = self.client.post(reverse('tasks:create_task'),
+                                    data,
+                                    follow=True)
+        task_id = Task.objects.filter(name=self.test_name).first().id
+        url = reverse('tasks:delete_task', kwargs={'pk': task_id})
+
+        self.client.logout()
+
+        self.client.login(**self.user_no_owner)
+
+        response = self.client.post(url, follow=True)
+
+        self.assertRedirects(response, reverse('tasks:task_list'))
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.task_error_delete)
+
+        self.client.logout()
+
+        self.client.login(**self.user_data)
+
+        response = self.client.post(url, follow=True)
+
+        self.assertRedirects(response, reverse('tasks:task_list'))
+
+        tmp = list(Task.objects.filter(pk=task_id))
+        self.assertEqual(len(tmp), 0)
+
+        messages = list(get_messages(response.wsgi_request))
+        self.assertTrue(messages)
+        self.assertEqual(str(messages[0]), TasksConst.task_succ_delete)

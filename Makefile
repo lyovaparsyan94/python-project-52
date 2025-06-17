@@ -1,38 +1,41 @@
-install:
-	uv sync
+dev:
+		uv run python manage.py runserver
 
-migrate:
-	uv run python3 manage.py migrate
+install:
+		uv sync
+
+
+build:
+		./build.sh
+
+check:
+	 	uv run ruff check .
+
+render-start:
+		gunicorn task_manager.wsgi
 
 start:
 	uv run manage.py runserver 0.0.0.0:8000
 
-test:
-	uv run python3 manage.py test
+start2:
+		uv run gunicorn task_manager.wsgi
 
-testcov:
-	uv run coverage run --source='.' manage.py test
-	uv run coverage xml
+migrations:
+		uv run python manage.py makemigrations
 
-makemessages:
-	uv run django-admin makemessages --ignore="static" --ignore=".env"  -l ru
+migrate:
+		uv run python manage.py migrate
 
-compilemessages:
-	uv run django-admin compilemessages
+create-su:
+		uv run python manage.py make_su
 
 collectstatic:
-	uv run python3 manage.py collectstatic --no-input
+		uv run python manage.py collectstatic --noinput --clear
 
-build:
-	./build.sh
+test:
+		uv run python manage.py test
 
-render-start:
-	gunicorn task_manager.wsgi
+write-fixture:
+		uv run python manage.py dumpdata > task_manager/fixtures/data.json
 
-lint:
-	uv run ruff check task_manager
 
-format-app:
-	uv run ruff check --fix task_manager
-
-check: test lint

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block main %}
+<h1 class="my-4">Просмотр задачи</h1>
+<div class="card">
+  <div class="card-header bg-secondary text-white">
+    <h2>{{ item.name }}</h2>
+  </div>
+  <div class="card-body bg-light">
+    <p>{{item.description}}</p>
+    <hr>
+    <div class="container">
+      <div class="row p-1">
+        <div class="col">Автор</div>
+        <div class="col">{{item.creator}}</div>
+      </div>
+      <div class="row p-1">
+        <div class="col">Исполнитель</div>
+        <div class="col">{{item.executor}}</div>
+      </div>
+      <div class="row p-1">
+        <div class="col">Статус</div>
+        <div class="col">{{item.status}}</div>
+      </div>
+      <div class="row p-1">
+        <div class="col">Дата создания</div>
+        <div class="col">{{created_at|date:"d.m.Y H:i" }}</div>
+      </div>
+      <div class="row p-1">
+        <div class="col">
+          <h6>Метки:</h6>
+          <ul>
+{% for label in labels%}            
+              <li>{{label}}</li>
+{% endfor %}            
+          </ul>
+        </div>
+      </div>
+      <div class="row p-1">
+        <div class="col">
+          <a href="{% url update_url pk=item.id %}">Изменить</a>
+          <br>
+          <a href="{% url delete_url pk=item.id %}">Удалить</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+      

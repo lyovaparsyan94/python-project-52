@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block main %}
+<h1 class="my-4">
+    {{terms}}
+</h1>
+<a class="btn btn-primary mb-3" href="{% url term_url  %}">Создать {{term}}</a>
+{% if items %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+            <th>ID</th>
+            <th>Имя</th>
+            <th>Дата создания</th>
+            <th></th>
+        </tr>
+      </thead>
+      <tbody>
+{% for item in items %}
+          <tr>
+            <td>{{ item.id }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+            <td>
+              <a href="{% url term_update_url pk=item.id %}">Изменить</a>
+              <br>
+              <a href="{% url term_delete_url pk=item.id %}">Удалить</a>
+            </td>
+          </tr>
+{% endfor %}
+      <tbody>
+</table>
+{% endif %}
+{% endblock %}

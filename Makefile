@@ -1,30 +1,38 @@
 install:
 	uv sync
 
-run:
-	uv run gendiff
+migrate:
+	uv run python3 manage.py migrate
+
+start:
+	uv run manage.py runserver 0.0.0.0:8000
 
 test:
-	uv run pytest
+	uv run python3 manage.py test
 
-test-coverage:
-	uv run pytest --cov=gendiff --cov-report=xml:coverage.xml
+testcov:
+	uv run coverage run --source='.' manage.py test
+	uv run coverage xml
 
-lint:
-	uv run ruff check gendiff
+makemessages:
+	uv run django-admin makemessages --ignore="static" --ignore=".env"  -l ru
 
-check: test lint
+compilemessages:
+	uv run django-admin compilemessages
+
+collectstatic:
+	uv run python3 manage.py collectstatic --no-input
 
 build:
-	uv build
+	./build.sh
 
-package-install:
-	uv tool install dist/*.whl
+render-start:
+	gunicorn task_manager.wsgi
 
-reinstall:
-	uv tool install --force dist/*.whl
+lint:
+	uv run ruff check task_manager
 
-uninstall:
-	uv tool uninstall hexlet-code
+format-app:
+	uv run ruff check --fix task_manager
 
-.PHONY: install test lint selfcheck check build package-install reinstall uninstall
+check: test lint

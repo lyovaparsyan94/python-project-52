@@ -1,6 +1,6 @@
 from django.urls import reverse_lazy
 
-from task_manager.statuses.models import Statuses
+from task_manager.statuses.models import Status
 from task_manager.statuses.tests.testcase import StatusTestCase
 
 
@@ -18,7 +18,7 @@ class StatusTestViews(StatusTestCase):
 class StatusTestCreateView(StatusTestCase):
     def test_status_creation_authorized(self):
         self.client.force_login(self.user)
-        initial_count = Statuses.objects.count()
+        initial_count = Status.objects.count()
 
         response = self.client.get(reverse_lazy("create_status"))
         self.assertTemplateUsed(response, "statuses/create.html")
@@ -28,7 +28,7 @@ class StatusTestCreateView(StatusTestCase):
             data=self.valid_data,
         )
         self.assertRedirects(response, reverse_lazy("statuses"))
-        self.assertEqual(Statuses.objects.count(), initial_count + 1)
+        self.assertEqual(Status.objects.count(), initial_count + 1)
 
     def test_status_creation_unauthorized(self):
         response = self.client.get(reverse_lazy("create_status"))
@@ -54,7 +54,7 @@ class StatusTestUpdateView(StatusTestCase):
             data=self.update_data,
         )
         self.assertRedirects(response, reverse_lazy("statuses"))
-        updated_status = Statuses.objects.get(id=self.status.id)
+        updated_status = Status.objects.get(id=self.status.id)
         self.assertEqual(updated_status.name, self.update_data["name"])
 
     def test_status_update_unauthorized(self):
@@ -73,7 +73,7 @@ class StatusTestUpdateView(StatusTestCase):
 class StatusTestDeleteView(StatusTestCase):
     def test_status_delete_authorized(self):
         self.client.force_login(self.user)
-        initial_count = Statuses.objects.count()
+        initial_count = Status.objects.count()
 
         response = self.client.get(
             reverse_lazy("delete_status", kwargs={"pk": self.status.id})
@@ -84,7 +84,7 @@ class StatusTestDeleteView(StatusTestCase):
             reverse_lazy("delete_status", kwargs={"pk": self.status.id})
         )
         self.assertRedirects(response, reverse_lazy("statuses"))
-        self.assertEqual(Statuses.objects.count(), initial_count - 1)
+        self.assertEqual(Status.objects.count(), initial_count - 1)
 
     def test_status_delete_unauthorized(self):
         response = self.client.get(

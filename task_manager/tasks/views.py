@@ -10,7 +10,7 @@ from task_manager.tasks.filters import TaskFilter
 from .forms import (
     CreateTaskForm,
 )
-from .models import Tasks
+from .models import Task
 
 
 class BaseTaskView(LoginRequiredMixin, View):
@@ -24,7 +24,7 @@ class BaseTaskView(LoginRequiredMixin, View):
 
 class IndexTaskView(BaseTaskView):    
     def get(self, request):
-        tasks = Tasks.objects.all()
+        tasks = Task.objects.all()
         filterset = TaskFilter(request.GET, queryset=tasks, request=request)
         return render(
             request,
@@ -63,7 +63,7 @@ class CreateTaskView(BaseTaskView):
 
 class DeleteTaskView(BaseTaskView):
     def get(self, request, pk):
-        task = Tasks.objects.get(pk=pk)
+        task = Task.objects.get(pk=pk)
         if task.author.id != request.user.id:
             messages.error(
                 request,
@@ -79,7 +79,7 @@ class DeleteTaskView(BaseTaskView):
         )
 
     def post(self, request, pk):
-        task = get_object_or_404(Tasks, pk=pk)
+        task = get_object_or_404(Task, pk=pk)
         task.delete()
         messages.success(request, _('Task successfully deleted'))
         return redirect('tasks')
@@ -87,11 +87,11 @@ class DeleteTaskView(BaseTaskView):
 
 class UpdateTaskView(BaseTaskView):
     def get(self, request, pk):
-        task = get_object_or_404(Tasks, pk=pk)
+        task = get_object_or_404(Task, pk=pk)
         return self._render_form(request, CreateTaskForm(instance=task), task)
     
     def post(self, request, pk):
-        task = get_object_or_404(Tasks, pk=pk)
+        task = get_object_or_404(Task, pk=pk)
         form = CreateTaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
@@ -112,7 +112,7 @@ class UpdateTaskView(BaseTaskView):
 
 class ShowTaskView(BaseTaskView):
     def get(self, request, pk):
-        task = get_object_or_404(Tasks, pk=pk)
+        task = get_object_or_404(Task, pk=pk)
         return render(
             request, 
             'tasks/view.html', 

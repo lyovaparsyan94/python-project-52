@@ -1,6 +1,6 @@
 from django.urls import reverse_lazy
 
-from task_manager.users.models import Users
+from task_manager.users.models import User
 from task_manager.users.tests.testcase import UsersTestCase
 
 
@@ -23,7 +23,7 @@ class UsersTestViews(UsersTestCase):
         )
         self.assertRedirects(response, reverse_lazy("login"))
         self.assertTrue(
-            Users.objects.filter(username=self.valid_data["username"]).exists()
+            User.objects.filter(username=self.valid_data["username"]).exists()
         )
 
     def test_create_user_view_post_invalid(self):
@@ -49,7 +49,7 @@ class UsersTestViews(UsersTestCase):
             data=self.valid_data,
         )
         self.assertRedirects(response, reverse_lazy("users"))
-        user = Users.objects.get(id=self.user1.id)
+        user = User.objects.get(id=self.user1.id)
         self.assertEqual(user.first_name, self.valid_data["first_name"]),
 
     def test_update_user_permission_denied(self):

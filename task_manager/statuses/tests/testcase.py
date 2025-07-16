@@ -12,6 +12,8 @@ class StatusTestCase(TestCase):
         self.status1 = Status.objects.get(pk=1)
         self.user1 = User.objects.get(pk=1)
         self.user2 = User.objects.get(pk=2)
+        
+        self.status_count = Status.objects.count()
 
         self.valid_data = {
             "name": "Test Status",

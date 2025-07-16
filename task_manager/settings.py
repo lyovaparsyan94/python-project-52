@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ['python-project-52-zib0.onrender.com', 'localhost', '127.0.0.1'
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,13 +45,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_bootstrap5',
-    'django_filters',
     'task_manager',
     'task_manager.users',
     'task_manager.statuses',
-    'task_manager.tasks',
     'task_manager.labels',
+    'task_manager.tasks',
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -108,8 +110,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
-AUTH_USER_MODEL = 'users.Users'
 
 LOGIN_URL = 'login/'
 LOGIN_REDIRECT_URL = '/'

@@ -12,6 +12,8 @@ class LabelTestCase(TestCase):
         self.label1 = Label.objects.get(pk=1)
         self.user1 = User.objects.get(pk=1)
         self.user2 = User.objects.get(pk=2)
+        
+        self.label_count = Label.objects.count()
 
         self.valid_data = {
             "name": "Test Label",

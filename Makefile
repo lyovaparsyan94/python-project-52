@@ -20,9 +20,13 @@ start-server:
 check:
 	uv run ruff check
 
-migrate:
+makemigrations:
 	uv run python3 manage.py makemigrations
+
+migrate:
 	uv run python3 manage.py migrate
+
+setup-clean: install makemigrations migrate
 
 test:
 	uv run python3 manage.py test

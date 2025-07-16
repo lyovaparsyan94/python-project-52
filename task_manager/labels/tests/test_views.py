@@ -1,132 +1,74 @@
-from django.urls import reverse_lazy
+from django.urls import reverse
+from django.utils import translation
+from django.utils.translation import gettext as _
 
 from task_manager.labels.models import Label
-from task_manager.labels.tests.testcase import LabelTestCase
+from task_manager.users.models import User
+
+from .testcase import LabelTestCase
 
 
-class TestLabelListView(LabelTestCase):
-    def test_labels_list_authorized(self):
-        user1 = self.user1
-        self.client.force_login(user1)
+class LabelViewsTest(LabelTestCase):
+    def test_label_list_requires_login(self):
+        response = self.client.get(reverse('labels_list'))
+        self.assertRedirects(
+            response,
+            f'/{translation.get_language()}/login/?next=/{translation.get_language()}/labels/'
+        )
 
-        response = self.client.get(reverse_lazy('labels:index'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'labels/index.html')
-        self.assertEqual(Label.objects.count(), self.label_count)
-
-    def test_labels_list_unauthorized(self):
-        response = self.client.get(reverse_lazy('labels:index'))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
-
-
-class TestLabelCreateView(LabelTestCase):
-    def test_label_creation_authorized(self):
-        user1 = self.user1
-        label_data = self.valid_label_data
-        self.client.force_login(user1)
-        initial_count = Label.objects.count()
-
-        response = self.client.get(reverse_lazy('labels:create'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'labels/label_form.html')
-
+    def test_label_create(self):
+        self.client.login(username='testuser', password='testpass')
         response = self.client.post(
-            reverse_lazy('labels:create'),
-            data=label_data,
+            reverse('label_create'),
+            self.label_data
         )
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('labels:index'))
-        self.assertEqual(Label.objects.count(), initial_count + 1)
+        self.assertTrue(Label.objects.filter(name='New Label').exists())
 
-    def test_label_creation_unauthorized(self):
-        label_data = self.valid_label_data
-
-        response = self.client.get(reverse_lazy('labels:create'))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
-
+    def test_label_delete_protected(self):
+        self.task.labels.add(self.label)
+        self.client.login(username='testuser', password='testpass')
         response = self.client.post(
-            reverse_lazy('labels:create'),
-            data=label_data,
+            reverse('label_delete', args=[self.label.pk])
         )
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
+        self.assertTrue(Label.objects.filter(pk=self.label.pk).exists())
+        self.assertIn(
+            _("Невозможно удалить метку, используемую в задачах"),
+            [msg.message for msg in response.wsgi_request._messages]
+        )
 
+    def test_label_update(self):
+        self.client.login(username='testuser', password='testpass')
+        response = self.client.post(
+            reverse('label_update', args=[self.label.pk]),
+            {'name': 'Updated Label'}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.label.refresh_from_db()
+        self.assertEqual(self.label.name, 'Updated Label')
 
-class TestLabelUpdateView(LabelTestCase):
-    def test_label_update_authorized(self):
-        user1 = self.user1
-        label1 = self.label1
-        update_data = self.update_label_data
-        self.client.force_login(user1)
-
-        response = self.client.get(
-            reverse_lazy('labels:update', kwargs={'pk': label1.id})
+    def test_label_create_invalid(self):
+        self.client.login(username='testuser', password='testpass')
+        response = self.client.post(
+            reverse('label_create'), 
+            {'name': ''}
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'labels/label_form.html')
+        self.assertIsNotNone(response.context)
+        self.assertIn('form', response.context)
+        form = response.context['form']
+        self.assertTrue(form.errors)
+        self.assertIn('name', form.errors)
 
+    def test_label_delete_no_permission(self):
+        User.objects.create_user(
+            username='another', 
+            password='testpass'
+        )
+        self.client.login(username='another', password='testpass')
         response = self.client.post(
-            reverse_lazy('labels:update', kwargs={'pk': label1.id}),
-            data=update_data,
+            reverse('label_delete', args=[self.label.pk])
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('labels:index'))
-        updated_label = Label.objects.get(id=label1.id)
-        self.assertEqual(updated_label.name, update_data['name'])
-
-    def test_label_update_unauthorized(self):
-        label1 = self.label1
-        update_data = self.update_label_data
-
-        response = self.client.get(
-            reverse_lazy('labels:update', kwargs={'pk': label1.id})
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
-
-        response = self.client.post(
-            reverse_lazy('labels:update', kwargs={'pk': label1.id}),
-            data=update_data,
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
-
-
-class TestLabelDeleteView(LabelTestCase):
-    def test_label_deletion_authorized(self):
-        user1 = self.user1
-        label1 = self.label1
-        self.client.force_login(user1)
-        initial_count = Label.objects.count()
-
-        response = self.client.get(
-            reverse_lazy('labels:delete', kwargs={'pk': label1.id})
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'labels/label_delete.html')
-
-        response = self.client.post(
-            reverse_lazy('labels:delete', kwargs={'pk': label1.id})
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('labels:index'))
-        self.assertEqual(Label.objects.count(), initial_count - 1)
-        with self.assertRaises(Label.DoesNotExist):
-            Label.objects.get(id=label1.id)
-
-    def test_label_deletion_unauthorized(self):
-        label1 = self.label1
-
-        response = self.client.get(
-            reverse_lazy('labels:delete', kwargs={'pk': label1.id})
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
-
-        response = self.client.post(
-            reverse_lazy('labels:delete', kwargs={'pk': label1.id})
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(Label.objects.filter(pk=self.label.pk).exists())

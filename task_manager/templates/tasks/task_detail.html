@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{ task.name }}</h5>
+        <p class="card-text">{{ task.description }}</p>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <strong>{% trans "Status" %}:</strong> {{ task.status.name }}
+            </li>
+            <li class="list-group-item">
+                <strong>{% trans "Author" %}:</strong> {{ task.creator.username }}
+            </li>
+            <li class="list-group-item">
+                <strong>{% trans "Executor" %}:</strong> 
+                {{ task.executor.username|default:"Not assigned" }}
+            </li>
+            <li class="list-group-item">
+                <strong>{% trans "Labels" %}:</strong>
+                {% for label in task.labels.all %}
+                    <span class="badge bg-secondary">{{ label.name }}</span>
+                {% empty %}
+                    <span>{% trans "No labels" %}</span>
+                {% endfor %}
+            </li>
+        </ul>
+        <div class="mt-3">
+            <a href="{% url 'task_update' task.pk %}" class="btn btn-primary">{% trans "Update" %}</a>
+            <a href="{% url 'task_delete' task.pk %}" class="btn btn-danger">{% trans "Delete" %}</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

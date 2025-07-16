@@ -1,26 +1,16 @@
-from task_manager.statuses.forms import StatusCreationForm
-from task_manager.statuses.models import Status
-from task_manager.statuses.tests.testcase import StatusTestCase
+from django.test import TestCase
+
+from task_manager.statuses.forms import StatusForm
 
 
-class TestStatusCreationForm(StatusTestCase):
-    def test_valid_data(self):
-        form = StatusCreationForm(data=self.valid_status_data)
+class StatusFormTest(TestCase):
+    def test_valid_form(self):
+        form_data = {'name': 'New Status'}
+        form = StatusForm(data=form_data)
         self.assertTrue(form.is_valid())
-        status = form.save()
-        self.assertEqual(status.name, self.valid_status_data['name'])
-        self.assertEqual(Status.objects.count(), self.status_count + 1)
 
-    def test_missing_fields(self):
-        form = StatusCreationForm(data={
-            'name': ''
-        })
-        self.assertFalse(form.is_valid())
-        self.assertIn('name', form.errors)
-
-    def test_duplicate_name(self):
-        form = StatusCreationForm(data={
-            'name': self.status1.name
-        })
+    def test_invalid_form(self):
+        form_data = {'name': ''}
+        form = StatusForm(data=form_data)
         self.assertFalse(form.is_valid())
         self.assertIn('name', form.errors)

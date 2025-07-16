@@ -1,28 +1,43 @@
 import django_filters
-from django.forms.widgets import CheckboxInput
+from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from task_manager.labels.models import Label
+from task_manager.statuses.models import Status
 from task_manager.tasks.models import Task
+from task_manager.users.models import User
 
 
 class TaskFilter(django_filters.FilterSet):
-    user_own_tasks = django_filters.BooleanFilter(
-        label=_("Only my own tasks"),
-        widget=CheckboxInput,
-        method='filter_user_own_tasks',
+    status = django_filters.ModelChoiceFilter(
+        queryset=Status.objects.all(),
+        label=_('Status'),
+        widget=forms.Select(attrs={'class': 'form-control'}),
     )
 
-    labels = django_filters.ModelChoiceFilter(
+    executor = django_filters.ModelChoiceFilter(
+        queryset=User.objects.all(),
+        label=_('Executor'),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
+
+    labels = django_filters.ModelMultipleChoiceFilter(
         queryset=Label.objects.all(),
-        label=_('Label'))
+        label=_('Labels'),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    self_tasks = django_filters.BooleanFilter(
+        method='filter_self_tasks',
+        label=_('Only my tasks'),
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    )
+
+    def filter_self_tasks(self, queryset, name, value):
+        if value:
+            return queryset.filter(creator=self.request.user)
+        return queryset
 
     class Meta:
         model = Task
-        fields = ['status', 'executor', 'labels']
-
-    def filter_user_own_tasks(self, queryset, name, value):
-        if (value and hasattr(self, 'request') and
-                self.request.user.is_authenticated):
-            return queryset.filter(author=self.request.user)
-        return queryset
+        fields = []

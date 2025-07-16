@@ -1,79 +1,69 @@
+from django.contrib import messages
+from django.contrib.auth import logout
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    ListView,
-    UpdateView,
-)
+from django.utils.translation import gettext as _
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
-from task_manager.mixins import (
-    CustomLoginRequiredMixin,
-    ProtectErrorMixin,
-    UserPermissionMixin,
-)
-from task_manager.users.forms import (
-    CustomUserChangeForm,
-    CustomUserCreationForm,
-)
-from task_manager.users.models import User
+from .forms import CustomUserChangeForm, CustomUserCreationForm
+from .models import User
 
 
 class UserListView(ListView):
     model = User
-    template_name = 'users/index.html'
+    template_name = 'users/users_list.html'
     context_object_name = 'users'
-    ordering = ['id']
 
 
-class BaseUserView(SuccessMessageMixin):
+class UserCreateView(SuccessMessageMixin, CreateView):
     model = User
-    template_name = 'users/registration_form.html'
-    context_object_name = 'user'
-    permission_denied_url = reverse_lazy('users:index')
-
-
-class UserCreateView(BaseUserView, CreateView):
     form_class = CustomUserCreationForm
-    success_url = reverse_lazy("login")
-    success_message = _('User was registered successfully')
-    extra_context = {
-        'title': _('Sign Up'),
-        'button_name': _('Register')
-    }
+    template_name = 'users/user_form.html'
+    success_url = reverse_lazy('login')
+    success_message = _("Пользователь успешно зарегистрирован!")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form_title'] = _("Create user")
+        return context
 
 
-class UserUpdateView(CustomLoginRequiredMixin, UserPermissionMixin,
-                     BaseUserView, UpdateView):
+class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin,
+                     SuccessMessageMixin, UpdateView):
+    model = User
     form_class = CustomUserChangeForm
-    success_url = reverse_lazy('users:index')
-    success_message = _('User was updated successfully')
-    permission_denied_message = _(
-        "You don't have rights to change another user."
-    )
-    extra_context = {
-        'title': _('Edit profile'),
-        'button_name': _('Save changes')
-    }
+    template_name = 'users/user_form.html'
+    success_url = reverse_lazy('users_list')
+    success_message = _("Пользователь успешно обновлен!")
+
+    def test_func(self):
+        return self.request.user == self.get_object()
 
 
-class UserDeleteView(CustomLoginRequiredMixin, UserPermissionMixin,
-                     ProtectErrorMixin, BaseUserView, DeleteView):
-    template_name = 'users/user_delete.html'
-    success_url = reverse_lazy('users:index')
-    success_message = _('User was deleted successfully')
-    permission_denied_message = _(
-        "You don't have rights to change another user."
-    )
-    access_denied_message = _(
-        "You don't have rights to change another user."
-    )
-    protected_object_url = reverse_lazy('users:index')
-    protected_object_message = _(
-        'Cannot delete this user because they are being used'
-    )
-    extra_context = {
-        'title': _('User deletion'),
-        'button_name': _('Yes, delete')
-    }
+class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin,
+                     SuccessMessageMixin, DeleteView):
+    model = User
+    template_name = 'users/user_confirm_delete.html'
+    success_url = reverse_lazy('users_list')
+    success_message = _("Пользователь успешно удален!")
+
+    def test_func(self):
+        return self.request.user == self.get_object()
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super().delete(request, *args, **kwargs)
+
+
+class CustomLoginView(SuccessMessageMixin, LoginView):
+    template_name = 'registration/login.html'
+    success_message = _("Вы успешно вошли в систему!")
+
+
+def custom_logout(request):
+    logout(request)
+    messages.success(request, _("Вы успешно вышли из системы!"))
+    return redirect('home')

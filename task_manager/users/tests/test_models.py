@@ -1,36 +1,31 @@
+from django.test import TestCase
+
 from task_manager.users.models import User
-from task_manager.users.tests.testcase import UserTestCase
 
 
-class TestUserModel(UserTestCase):
-    def create_test_user(self, **overrides):
-        user_data = {
-            'first_name': self.valid_user_data['first_name'],
-            'last_name': self.valid_user_data['last_name'],
-            'username': self.valid_user_data['username'],
-            'password': self.valid_user_data['password1'],
-        }
-        user_data.update(overrides)
-        return User.objects.create_user(**user_data)
+class UserModelTest(TestCase):
+    def test_create_user(self):
+        user = User.objects.create_user(
+            username='testuser',
+            password='testpassword123',
+            email='test@example.com'
+        )
+        self.assertEqual(user.username, 'testuser')
+        self.assertEqual(user.email, 'test@example.com')
+        self.assertTrue(user.check_password('testpassword123'))
+        self.assertFalse(user.is_superuser)
+        self.assertFalse(user.is_staff)
+        self.assertEqual(str(user), 'testuser')
 
-    def test_user_creation(self):
-        initial_count = User.objects.count()
-        self.create_test_user()
-        self.assertEqual(User.objects.count(), initial_count + 1)
+    def test_create_superuser(self):
+        admin_user = User.objects.create_superuser(
+            username='admin',
+            password='adminpassword',
+            email='admin@example.com'
+        )
+        self.assertTrue(admin_user.is_superuser)
+        self.assertTrue(admin_user.is_staff)
 
-        db_user = User.objects.get(username=self.valid_user_data['username'])
-        self.assertEqual(db_user.username, 'no_one')
-        self.assertEqual(db_user.first_name, 'Arya')
-        self.assertEqual(db_user.last_name, 'Stark')
-        self.assertTrue(db_user.check_password('ValarMorghulis123'))
-        self.assertEqual(str(db_user), 'Arya Stark')
-
-    def test_duplicate_username(self):
-        self.create_test_user()
-        with self.assertRaises(Exception):
-            self.create_test_user(
-                first_name='Different',
-                last_name='User',
-                username='no_one',
-                password='DifferentPass123'
-            )
+    def test_required_fields(self):
+        with self.assertRaises(ValueError):
+            User.objects.create_user(username='')

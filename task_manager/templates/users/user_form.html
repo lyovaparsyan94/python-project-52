@@ -6,9 +6,9 @@
     <div class="card-header bg-primary text-white">
         <h2 class="mb-0">
             {% if object %}
-                {% trans "Update Task" %}
+                {% trans "Update User" %}
             {% else %}
-                {% trans "Create Task" %}
+                {% trans "Create User" %}
             {% endif %}
         </h2>
     </div>
@@ -19,10 +19,7 @@
             <button type="submit" class="btn btn-primary">
                 {% if object %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %}
             </button>
-            <a href="{% if object %}{% url 'task_detail' object.pk %}{% else %}{% url 'tasks_list' %}{% endif %}" 
-               class="btn btn-secondary">
-                {% trans "Cancel" %}
-            </a>
+            <a href="{% url 'users_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
         </form>
     </div>
 </div>

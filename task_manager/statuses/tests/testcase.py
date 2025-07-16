@@ -5,23 +5,11 @@ from task_manager.users.models import User
 
 
 class StatusTestCase(TestCase):
-    fixtures = ['test_users.json', 'test_statuses.json']
-
     def setUp(self):
         self.client = Client()
-
-        self.status1 = Status.objects.get(id=1)
-        self.status2 = Status.objects.get(id=2)
-
-        self.user1 = User.objects.get(id=1)
-        self.user2 = User.objects.get(id=2)
-
-        self.status_count = Status.objects.count()
-
-        self.valid_status_data = {
-            'name': 'New',
-        }
-
-        self.update_status_data = {
-            'name': 'In testing',
-        }
+        self.user = User.objects.create_user(
+            username='testuser', 
+            password='testpass'
+        )
+        self.status = Status.objects.create(name='Test Status')
+        self.status_data = {'name': 'New Status'}

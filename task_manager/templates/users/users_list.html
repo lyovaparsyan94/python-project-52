@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white">
+        <h2 class="mb-0">{% trans "Users" %}</h2>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>{% trans "ID" %}</th>
+                    <th>{% trans "Username" %}</th>
+                    <th>{% trans "Full name" %}</th>  {# Изменено "Full Name" на "Full name" #}
+                    <th>{% trans "Email" %}</th>
+                    <th>{% trans "Actions" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.first_name }} {{ user.last_name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if request.user == user %}
+                        <a href="{% url 'user_update' user.pk %}" class="btn btn-sm btn-warning">{% trans "Edit" %}</a>
+                        <a href="{% url 'user_delete' user.pk %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'user_create' %}" class="btn btn-primary mt-3">{% trans "Create user" %}</a>  {# Изменено "Create User" на "Create user" #}
+    </div>
+</div>
+{% endblock %}

@@ -7,49 +7,32 @@ from task_manager.users.models import User
 
 
 class Task(models.Model):
-    name = models.CharField(
-        max_length=255,
-        blank=False,
-        unique=True,
-        verbose_name=_('Name'),
-        error_messages={
-            'unique': _('This task with this name already exists. '
-                        'Please choose another name.'),
-        }
-    )
-    description = models.TextField(
-        blank=True,
-        verbose_name=_('Description'),
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        verbose_name=_('Author'),
-        related_name='author',
-    )
-    status = models.ForeignKey(
-        Status,
-        on_delete=models.PROTECT,
-        verbose_name=_('Status'),
-    )
+    name = models.CharField(max_length=100, verbose_name=_("Название"))
+    description = models.TextField(blank=True, verbose_name=_("Описание"))
+    status = models.ForeignKey(Status, on_delete=models.PROTECT,
+                               verbose_name=_("Статус"))
+    creator = models.ForeignKey(User, on_delete=models.CASCADE,
+                                related_name='created_tasks',
+                                verbose_name=_("Автор"))
     executor = models.ForeignKey(
         User,
-        blank=True,
+        on_delete=models.SET_NULL,
         null=True,
-        on_delete=models.PROTECT,
-        verbose_name=_('Executor'),
-        related_name='executor',
+        blank=True,
+        related_name='assigned_tasks',
+        verbose_name=_("Исполнитель")
     )
+    created_at = models.DateTimeField(auto_now_add=True,
+                                      verbose_name=_("Дата создания"))
     labels = models.ManyToManyField(
         Label,
         blank=True,
-        verbose_name=_('Labels'),
+        related_name='tasks',
+        verbose_name=_("Метки")
     )
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = _('Task')
-        verbose_name_plural = _('Tasks')
+        ordering = ['-created_at']

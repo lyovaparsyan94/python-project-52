@@ -7,56 +7,42 @@ from task_manager.users.models import User
 
 
 class TaskTestCase(TestCase):
+    fixtures = ['test_users.json',
+                'test_statuses.json',
+                'test_labels.json',
+                'test_tasks.json']
+
     def setUp(self):
         self.client = Client()
-        self.user = User.objects.create_user(
-            username='testuser',
-            password='testpass'
-        )
-        self.other_user = User.objects.create_user(
-            username='otheruser',
-            password='testpass'
-        )
-        
-        self.status1 = Status.objects.create(name='Status1')
-        self.status2 = Status.objects.create(name='Status2')
-        
-        self.label1 = Label.objects.create(
-            name='Label1', 
-            creator=self.user
-        )
-        self.label2 = Label.objects.create(
-            name='Label2', 
-            creator=self.user
-        )
-        
-        self.task1 = Task.objects.create(
-            name='Task with Status1',
-            status=self.status1,
-            creator=self.user,
-            executor=self.user
-        )
-        self.task1.labels.add(self.label1)
-        
-        self.task2 = Task.objects.create(
-            name='Task with Status2',
-            status=self.status2,
-            creator=self.user,
-            executor=self.other_user
-        )
-        self.task2.labels.add(self.label2)
-        
-        self.task3 = Task.objects.create(
-            name='Other user task',
-            status=self.status1,
-            creator=self.other_user,
-            executor=self.user
-        )
-        
-        self.client.login(username='testuser', password='testpass')
-        
-        self.task_data = {
-            'name': 'New Task',
-            'description': 'New Description',
-            'status': self.status1.pk,
+
+        self.user1 = User.objects.get(pk=1)
+        self.user2 = User.objects.get(pk=2)
+
+        self.status1 = Status.objects.get(pk=1)
+
+        self.label1 = Label.objects.get(pk=1)
+        self.label2 = Label.objects.get(pk=2)
+
+        self.task1 = Task.objects.get(pk=1)
+        self.task2 = Task.objects.get(pk=2)
+
+        self.task1.labels.set([self.label1])
+        self.task2.labels.set([self.label1, self.label2])
+
+        self.task_count = Task.objects.count()
+
+        self.valid_task_data = {
+            'name': 'Hold the North',
+            'description': 'Secure Winterfell before winter comes.',
+            'status': self.status1.id,
+            'executor': self.user1.id,
+            'labels': [self.label1.id, self.label2.id]
+        }
+
+        self.update_task_data = {
+            'name': 'Dracarys',
+            'description': 'Daenerys commands Drogon to attack.',
+            'status': self.status1.id,
+            'executor': self.user2.id,
+            'labels': [self.label1.id, self.label2.id]
         }

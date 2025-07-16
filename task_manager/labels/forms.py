@@ -1,14 +1,10 @@
-from django import forms
-from django.utils.translation import gettext_lazy as _
+from django.forms import ModelForm
 
-from .models import Label
+from task_manager.labels.models import Label
+from task_manager.mixins import FormStyleMixin
 
 
-class LabelForm(forms.ModelForm):
+class LabelCreationForm(FormStyleMixin, ModelForm):
     class Meta:
         model = Label
         fields = ['name']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-        labels = {'name': _('Название')}

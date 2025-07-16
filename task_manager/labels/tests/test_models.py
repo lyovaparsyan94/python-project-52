@@ -1,23 +1,27 @@
-from django.test import TestCase
-
 from task_manager.labels.models import Label
-from task_manager.users.models import User
+from task_manager.labels.tests.testcase import LabelTestCase
 
 
-class LabelModelTest(TestCase):
-    def setUp(self):
-        self.user = User.objects.create_user(username='testuser')
+class TestLabelModel(LabelTestCase):
+    def create_test_label(self, **overrides):
+        label_data = {
+            'name': self.valid_label_data['name']
+        }
+        label_data.update(overrides)
+        return Label.objects.create(**label_data)
 
-    def test_create_label(self):
-        label = Label.objects.create(
-            name='Test Label',
-            creator=self.user
-        )
-        self.assertEqual(label.name, 'Test Label')
-        self.assertEqual(label.creator, self.user)
-        self.assertEqual(str(label), 'Test Label')
+    def test_label_creation(self):
+        initial_count = Label.objects.count()
+        label = self.create_test_label()
+        self.assertEqual(Label.objects.count(), initial_count + 1)
+        self.assertEqual(label.name, self.valid_label_data['name'])
+        self.assertEqual(str(label), self.valid_label_data['name'])
 
-    def test_unique_name(self):
-        Label.objects.create(name='Test Label', creator=self.user)
+    def test_duplicate_label_name(self):
         with self.assertRaises(Exception):
-            Label.objects.create(name='Test Label', creator=self.user)
+            self.create_test_label(name=self.label1.name)
+
+    def test_blank_label_name(self):
+        label = Label(name='')
+        with self.assertRaises(Exception):
+            label.full_clean()

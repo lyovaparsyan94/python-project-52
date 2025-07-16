@@ -1,29 +1,32 @@
-{% extends 'base.html' %}
-{% load i18n django_bootstrap5 %}
+{% extends "base.html" %}
+{% load i18n %}
+{% load django_bootstrap5 %}
+
+{% block title %}
+  {{ title }}
+{% endblock %}
+
+{% block main_classes %}container wrapper flex-grow-1{% endblock %}
 
 {% block content %}
-<div class="card shadow">
-    <div class="card-header bg-primary text-white">
-        <h2 class="mb-0">
-            {% if object %}
-                {% trans "Update Task" %}
-            {% else %}
-                {% trans "Create Task" %}
-            {% endif %}
-        </h2>
-    </div>
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            {% bootstrap_form form %}
-            <button type="submit" class="btn btn-primary">
-                {% if object %}{% trans "Update" %}{% else %}{% trans "Create" %}{% endif %}
-            </button>
-            <a href="{% if object %}{% url 'task_detail' object.pk %}{% else %}{% url 'tasks_list' %}{% endif %}" 
-               class="btn btn-secondary">
-                {% trans "Cancel" %}
-            </a>
-        </form>
-    </div>
-</div>
+  <h1 class="my-4">
+    {{ title }}
+  </h1>
+
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      <div class="mb-3">
+        <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+          <div class="form-text">{{ field.help_text }}</div>
+        {% endif %}
+        {% if field.errors %}
+          <div class="text-danger">{{ field.errors }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+    <input class="btn btn-outline-success" type="submit" value="{{ button_name }}">
+  </form>
 {% endblock %}

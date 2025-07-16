@@ -1,52 +1,14 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% load i18n %}
 
+{% block title %}{% trans "Task Manager" %}{% endblock %}
+
 {% block content %}
-<div class="card shadow">
-    <div class="card-body">
-        <h1 class="card-title display-4">{% trans "Welcome to Task Manager!" %}</h1>
-        <p class="card-text lead">
-            {% trans "Your environment has been successfully deployed on Render.com" %}
-        </p>
-        <hr>
-        <div class="mt-4">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{% trans "Task Management" %}</h5>
-                            <p class="card-text">
-                                {% trans "Create, assign and track tasks efficiently" %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{% trans "User Collaboration" %}</h5>
-                            <p class="card-text">
-                                {% trans "Work together with your team members" %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <h5 class="card-title">{% trans "Progress Tracking" %}</h5>
-                            <p class="card-text">
-                                {% trans "Monitor task status and deadlines" %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="mt-5 text-center">
-            <a href="{% url 'tasks_list' %}" class="btn btn-primary btn-lg px-4 me-3">{% trans "Get Started" %}</a>
-            <a href="https://ru.hexlet.io/programs/python/projects/52" class="btn btn-outline-secondary btn-lg px-4">{% trans "Learn More" %}</a>
-        </div>
+<div class="text-center w-100 px-3 px-md-5">
+    <h1 class="display-4 fw-semibold mb-4">{% trans "Welcome to Task Manager" %}</h1>
+    <div class="lead text-wrap text-break mx-auto w-100 w-md-75 w-lg-50">
+        {% trans "Task Manager is a simple but powerful system for managing tasks." %}
+        {% trans "Create tasks, assign performers and update statuses – all in one place." %}
     </div>
 </div>
 {% endblock %}

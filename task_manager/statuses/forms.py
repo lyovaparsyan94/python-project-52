@@ -1,14 +1,10 @@
-from django import forms
-from django.utils.translation import gettext_lazy as _
+from django.forms import ModelForm
 
-from .models import Status
+from task_manager.mixins import FormStyleMixin
+from task_manager.statuses.models import Status
 
 
-class StatusForm(forms.ModelForm):
+class StatusCreationForm(FormStyleMixin, ModelForm):
     class Meta:
         model = Status
         fields = ['name']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-        labels = {'name': _('Название')}

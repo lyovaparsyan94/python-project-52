@@ -1,23 +1,27 @@
 from django.test import Client, TestCase
 
-from task_manager.tasks.models import Tasks
-
-from task_manager.users.models import Users
+from task_manager.users.models import User
 
 
-class UsersTestCase(TestCase):
-    fixtures = ["users.json", "tasks.json", "statuses.json"]
+class UserTestCase(TestCase):
+    fixtures = ["users.json"]
 
     def setUp(self):
         self.client = Client()
-        self.user1 = Users.objects.get(pk=1)
-        self.user2 = Users.objects.get(pk=2)
-        self.task = Tasks.objects.get(pk=1)
+        self.user = User.objects.get(pk=1)
 
         self.valid_data = {
-            "first_name": "Tom",
-            "last_name": "Brady",
-            "username": "TomBrady",
-            "password": "Tom123",
-            "confirm_password": "Tom123",
+            "first_name": "Test",
+            "last_name": "User",
+            "username": "testuser",
+            "password": "testpass123",
+            "confirm_password": "testpass123",
+        }
+
+        self.update_data = {
+            "first_name": "Updated",
+            "last_name": "User",
+            "username": "updateduser",
+            "password": "updatedpass123",
+            "confirm_password": "updatedpass123",
         }

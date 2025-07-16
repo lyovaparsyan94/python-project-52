@@ -3,17 +3,17 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
-from task_manager.labels.models import Labels
-from task_manager.statuses.models import Statuses
+from task_manager.labels.models import Label
+from task_manager.statuses.models import Status
 
-from .models import Tasks
+from .models import Task
 
 User = get_user_model()
 
 
 class TaskFilter(df.FilterSet):
     status = df.ModelChoiceFilter(
-        queryset=Statuses.objects.all(),
+        queryset=Status.objects.all(),
         label=_('Status'),
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label='---------',
@@ -28,8 +28,8 @@ class TaskFilter(df.FilterSet):
         required=False
     )
     
-    label = df.ModelChoiceFilter(
-        queryset=Labels.objects.all(),
+    labels = df.ModelChoiceFilter(
+        queryset=Label.objects.all(),
         label=_('Label'),
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label='---------',
@@ -44,7 +44,7 @@ class TaskFilter(df.FilterSet):
     )
 
     class Meta:
-        model = Tasks
+        model = Task
         fields = []
 
     def filter_self_tasks(self, queryset, name, value):
@@ -58,5 +58,5 @@ class TaskFilter(df.FilterSet):
             self.form.initial = {
                 'status': '',
                 'executor': '',
-                'label': ''
+                'labels': ''
             }

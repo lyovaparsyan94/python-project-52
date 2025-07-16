@@ -1,6 +1,8 @@
 install:
 	uv sync
 
+setup: install migrate
+
 build:
 	chmod +x ./build.sh
 	./build.sh

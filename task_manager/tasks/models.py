@@ -1,35 +1,35 @@
 from django.db import models
 
-from task_manager.labels.models import Label
-from task_manager.statuses.models import Status
-from task_manager.users.models import User
+from task_manager.labels.models import Labels
+from task_manager.statuses.models import Statuses
+from task_manager.users.models import Users
 
 
 # Create your models here.
-class Task(models.Model):
+class Tasks(models.Model):
     name = models.CharField(unique=True)
     description = models.TextField(null=True, blank=True)
     status = models.ForeignKey(
-        Status,
+        Statuses,
         on_delete=models.CASCADE,
         related_name='status',
         null=True
     )
     author = models.ForeignKey(
-        User,
+        Users,
         on_delete=models.CASCADE,
         related_name='author',
         null=True
     )
     executor = models.ForeignKey(
-        User,
+        Users,
         on_delete=models.CASCADE,
         related_name='executor',
         null=True
     )
-    labels = models.ManyToManyField(
-        Label,
-        related_name='labels',
+    label = models.ManyToManyField(
+        Labels,
+        related_name='label',
         blank=True
     )
     created_at = models.DateTimeField(auto_now_add=True)

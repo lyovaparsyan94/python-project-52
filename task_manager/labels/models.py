@@ -2,7 +2,7 @@ from django.db import models
 
 
 # Create your models here.
-class Label(models.Model):
+class Labels(models.Model):
     name = models.CharField()
     created_at = models.DateTimeField(auto_now_add=True)
 

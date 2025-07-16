@@ -10,7 +10,7 @@ from task_manager.tasks.filters import TaskFilter
 from .forms import (
     CreateTaskForm,
 )
-from .models import Task
+from .models import Tasks
 
 
 class BaseTaskView(LoginRequiredMixin, View):
@@ -24,7 +24,7 @@ class BaseTaskView(LoginRequiredMixin, View):
 
 class IndexTaskView(BaseTaskView):    
     def get(self, request):
-        tasks = Task.objects.all()
+        tasks = Tasks.objects.all()
         filterset = TaskFilter(request.GET, queryset=tasks, request=request)
         return render(
             request,
@@ -48,55 +48,61 @@ class CreateTaskView(BaseTaskView):
             task.author = request.user
             task.save()
             form.save_m2m()
-            messages.success(request, _('Task successfully created'))
             return redirect('tasks')
         return self._render_form(request, form)
     
-    def _render_form(self, request, form):
+    def _render_form(self, request, form): 
         return render(
-            request,
-            'tasks/create.html',
+            request, 
+            'tasks/create.html', 
             context={
                 'form': form
             }
         )
 
 
-class ViewTaskView(BaseTaskView):
+class DeleteTaskView(BaseTaskView):
     def get(self, request, pk):
-        task = get_object_or_404(Task, pk=pk)
+        task = Tasks.objects.get(pk=pk)
+        if task.author.id != request.user.id:
+            messages.error(
+                request,
+                _('A task can only be deleted by its author.')
+            )
+            return redirect('tasks')
         return render(
             request,
-            'tasks/view.html',
+            'tasks/delete.html',
             context={
-                'task': task
-            }
-        )
-
-
-class UpdateTaskView(BaseTaskView):
-    def get(self, request, pk):
-        task = get_object_or_404(Task, pk=pk)
-        form = CreateTaskForm(instance=task)
-        return render(
-            request,
-            'tasks/update.html',
-            context={
-                'form': form,
-                'task': task
+                'task': task,
             }
         )
 
     def post(self, request, pk):
-        task = get_object_or_404(Task, pk=pk)
+        task = get_object_or_404(Tasks, pk=pk)
+        task.delete()
+        messages.success(request, _('Task successfully deleted'))
+        return redirect('tasks')
+
+
+class UpdateTaskView(BaseTaskView):
+    def get(self, request, pk):
+        task = get_object_or_404(Tasks, pk=pk)
+        return self._render_form(request, CreateTaskForm(instance=task), task)
+    
+    def post(self, request, pk):
+        task = get_object_or_404(Tasks, pk=pk)
         form = CreateTaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
             messages.success(request, _('Task successfully updated'))
             return redirect('tasks')
+        return self._render_form(request, form, task)
+
+    def _render_form(self, request, form, task):
         return render(
-            request,
-            'tasks/update.html',
+            request, 
+            'tasks/update.html', 
             context={
                 'form': form,
                 'task': task
@@ -104,22 +110,13 @@ class UpdateTaskView(BaseTaskView):
         )
 
 
-class DeleteTaskView(BaseTaskView):
+class ShowTaskView(BaseTaskView):
     def get(self, request, pk):
-        task = get_object_or_404(Task, pk=pk)
+        task = get_object_or_404(Tasks, pk=pk)
         return render(
-            request,
-            'tasks/delete.html',
+            request, 
+            'tasks/view.html', 
             context={
                 'task': task
             }
         )
-    
-    def post(self, request, pk):
-        task = get_object_or_404(Task, pk=pk)
-        if task.author != request.user:
-            messages.error(request, _('Only the author can delete the task'))
-            return redirect('tasks')
-        task.delete()
-        messages.success(request, _('Task successfully deleted'))
-        return redirect('tasks')

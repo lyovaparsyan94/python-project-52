@@ -109,7 +109,7 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
-AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.Users'
 
 LOGIN_URL = 'login/'
 LOGIN_REDIRECT_URL = '/'
@@ -174,6 +174,3 @@ if not DEBUG:
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Fixtures directory
-FIXTURE_DIRS = [BASE_DIR / "task_manager" / "fixtures"]

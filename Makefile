@@ -1,8 +1,6 @@
 install:
 	uv sync
 
-setup: install migrate
-
 build:
 	chmod +x ./build.sh
 	./build.sh
@@ -27,4 +25,4 @@ migrate:
 	uv run python3 manage.py migrate
 
 test:
-	uv run pytest -vv tests
+	uv run python3 manage.py test

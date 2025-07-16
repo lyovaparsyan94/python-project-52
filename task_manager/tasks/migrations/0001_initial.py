@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Task',
+            name='Tasks',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(unique=True)),
@@ -25,8 +25,8 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('author', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='author', to=settings.AUTH_USER_MODEL)),
                 ('executor', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='executor', to=settings.AUTH_USER_MODEL)),
-                ('labels', models.ManyToManyField(blank=True, related_name='labels', to='labels.label')),
-                ('status', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='status', to='statuses.status')),
+                ('label', models.ManyToManyField(blank=True, related_name='label', to='labels.labels')),
+                ('status', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='status', to='statuses.statuses')),
             ],
         ),
     ]

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
-from task_manager.users.models import User
+from task_manager.users.models import Users
 
 
 class CreateUserForm(forms.ModelForm):
@@ -13,7 +13,7 @@ class CreateUserForm(forms.ModelForm):
     )
 
     class Meta:
-        model = User
+        model = Users
         fields = [
             'first_name',
             'last_name',
@@ -55,26 +55,25 @@ class CreateUserForm(forms.ModelForm):
         return self.cleaned_data
 
     def clean_username(self):
-        username = self.cleaned_data['username']
+        username = self.cleaned_data['username']   
         if len(username) > 150:
             raise forms.ValidationError(
                 _("Username is too long (maximum 150 characters).")
-            )
-        if not username.replace("_", "").replace(".", "").replace("@", "").replace("+", "").replace("-", "").isalnum():
+            )        
+        if not all(c.isalnum() or c in '@.+-_' for c in username):
             raise forms.ValidationError(
-                _("Please enter a valid username. It can only contain letters, numbers and @/./+/-/_ signs.")
+                _("Please enter a valid username. "
+                  "It can only contain letters, numbers and @/./+/-/_ signs.")
             )
-        return username
-    
-    def clean(self):
-        cleaned_data = super().clean()
-        username = cleaned_data.get('username')
         
-        if username and User.objects.filter(username=username).exists():
-            if not self.instance.pk or self.instance.username != username:
+        User = get_user_model()
+        existing_user = User.objects.filter(username=username).first()
+
+        if existing_user:
+            if not hasattr(self, 'instance') \
+                or self.instance.pk != existing_user.pk:
                 raise forms.ValidationError(
                     _("A user with this name already exists.")
                 )
-        
-        return cleaned_data
+        return username
 

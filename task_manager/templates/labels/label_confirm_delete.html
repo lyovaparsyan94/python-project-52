@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% load i18n django_bootstrap5 %}
+
+{% block content %}
+<h1>{% trans "Delete label" %}</h1>
+<p>{% trans "Are you sure you want to delete label" %} <strong>{{ object.name }}</strong>?</p>
+<form method="post">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">{% trans "Yes, delete" %}</button>
+  <a href="{% url 'labels_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+</form>
+{% endblock %}

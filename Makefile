@@ -26,7 +26,7 @@ makemigrations:
 migrate:
 	uv run python3 manage.py migrate
 
-setup-clean: install makemigrations migrate
+setup: install migrate
 
 test:
 	uv run python3 manage.py test

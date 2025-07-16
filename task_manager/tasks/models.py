@@ -1,35 +1,56 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
-from task_manager.labels.models import Labels
-from task_manager.statuses.models import Statuses
-from task_manager.users.models import Users
+from task_manager.labels.models import Label
+from task_manager.statuses.models import Status
+from task_manager.users.models import User
 
 
-# Create your models here.
-class Tasks(models.Model):
-    name = models.CharField(unique=True)
-    description = models.TextField(null=True, blank=True)
-    status = models.ForeignKey(
-        Statuses,
-        on_delete=models.CASCADE,
-        related_name='status',
-        null=True
+class Task(models.Model):
+    """Represents a task with optional executor, labels, and description."""
+    name = models.CharField(
+        max_length=255,
+        blank=False,
+        unique=True,
+        verbose_name=_('Name'),
+        error_messages={
+            'unique': _('This task with this name already exists. '
+                        'Please choose another name.'),
+        }
+    )
+    description = models.TextField(
+        blank=True,
+        verbose_name=_('Description'),
     )
     author = models.ForeignKey(
-        Users,
-        on_delete=models.CASCADE,
+        User,
+        on_delete=models.PROTECT,
+        verbose_name=_('Author'),
         related_name='author',
-        null=True
+    )
+    status = models.ForeignKey(
+        Status,
+        on_delete=models.PROTECT,
+        verbose_name=_('Status'),
     )
     executor = models.ForeignKey(
-        Users,
-        on_delete=models.CASCADE,
+        User,
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+        verbose_name=_('Executor'),
         related_name='executor',
-        null=True
     )
-    label = models.ManyToManyField(
-        Labels,
-        related_name='label',
-        blank=True
+    labels = models.ManyToManyField(
+        Label,
+        blank=True,
+        verbose_name=_('Labels'),
     )
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = _('Task')
+        verbose_name_plural = _('Tasks')

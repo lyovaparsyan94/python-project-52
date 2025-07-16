@@ -1,11 +1,16 @@
-from django.contrib.auth.forms import AuthenticationForm
+from django import forms
+from django.utils.translation import gettext_lazy as _
 
 
-class CustomLoginForm(AuthenticationForm):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        bs_cls = 'form-control bg-secondary bg-opacity-50 border-secondary'
-        for field in self.fields.values():
-            field.widget.attrs['class'] = bs_cls
-            field.widget.attrs['placeholder'] = field.label
+class LoginForm(forms.Form):
+    username = forms.CharField(
+        label=_('Username'),
+        max_length=150,
+        required=True,
+        widget=forms.TextInput()
+    )
+    password = forms.CharField(
+        label=_('Password'),
+        widget=forms.PasswordInput(),
+        required=True
+    )

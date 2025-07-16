@@ -1,38 +1,28 @@
 install:
 	uv sync
 
-migrate:
-	uv run python3 manage.py migrate
-
-start:
-	uv run manage.py runserver 0.0.0.0:8000
-
-test:
-	uv run python3 manage.py test
-
-testcov:
-	uv run coverage run --source='.' manage.py test
-	uv run coverage xml
-
-makemessages:
-	uv run django-admin makemessages --ignore="static" --ignore=".env"  -l ru
-
-compilemessages:
-	uv run django-admin compilemessages
-
-collectstatic:
-	uv run python3 manage.py collectstatic --no-input
-
 build:
+	chmod +x ./build.sh
 	./build.sh
 
 render-start:
 	gunicorn task_manager.wsgi
 
-lint:
-	uv run ruff check task_manager
+update_lang:
+	uv run django-admin makemessages -l ru
 
-format-app:
-	uv run ruff check --fix task_manager
+compile_lang:
+	uv run django-admin compilemessages
 
-check: test lint
+start-server:
+	uv run python3 manage.py runserver
+
+check:
+	uv run ruff check
+
+migrate:
+	uv run python3 manage.py makemigrations
+	uv run python3 manage.py migrate
+
+test:
+	uv run pytest -vv tests

@@ -1,14 +1,18 @@
 {% extends "base.html" %}
-{% load i18n %}
-
-{% block title %}{% trans "Task Manager" %}{% endblock %}
-
 {% block content %}
-<div class="text-center w-100 px-3 px-md-5">
-    <h1 class="display-4 fw-semibold mb-4">{% trans "Welcome to Task Manager" %}</h1>
-    <div class="lead text-wrap text-break mx-auto w-100 w-md-75 w-lg-50">
-        {% trans "Task Manager is a simple but powerful system for managing tasks." %}
-        {% trans "Create tasks, assign performers and update statuses – all in one place." %}
+{% load i18n %}
+<main>
+  <div class="container">
+    <div class="row justify-content-center mt-3">
+      <div class="col-12 bg-light border rounded-3 p-5">
+        <h1 class="display-3">{% translate 'Greetings from Hexlet!' %}</h1>
+        <p class="lead">{% translate 'Practical programming courses' %}</p>
+        <hr>
+        <div>
+            <a href="https://ru.hexlet.io" class="btn btn-primary">{% translate 'Learn more' %}</a>
+        </div>        
+      </div>
     </div>
-</div>
+  </div>
+</main>
 {% endblock %}

@@ -1,69 +1,105 @@
-from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    ListView,
-    UpdateView,
-)
+from django.views import View
 
-from task_manager.labels.forms import LabelCreationForm
-from task_manager.labels.models import Label
-from task_manager.mixins import (
-    CustomLoginRequiredMixin,
-    ProtectErrorMixin,
-)
+from task_manager.tasks.models import Tasks
+
+from .forms import CreateLabelsForm
+from .models import Labels
 
 
-class LabelListView(CustomLoginRequiredMixin, ListView):
-    model = Label
-    template_name = 'labels/index.html'
-    context_object_name = 'labels'
-    ordering = ['id']
+class BaseLabelsView(LoginRequiredMixin, View):
+    login_url = reverse_lazy('login')
+    redirect_field_name = None
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.error(request, _('You are not logged in! Please sign in.'))
+        return super().dispatch(request, *args, **kwargs)
+    
+
+class IndexLabelsView(BaseLabelsView):
+    def get(self, request):
+        labels = Labels.objects.all()
+        return render(
+            request, 
+            'labels/index.html', 
+            context={
+                'labels': labels
+            }
+        )
+    
+
+class CreateLabelsView(BaseLabelsView):
+    def get(self, request):
+        return self._render_form(request, CreateLabelsForm())
+
+    def post(self, request):
+        form = CreateLabelsForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('labels')
+        return self._render_form(request, form)
+
+    def _render_form(self, request, form):
+        return render(
+            request, 
+            'labels/create.html', 
+            context={
+                'form': form
+            }
+        )
 
 
-class LabelCreateView(CustomLoginRequiredMixin,
-                      SuccessMessageMixin,
-                      CreateView):
-    model = Label
-    template_name = 'labels/label_form.html'
-    form_class = LabelCreationForm
-    success_url = reverse_lazy("labels:index")
-    success_message = _('Label was created successfully')
-    extra_context = {
-        'title': _('Create label'),
-        'button_name': _('Create')
-    }
+class UpdateLabelsView(BaseLabelsView):
+    def get(self, request, pk):
+        label = get_object_or_404(Labels, pk=pk)
+        return self._render_form(
+            request, CreateLabelsForm(instance=label), label
+        )
+
+    def post(self, request, pk):
+        label = get_object_or_404(Labels, pk=pk)
+        form = CreateLabelsForm(request.POST, instance=label)
+        if form.is_valid():
+            form.save()
+            messages.success(request, _('Label successfully updated'))
+            return redirect('labels')
+        return self._render_form(request, form, label)
+
+    def _render_form(self, request, form, label):
+        return render(
+            request,
+            'labels/update.html',
+            context={
+                'form': form,
+                'label': label,
+            }
+        )
 
 
-class LabelUpdateView(CustomLoginRequiredMixin,
-                      SuccessMessageMixin,
-                      UpdateView):
-    form_class = LabelCreationForm
-    model = Label
-    template_name = 'labels/label_form.html'
-    success_url = reverse_lazy("labels:index")
-    success_message = _('Label was updated successfully')
-    extra_context = {
-        'title': _('Update label'),
-        'button_name': _('Update')
-    }
+class DeleteLabelsView(BaseLabelsView):
+    def get(self, request, pk):
+        label = Labels.objects.get(pk=pk)
+        return render(
+            request,
+            'labels/delete.html',
+            context={
+                'label': label,
+            }
+        )
 
-
-class LabelDeleteView(CustomLoginRequiredMixin,
-                      SuccessMessageMixin,
-                      ProtectErrorMixin,
-                      DeleteView):
-    template_name = 'labels/label_delete.html'
-    model = Label
-    success_url = reverse_lazy("labels:index")
-    success_message = _('Label was deleted successfully')
-    protected_object_url = reverse_lazy('labels:index')
-    protected_object_message = _(
-        'Cannot delete this label because they are being used'
-    )
-    extra_context = {
-        'title': _('Label deletion'),
-        'button_name': _('Yes, delete')
-    }
+    def post(self, request, pk):
+        label = get_object_or_404(Labels, pk=pk)
+        if Tasks.objects.filter(label=label).exists():
+            messages.error(
+                request,
+                _('Cannot delete label because it is in use')
+            )
+            return redirect('labels')
+        label.delete()
+        messages.success(request, _('Label successfully deleted'))
+        return redirect('labels')

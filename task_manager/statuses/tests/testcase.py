@@ -1,27 +1,22 @@
 from django.test import Client, TestCase
 
-from task_manager.statuses.models import Status
-from task_manager.users.models import User
+from task_manager.users.models import Users
+
+from task_manager.statuses.models import Statuses
 
 
 class StatusTestCase(TestCase):
-    fixtures = ['test_users.json', 'test_statuses.json']
+    fixtures = ["statuses.json", "users.json"]
 
     def setUp(self):
         self.client = Client()
+        self.status = Statuses.objects.get(pk=1)
+        self.user = Users.objects.get(pk=1)
 
-        self.status1 = Status.objects.get(id=1)
-        self.status2 = Status.objects.get(id=2)
-
-        self.user1 = User.objects.get(id=1)
-        self.user2 = User.objects.get(id=2)
-
-        self.status_count = Status.objects.count()
-
-        self.valid_status_data = {
-            'name': 'New',
+        self.valid_data = {
+            "name": "Test Status",
         }
 
-        self.update_status_data = {
-            'name': 'In testing',
+        self.update_data = {
+            "name": "Updated Status",
         }

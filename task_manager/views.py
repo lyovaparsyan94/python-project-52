@@ -1,23 +1,58 @@
 from django.contrib import messages
-from django.contrib.auth.views import LoginView, LogoutView
-from django.contrib.messages.views import SuccessMessageMixin
-from django.urls import reverse_lazy
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import redirect, render
 from django.utils.translation import gettext_lazy as _
+from django.views import View
 
-from task_manager.forms import CustomLoginForm
-
-
-class CustomLoginView(SuccessMessageMixin, LoginView):
-    template_name = 'login_form.html'
-    form_class = CustomLoginForm
-    next_page = reverse_lazy('index')
-    success_message = _('You were logged in')
+from task_manager.forms import LoginForm
 
 
-class CustomLogoutView(SuccessMessageMixin, LogoutView):
-    next_page = reverse_lazy('index')
+class IndexView(View):
+    def get(self, request):
+        return render(
+            request,
+            'index.html',
+            context={}
+        )
+    
 
-    def dispatch(self, request, *args, **kwargs):
-        messages.info(request, _('You were logged out'))
-        return super().dispatch(request, *args, **kwargs)
+class LoginView(View):
+    def get(self, request):
+        return self._render_form(request, LoginForm())
 
+    def post(self, request):
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+
+            user = authenticate(request, username=username, password=password)
+            
+            if user:
+                login(request, user)
+                messages.success(request, _('You are login'))
+                return redirect('index')
+            form.add_error(None, _(
+                    "Please enter a correct username and password. "
+                    "Note that both fields may be case-sensitive."
+                ))
+        return self._render_form(request, form)
+    
+    def _render_form(self, request, form):
+        return render(
+            request,
+            'login.html',
+            context={
+                'form': form
+            }
+        )
+    
+
+class LogoutView(View):
+    def get(self, request):
+        return redirect('index')
+
+    def post(self, request):
+        logout(request)
+        messages.info(request, _('You are logout'))
+        return redirect('index')

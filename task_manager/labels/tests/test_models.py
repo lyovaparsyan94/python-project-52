@@ -1,27 +1,17 @@
-from task_manager.labels.models import Label
-from task_manager.labels.tests.testcase import LabelTestCase
+from task_manager.labels.models import Labels
+from task_manager.labels.tests.testcase import LabelsTestCase
 
 
-class TestLabelModel(LabelTestCase):
-    def create_test_label(self, **overrides):
-        label_data = {
-            'name': self.valid_label_data['name']
-        }
-        label_data.update(overrides)
-        return Label.objects.create(**label_data)
-
+class LabelsTestModel(LabelsTestCase):
     def test_label_creation(self):
-        initial_count = Label.objects.count()
-        label = self.create_test_label()
-        self.assertEqual(Label.objects.count(), initial_count + 1)
-        self.assertEqual(label.name, self.valid_label_data['name'])
-        self.assertEqual(str(label), self.valid_label_data['name'])
+        initial_count = Labels.objects.count()
+        Labels.objects.create(**self.valid_data)
+        self.assertEqual(Labels.objects.count(), initial_count + 1)
 
-    def test_duplicate_label_name(self):
+    def test_label_duplicate_name(self):
         with self.assertRaises(Exception):
-            self.create_test_label(name=self.label1.name)
+            Labels.objects.create({"name": self.label.name})
 
-    def test_blank_label_name(self):
-        label = Label(name='')
+    def test_label_missing_name(self):
         with self.assertRaises(Exception):
-            label.full_clean()
+            Labels.objects.create({"name": ""})

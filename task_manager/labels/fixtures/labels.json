@@ -1,0 +1,10 @@
+[
+  {
+    "model": "labels.labels",
+    "pk": 1,
+    "fields": {
+      "name": "bug",
+      "created_at": "2023-09-24T16:06:44.864685Z"
+    }
+  }
+]

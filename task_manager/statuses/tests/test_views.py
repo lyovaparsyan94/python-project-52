@@ -1,137 +1,98 @@
 from django.urls import reverse_lazy
 
-from task_manager.statuses.models import Status
+from task_manager.statuses.models import Statuses
 from task_manager.statuses.tests.testcase import StatusTestCase
 
 
-class TestStatusListView(StatusTestCase):
-    def test_statuses_list_authorized(self):
-        user1 = self.user1
+class StatusTestViews(StatusTestCase):
+    def test_labels_unauthenticated(self):
+        response = self.client.get(reverse_lazy("statuses"))
+        self.assertRedirects(response, reverse_lazy("login"))
 
-        self.client.force_login(user1)
-        response = self.client.get(reverse_lazy('statuses:index'))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'statuses/index.html')
-        self.assertEqual(Status.objects.count(), self.status_count)
-
-    def test_statuses_list_unauthorized(self):
-        response = self.client.get(reverse_lazy('statuses:index'))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
+    def test_labels_authenticated(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse_lazy("statuses"))
+        self.assertTemplateUsed(response, "statuses/index.html")
 
 
-class TestStatusCreateView(StatusTestCase):
+class StatusTestCreateView(StatusTestCase):
     def test_status_creation_authorized(self):
-        user1 = self.user1
-        status_data = self.valid_status_data
-        initial_count = Status.objects.count()
+        self.client.force_login(self.user)
+        initial_count = Statuses.objects.count()
 
-        self.client.force_login(user1)
-
-        response = self.client.get(reverse_lazy('statuses:create'))
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'statuses/status_form.html')
+        response = self.client.get(reverse_lazy("create_status"))
+        self.assertTemplateUsed(response, "statuses/create.html")
 
         response = self.client.post(
-            reverse_lazy('statuses:create'),
-            data=status_data,
+            reverse_lazy("create_status"),
+            data=self.valid_data,
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('statuses:index'))
-        self.assertEqual(Status.objects.count(), initial_count + 1)
+        self.assertRedirects(response, reverse_lazy("statuses"))
+        self.assertEqual(Statuses.objects.count(), initial_count + 1)
 
     def test_status_creation_unauthorized(self):
-        status_data = self.valid_status_data
-
-        response = self.client.get(reverse_lazy('statuses:create'))
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
+        response = self.client.get(reverse_lazy("create_status"))
+        self.assertRedirects(response, reverse_lazy("login"))
 
         response = self.client.post(
-            reverse_lazy('statuses:create'),
-            data=status_data,
+            reverse_lazy("create_status"),
+            data=self.valid_data,
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
+        self.assertRedirects(response, reverse_lazy("login"))
 
 
-class TestStatusUpdateView(StatusTestCase):
+class StatusTestUpdateView(StatusTestCase):
     def test_status_update_authorized(self):
-        user1 = self.user1
-        status = self.status1
-        update_data = self.update_status_data
-
-        self.client.force_login(user1)
-
+        self.client.force_login(self.user)
         response = self.client.get(
-            reverse_lazy('statuses:update', kwargs={'pk': status.id})
+            reverse_lazy("update_status", kwargs={"pk": self.status.id})
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'statuses/status_form.html')
+        self.assertTemplateUsed(response, "statuses/update.html")
 
         response = self.client.post(
-            reverse_lazy('statuses:update', kwargs={'pk': status.id}),
-            data=update_data,
+            reverse_lazy("update_status", kwargs={"pk": self.status.id}),
+            data=self.update_data,
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('statuses:index'))
-
-        updated_status = Status.objects.get(id=status.id)
-        self.assertEqual(updated_status.name, update_data['name'])
+        self.assertRedirects(response, reverse_lazy("statuses"))
+        updated_status = Statuses.objects.get(id=self.status.id)
+        self.assertEqual(updated_status.name, self.update_data["name"])
 
     def test_status_update_unauthorized(self):
-        status = self.status1
-        update_data = self.update_status_data
-
         response = self.client.get(
-            reverse_lazy('statuses:update', kwargs={'pk': status.id})
+            reverse_lazy("update_status", kwargs={"pk": self.status.id})
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
+        self.assertRedirects(response, reverse_lazy("login"))
 
         response = self.client.post(
-            reverse_lazy('statuses:update', kwargs={'pk': status.id}),
-            data=update_data,
+            reverse_lazy("update_status", kwargs={"pk": self.status.id}),
+            data=self.update_data,
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
+        self.assertRedirects(response, reverse_lazy("login"))
 
 
-class TestStatusDeleteView(StatusTestCase):
-    def test_status_deletion_authorized(self):
-        user1 = self.user1
-        status = self.status1
-        initial_count = Status.objects.count()
-
-        self.client.force_login(user1)
+class StatusTestDeleteView(StatusTestCase):
+    def test_status_delete_authorized(self):
+        self.client.force_login(self.user)
+        initial_count = Statuses.objects.count()
 
         response = self.client.get(
-            reverse_lazy('statuses:delete', kwargs={'pk': status.id})
+            reverse_lazy("delete_status", kwargs={"pk": self.status.id})
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'statuses/status_delete.html')
+        self.assertTemplateUsed(response, "statuses/delete.html")
 
         response = self.client.post(
-            reverse_lazy('statuses:delete', kwargs={'pk': status.id})
+            reverse_lazy("delete_status", kwargs={"pk": self.status.id})
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('statuses:index'))
-        self.assertEqual(Status.objects.count(), initial_count - 1)
-        with self.assertRaises(Status.DoesNotExist):
-            Status.objects.get(id=status.id)
+        self.assertRedirects(response, reverse_lazy("statuses"))
+        self.assertEqual(Statuses.objects.count(), initial_count - 1)
 
-    def test_status_deletion_unauthorized(self):
-        status = self.status1
-
+    def test_status_delete_unauthorized(self):
         response = self.client.get(
-            reverse_lazy('statuses:delete', kwargs={'pk': status.id})
+            reverse_lazy("delete_status", kwargs={"pk": self.status.id})
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
+        self.assertRedirects(response, reverse_lazy("login"))
 
         response = self.client.post(
-            reverse_lazy('statuses:delete', kwargs={'pk': status.id})
+            reverse_lazy("delete_status", kwargs={"pk": self.status.id})
         )
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse_lazy('login'))
+        self.assertRedirects(response, reverse_lazy("login"))

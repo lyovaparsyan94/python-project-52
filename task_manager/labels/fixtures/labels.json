@@ -1,6 +1,6 @@
 [
   {
-    "model": "labels.labels",
+    "model": "labels.label",
     "pk": 1,
     "fields": {
       "name": "bug",

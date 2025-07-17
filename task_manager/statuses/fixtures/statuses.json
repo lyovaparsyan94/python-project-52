@@ -1,6 +1,6 @@
 [
   {
-    "model": "statuses.statuses",
+    "model": "statuses.status",
     "pk": 1,
     "fields": {
       "name": "inwork",

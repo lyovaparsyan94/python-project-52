@@ -1,6 +1,6 @@
 [
     {
-      "model": "tasks.tasks",
+      "model": "tasks.task",
       "pk": 1,
       "fields": {
         "name": "Defend the Wall",
@@ -12,7 +12,7 @@
       }
     },
     {
-      "model": "tasks.tasks",
+      "model": "tasks.task",
       "pk": 2,
       "fields": {
         "name": "Claim the Iron Throne",

@@ -5,10 +5,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 
-from task_manager.tasks.models import Tasks
+from task_manager.tasks.models import Task
 
-from .forms import CreateUserForm
-from .models import Users
+from .forms import UserForm
+from .models import User
 
 
 class BaseUserView(LoginRequiredMixin, View):
@@ -22,7 +22,7 @@ class BaseUserView(LoginRequiredMixin, View):
 
 class IndexUserView(View):
     def get(self, request):
-        users = Users.objects.all().order_by('id')
+        users = User.objects.all().order_by('id')
         return render(
             request,
             'user/index.html',
@@ -34,10 +34,10 @@ class IndexUserView(View):
 
 class CreateUserView(View):
     def get(self, request):
-        return self._render_form(request, CreateUserForm())
+        return self._render_form(request, UserForm())
 
     def post(self, request):
-        form = CreateUserForm(request.POST)
+        form = UserForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
@@ -61,14 +61,14 @@ class UpdateUserView(BaseUserView):
         user = self._get_user(pk)
         if isinstance(user, HttpResponseRedirect):
             return user
-        form = CreateUserForm(instance=user)
+        form = UserForm(instance=user)
         return self._render_form(request, form, user)
     
     def post(self, request, pk):
         user = self._get_user(pk)
         if isinstance(user, HttpResponseRedirect):
             return user
-        form = CreateUserForm(request.POST, instance=user)
+        form = UserForm(request.POST, instance=user)
         if form.is_valid():
             updated_user = form.save(commit=False)
             updated_user.set_password(form.cleaned_data['password'])
@@ -78,7 +78,7 @@ class UpdateUserView(BaseUserView):
         return self._render_form(request, form, user)
     
     def _get_user(self, user_id):
-        user = get_object_or_404(Users, id=user_id)
+        user = get_object_or_404(User, id=user_id)
         auth_user_id = self.request.user.id
 
         if auth_user_id != int(user_id) and not self.request.user.is_superuser:
@@ -117,7 +117,7 @@ class DeleteUserView(BaseUserView):
         user = self._get_user(pk)
         if isinstance(user, HttpResponseRedirect):
             return user
-        if Tasks.objects.filter(executor=user).exists():
+        if Task.objects.filter(executor=user).exists():
             messages.error(
                 request, 
                 _('Cannot delete user because it is in use')
@@ -128,7 +128,7 @@ class DeleteUserView(BaseUserView):
         return redirect('users')
     
     def _get_user(self, user_id):
-        user = get_object_or_404(Users, id=user_id)
+        user = get_object_or_404(User, id=user_id)
         auth_user_id = self.request.user.id
 
         if auth_user_id != int(user_id) and not self.request.user.is_superuser:

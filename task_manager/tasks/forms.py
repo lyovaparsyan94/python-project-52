@@ -2,8 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from task_manager.labels.models import Labels
-
-from .models import Tasks
+from task_manager.tasks.models import Task
 
 
 class SearchTaskForm(forms.ModelForm):
@@ -21,7 +20,7 @@ class SearchTaskForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Tasks
+        model = Task
         fields = [
             'status',
             'executor',
@@ -55,7 +54,7 @@ class CreateTaskForm(forms.ModelForm):
         label=_('Label'),
     )
     class Meta:
-        model = Tasks
+        model = Task
         fields = [
             'name',
             'description',

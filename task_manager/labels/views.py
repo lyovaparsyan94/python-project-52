@@ -5,10 +5,10 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 
-from task_manager.tasks.models import Tasks
+from task_manager.tasks.models import Task
 
-from .forms import CreateLabelsForm
-from .models import Labels
+from .forms import LabelForm
+from .models import Label
 
 
 class BaseLabelsView(LoginRequiredMixin, View):
@@ -23,7 +23,7 @@ class BaseLabelsView(LoginRequiredMixin, View):
 
 class IndexLabelsView(BaseLabelsView):
     def get(self, request):
-        labels = Labels.objects.all()
+        labels = Label.objects.all()
         return render(
             request, 
             'labels/index.html', 
@@ -35,10 +35,10 @@ class IndexLabelsView(BaseLabelsView):
 
 class CreateLabelsView(BaseLabelsView):
     def get(self, request):
-        return self._render_form(request, CreateLabelsForm())
+        return self._render_form(request, LabelForm())
 
     def post(self, request):
-        form = CreateLabelsForm(request.POST)
+        form = LabelForm(request.POST)
         if form.is_valid():
             form.save()
             return redirect('labels')
@@ -56,14 +56,14 @@ class CreateLabelsView(BaseLabelsView):
 
 class UpdateLabelsView(BaseLabelsView):
     def get(self, request, pk):
-        label = get_object_or_404(Labels, pk=pk)
+        label = get_object_or_404(Label, pk=pk)
         return self._render_form(
-            request, CreateLabelsForm(instance=label), label
+            request, LabelForm(instance=label), label
         )
 
     def post(self, request, pk):
-        label = get_object_or_404(Labels, pk=pk)
-        form = CreateLabelsForm(request.POST, instance=label)
+        label = get_object_or_404(Label, pk=pk)
+        form = LabelForm(request.POST, instance=label)
         if form.is_valid():
             form.save()
             messages.success(request, _('Label successfully updated'))
@@ -83,7 +83,7 @@ class UpdateLabelsView(BaseLabelsView):
 
 class DeleteLabelsView(BaseLabelsView):
     def get(self, request, pk):
-        label = Labels.objects.get(pk=pk)
+        label = Label.objects.get(pk=pk)
         return render(
             request,
             'labels/delete.html',
@@ -93,8 +93,8 @@ class DeleteLabelsView(BaseLabelsView):
         )
 
     def post(self, request, pk):
-        label = get_object_or_404(Labels, pk=pk)
-        if Tasks.objects.filter(label=label).exists():
+        label = get_object_or_404(Label, pk=pk)
+        if Task.objects.filter(label=label).exists():
             messages.error(
                 request,
                 _('Cannot delete label because it is in use')

@@ -21,7 +21,7 @@ class BaseLabelsView(LoginRequiredMixin, View):
         return super().dispatch(request, *args, **kwargs)
     
 
-class IndexLabelsView(BaseLabelsView):
+class LabelsView(BaseLabelsView):
     def get(self, request):
         labels = Label.objects.all()
         return render(
@@ -33,7 +33,7 @@ class IndexLabelsView(BaseLabelsView):
         )
     
 
-class CreateLabelsView(BaseLabelsView):
+class LabelCreateView(BaseLabelsView):
     def get(self, request):
         return self._render_form(request, LabelForm())
 
@@ -54,7 +54,7 @@ class CreateLabelsView(BaseLabelsView):
         )
 
 
-class UpdateLabelsView(BaseLabelsView):
+class LabelUpdateView(BaseLabelsView):
     def get(self, request, pk):
         label = get_object_or_404(Label, pk=pk)
         return self._render_form(
@@ -81,7 +81,7 @@ class UpdateLabelsView(BaseLabelsView):
         )
 
 
-class DeleteLabelsView(BaseLabelsView):
+class LabelDeleteView(BaseLabelsView):
     def get(self, request, pk):
         label = Label.objects.get(pk=pk)
         return render(

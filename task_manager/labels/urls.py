@@ -1,19 +1,19 @@
 from django.urls import path
 
 from .views import (
-    CreateLabelsView,
-    DeleteLabelsView,
-    IndexLabelsView,
-    UpdateLabelsView,
+    LabelCreateView,
+    LabelDeleteView,
+    LabelsView,
+    LabelUpdateView,
 )
 
 urlpatterns = [
-    path('', IndexLabelsView.as_view(), name='labels'),
-    path('create/', CreateLabelsView.as_view(), name='create_label'),
+    path('', LabelsView.as_view(), name='labels'),
+    path('create/', LabelCreateView.as_view(), name='create_label'),
     path(
-        '<int:pk>/update/', UpdateLabelsView.as_view(), name='update_label'
+        '<int:pk>/update/', LabelUpdateView.as_view(), name='update_label'
     ),
     path(
-        '<int:pk>/delete/', DeleteLabelsView.as_view(), name='delete_label'
+        '<int:pk>/delete/', LabelDeleteView.as_view(), name='delete_label'
     ),
 ]

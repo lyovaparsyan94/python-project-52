@@ -20,7 +20,7 @@ class BaseUserView(LoginRequiredMixin, View):
         return super().dispatch(request, *args, **kwargs)
 
 
-class IndexUserView(View):
+class UsersView(View):
     def get(self, request):
         users = User.objects.all().order_by('id')
         return render(
@@ -32,7 +32,7 @@ class IndexUserView(View):
         )
     
 
-class CreateUserView(View):
+class UserCreateView(View):
     def get(self, request):
         return self._render_form(request, UserForm())
 
@@ -56,7 +56,7 @@ class CreateUserView(View):
         )
     
 
-class UpdateUserView(BaseUserView):
+class UserUpdateView(BaseUserView):
     def get(self, request, pk):
         user = self._get_user(pk)
         if isinstance(user, HttpResponseRedirect):
@@ -100,7 +100,7 @@ class UpdateUserView(BaseUserView):
         )
     
 
-class DeleteUserView(BaseUserView):    
+class UserDeleteView(BaseUserView):    
     def get(self, request, pk):
         user = self._get_user(pk)
         if isinstance(user, HttpResponseRedirect):

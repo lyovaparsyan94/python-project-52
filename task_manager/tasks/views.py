@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from task_manager.tasks.models import Task
-from task_manager.tasks.forms import TaskForm
+from task_manager.tasks.forms import CreateTaskForm
 from django.contrib import messages
 from django.utils.translation import gettext as _
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -23,11 +23,11 @@ class TasksView(LoginRequiredMixin, FilterView):
 class TaskCreateView(LoginRequiredMixin, View):
 
     def get(self, request, *args, **kwargs):
-        form = TaskForm()
+        form = CreateTaskForm()
         return render(request, 'tasks/create.html', {'form': form})
 
     def post(self, request, *args, **kwargs):
-        form = TaskForm(request.POST)
+        form = CreateTaskForm(request.POST)
         if form.is_valid():
             task = form.save(commit=False)
             task.author = User.objects.get(pk=request.user.id)
@@ -39,7 +39,7 @@ class TaskCreateView(LoginRequiredMixin, View):
 
 class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
-    form_class = TaskForm
+    form_class = CreateTaskForm
     template_name = 'tasks/update.html'
     success_url = reverse_lazy('tasks')
     success_message = _("Task successfully changed")

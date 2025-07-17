@@ -5,10 +5,10 @@ from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
 
-from task_manager.tasks.models import Task
+from task_manager.tasks.models import Tasks
 
 from .forms import CreateStatusesForm
-from .models import Status
+from .models import Statuses
 
 
 class BaseStatusView(LoginRequiredMixin, View):
@@ -23,7 +23,7 @@ class BaseStatusView(LoginRequiredMixin, View):
 
 class IndexStatusesView(BaseStatusView):
     def get(self, request):
-        statuses = Status.objects.all().order_by('id')
+        statuses = Statuses.objects.all().order_by('id')
         return render(
             request,
             'statuses/index.html',
@@ -57,13 +57,13 @@ class CreateStatusesView(BaseStatusView):
         
 class UpdateStatusesView(BaseStatusView):
     def get(self, request, pk):
-        status = get_object_or_404(Status, pk=pk)
+        status = get_object_or_404(Statuses, pk=pk)
         return self._render_form(
             request, CreateStatusesForm(instance=status), status
         )
 
     def post(self, request, pk):
-        status = get_object_or_404(Status, pk=pk)
+        status = get_object_or_404(Statuses, pk=pk)
         form = CreateStatusesForm(request.POST, instance=status)
         if form.is_valid():
             form.save()
@@ -84,7 +84,7 @@ class UpdateStatusesView(BaseStatusView):
 
 class DeleteStatusesView(BaseStatusView):
     def get(self, request, pk):
-        status = Status.objects.get(pk=pk)
+        status = Statuses.objects.get(pk=pk)
         return render(
             request,
             'statuses/delete.html',
@@ -94,8 +94,8 @@ class DeleteStatusesView(BaseStatusView):
         )
 
     def post(self, request, pk):
-        status = get_object_or_404(Status, pk=pk)
-        if Task.objects.filter(status=status).exists():
+        status = get_object_or_404(Statuses, pk=pk)
+        if Tasks.objects.filter(status=status).exists():
             messages.error(
                 request,
                 _('Cannot delete status because it is in use')

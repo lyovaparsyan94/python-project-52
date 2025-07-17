@@ -1,19 +1,17 @@
 from django.test import Client, TestCase
 
-from task_manager.statuses.models import Status
-from task_manager.users.models import User
+from task_manager.users.models import Users
+
+from task_manager.statuses.models import Statuses
 
 
 class StatusTestCase(TestCase):
-    fixtures = ["test_statuses.json", "test_users.json"]
+    fixtures = ["statuses.json", "users.json"]
 
     def setUp(self):
         self.client = Client()
-        self.status1 = Status.objects.get(pk=1)
-        self.user1 = User.objects.get(pk=1)
-        self.user2 = User.objects.get(pk=2)
-        
-        self.status_count = Status.objects.count()
+        self.status = Statuses.objects.get(pk=1)
+        self.user = Users.objects.get(pk=1)
 
         self.valid_data = {
             "name": "Test Status",

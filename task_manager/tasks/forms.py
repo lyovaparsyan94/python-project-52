@@ -1,9 +1,9 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from task_manager.labels.models import Label
+from task_manager.labels.models import Labels
 
-from .models import Task
+from .models import Tasks
 
 
 class SearchTaskForm(forms.ModelForm):
@@ -13,7 +13,7 @@ class SearchTaskForm(forms.ModelForm):
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
     )
     label = forms.ModelChoiceField(
-        queryset=Label.objects.all(),
+        queryset=Labels.objects.all(),
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'}),
         label=_('Label'),
@@ -21,7 +21,7 @@ class SearchTaskForm(forms.ModelForm):
     )
 
     class Meta:
-        model = Task
+        model = Tasks
         fields = [
             'status',
             'executor',
@@ -49,13 +49,13 @@ class SearchTaskForm(forms.ModelForm):
 
 class CreateTaskForm(forms.ModelForm):
     label = forms.ModelMultipleChoiceField(
-        queryset=Label.objects.all(),
+        queryset=Labels.objects.all(),
         required=False,
         widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
         label=_('Label'),
     )
     class Meta:
-        model = Task
+        model = Tasks
         fields = [
             'name',
             'description',

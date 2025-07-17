@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body p-5 bg-light">
+    <div class="display-4">Добро пожаловать в менеджер задач!</div>
+    <p class="lead">Распределяйте задачи и оставайтесь продуктивными!</p>
+    <hr>
+    <a class="btn btn-primary btn-lg" href="{% url 'users:create' %}">Приступить</a>
+  </div>
+</div>
+{% endblock %}

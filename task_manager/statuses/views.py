@@ -1,110 +1,51 @@
 from django.contrib import messages
-from django.shortcuts import redirect, render
-from django.urls import reverse
-from django.views.generic.base import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+
+from task_manager.tasks.models import Task
 
 from .forms import StatusForm
 from .models import Status
 
 
-# Create your views here.
-class IndexView(View):
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('login'))
-        statuses = Status.objects.all()
-        return render(
-            request,
-            'statuses/index.html',
-            {'statuses': statuses}
-        )
-        
+class StatusListView(LoginRequiredMixin, ListView):
+    model = Status
+    template_name = 'statuses/list.html'
+    context_object_name = 'statuses'
 
-class StatusCreateView(View):
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('login'))
-        form = StatusForm()
-        return render(
-            request,
-            'statuses/create.html',
-            {'form': form}
-        )
-    
-    def post(self, request, *args, **kwargs):
-        form = StatusForm(data=request.POST)
-        if form.is_valid():
-            form.save()
-            messages.add_message(request,
-                                 messages.SUCCESS,
-                                 'Статус успешно создан')
-            return redirect(reverse('all_statuses'))
-        return render(
-            request,
-            'statuses/create.html',
-            {'form': form}
-        )
-    
-    
-class StatusUpdateView(View):
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('login'))
-        status_id = kwargs.get('id')
-        status = Status.objects.get(id=status_id)
-        form = StatusForm(instance=status)
-        return render(
-            request,
-            'statuses/update.html',
-            {'form': form,
-             'status_id': status_id},
-        )
-        
-    def post(self, request, *args, **kwargs):
-        status_id = kwargs.get("id")
-        status = Status.objects.get(id=status_id)
-        form = StatusForm(request.POST, instance=status)
-        if form.is_valid():
-            form.save()
-            messages.add_message(request,
-                                 messages.SUCCESS,
-                                 'Статус успешно изменен')
-            return redirect(reverse('all_statuses'))
-        return render(
-            request, "statuses/update.html", {"form": form,
-                                              "status_id": status_id}
-        )
-        
-    
-class StatusDeleteView(View):
-    def get(self, request, *args, **kwargs):
-        status_id = kwargs.get('id')
-        status = Status.objects.get(id=status_id)
-        return render(
-            request,
-            'statuses/delete.html',
-            {'status': status}
-        )
-        
-    def post(self, request, *args, **kwargs):
-        status_id = kwargs.get('id')
-        status = Status.objects.get(id=status_id)
-        if status.task_status.all():
-            messages.add_message(request,
-                                 messages.ERROR,
-                    'Невозможно удалить статус, потому что он используется')
-            return redirect(reverse('all_statuses'))
-        status.delete()
-        messages.add_message(request,
-                                 messages.SUCCESS,
-                                 'Статус успешно удален')
-        return redirect(reverse('all_statuses'))
+
+class StatusCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Status
+    form_class = StatusForm
+    template_name = 'statuses/create.html'
+    success_url = reverse_lazy('statuses:list')
+    success_message = 'Статус успешно создан'
+
+
+class StatusUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Status
+    form_class = StatusForm
+    template_name = 'statuses/update.html'
+    success_url = reverse_lazy('statuses:list')
+    success_message = 'Статус успешно изменен'
+
+
+class StatusDeleteView(LoginRequiredMixin, SuccessMessageMixin, DeleteView):
+    model = Status
+    template_name = 'statuses/delete.html'
+    success_url = reverse_lazy('statuses:list')
+    success_message = 'Статус успешно удален'
+
+    def form_valid(self, form):
+        status = self.get_object()
+        related_tasks = Task.objects.filter(status=status)
+
+        if related_tasks.exists():
+            messages.error(
+                self.request, (
+                    "Невозможно удалить статус, потому что он используется"))
+            return redirect('statuses:list')
+        return super().form_valid(form)

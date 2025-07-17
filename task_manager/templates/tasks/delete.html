@@ -1,14 +1,10 @@
-{% extends "layout.html" %}
+{% extends "cud/delete.html" %}
 
-{% block content %}
+{% block title %}
+    <h2>Удаление задачи</h2>
+    <p>Вы уверены, что хотите удалить {{ task.name }}</p>
+{% endblock %}
 
-<div class="container wrapper flex-grow-1">
-    <h1 class="my-4">Удаление задачи</h1>
-    <p>Вы уверены, что хотите удалить {{ task.name }}?</p>
-    <form action="{% url 'task_delete' task_id %}" method="post">
-      {% csrf_token %}
-      <input class="btn btn-danger" type="submit" value="Да, удалить">
-    </form>
-</div>
-
-{% endblock  %}
+{% block form_buttons %}
+    <a href="{% url 'tasks:list' %}" class="btn btn-secondary">Назад</a>
+{% endblock %}

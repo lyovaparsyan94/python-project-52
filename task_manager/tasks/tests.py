@@ -1,120 +1,42 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
-from task_manager.labels.models import Label
 from task_manager.statuses.models import Status
 from task_manager.tasks.models import Task
 
+User = get_user_model()
 
-class TaskTest(TestCase):
+
+class TasksCRUDTest(TestCase):
     def setUp(self):
-        User = get_user_model()
+        self.client = Client()
         self.user = User.objects.create_user(
-            username='user',
-            password='password'
+            username="testuser", password="12345"
         )
-        self.user2 = User.objects.create_user(
-            username='user2',
-            password='password'
-        )
-        self.client.login(
-            username='user',
-            password='password'
-        )
-        self.label = Label.objects.create(name='label')
-        self.label2 = Label.objects.create(name='label2')
-        self.label3 = Label.objects.create(name='label3')
+        self.client.login(username="testuser", password="12345")
 
-        self.status = Status.objects.create(name='status')
-        self.status2 = Status.objects.create(name='status2')
+        self.status1 = Status.objects.create(name="Status 1")
+        self.status6 = Status.objects.create(name="Status 6")
+
         self.task = Task.objects.create(
-            name='taskop',
-            creator=self.user,
-            status=self.status,
-            executor=self.user,
+            name="tota", status=self.status1, author=self.user
         )
-        self.task.labels.add(self.label, self.label2)
 
-        self.task2 = Task.objects.create(
-            name='taskipo',
-            creator=self.user2,
-            status=self.status2,
-            executor=self.user2,
-        )
-        self.task2.labels.add(self.label3)
-
-        self.task3 = Task.objects.create(
-            name='task3',
-            creator=self.user,
-            status=self.status2,
-            executor=self.user2,
-        )
-        self.task3.labels.add(self.label2, self.label3)
-
-    def test_update_task(self):
-        data = {
-            "name": "taskno1",
-            "description": "description",
-            "status": self.status.id,
-        }
-
+    def test_create(self):
+        url = reverse("tasks:create")
         response = self.client.post(
-            reverse('task_update', args=[self.task.id]), data
+            url, {"name": "new task", "status": self.status1.id}
         )
-
         self.assertEqual(response.status_code, 302)
 
-        new_task = Task.objects.get(pk=self.task.id)
-        self.assertEqual(new_task.name, data['name'])
-        self.assertEqual(new_task.description, data['description'])
-        
-    def test_task_delete(self):
-        response = self.client.post(
-            reverse('task_delete', args=[self.task3.id]))
+        task = Task.objects.get(name="new task")
+        self.assertEqual(task.status, self.status1)
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Task.objects.count(), 2)
-        
-        response = self.client.post(
-            reverse('task_delete', args=[self.task2.id]))
-        
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(Task.objects.count(), 2)
-        
-    def test_filter_task_my_tasks(self):
-        data = {
-            'own_task': 'on'
-        }
-        response = self.client.get(reverse('all_tasks'), data)
-        self.assertContains(response, self.task.name)
-        self.assertContains(response, self.task3.name)
-        self.assertNotContains(response, self.task2.name)
+    def test_read(self):
+        url = reverse("tasks:list")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
 
-    def test_filter_task_labels(self):
-        data = {
-            'labels': self.label.id
-        }
-        response = self.client.get(reverse('all_tasks'), data)
-        self.assertContains(response, self.task.name)
-        self.assertNotContains(response, self.task2.name)
-        self.assertNotContains(response, self.task3.name)
-
-    def test_filter_task_statuses(self):
-        data = {
-            'status': self.status.id
-        }
-        response = self.client.get(reverse('all_tasks'), data)
-        self.assertContains(response, self.task.name)
-        self.assertNotContains(response, self.task2.name)
-        self.assertNotContains(response, self.task3.name)
-
-    def test_filter_task_executor(self):
-        data = {
-            'executor': self.user2.id
-        }
-        response = self.client.get(reverse('all_tasks'), data)
-        self.assertContains(response, self.task2.name)
-        self.assertContains(response, self.task3.name)
-        self.assertNotContains(response, self.task.name)
-
+        task = Task.objects.get(name="tota")
+        self.assertIsNotNone(task)

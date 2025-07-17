@@ -1,27 +1,10 @@
-{% extends "layout.html" %}
+{% extends "cud/create_update.html" %}
+{% load django_bootstrap5 %}
 
-{% block content %}
-{% load widget_tweaks %}
+{% block title %}
+  <h2 class="mb-4">Изменение статуса</h2>
+{% endblock %}
 
-<div class="container wrapper flex-grow-1">
-    <h1 class="my-4">Изменение статуса</h1> 
-    <form action="{% url 'status_update' status_id %}" method="post">
-        {% csrf_token %}
-    <div class="mb-3">
-        <label class="form-label" for="{{ form.name.id_for_label }}">Имя</label>
-        {% if form.name.errors %}
-        {{ form.name|add_class:"is-invalid" }}
-        <div class="invalid-feedback">
-            {{ form.name.errors }}
-        </div>
-        {% else %}
-        {{ form.name }}
-        {% endif %}
-    </div>
-    <div class="d-grid">
-        <input class="btn btn-primary" type="submit" value="Изменить">
-    </div>
-    </form>
-</div>
-
+{% block form_buttons %}
+    {% bootstrap_button "Изменить" button_type="submit" button_class="btn-primary w-100" %}
 {% endblock %}

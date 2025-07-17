@@ -1,112 +1,92 @@
 from django.contrib import messages
-from django.shortcuts import redirect, render
-from django.urls import reverse
-from django.views.generic.base import View
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    ListView,
+    TemplateView,
+    UpdateView,
+)
 
-from .forms import UserRegForm, UserUpdateForm
+from .forms import UserCreateForm, UserLoginForm
 from .models import User
 
 
-# Create your views here.
-class IndexUserView(View):
-    def get(self, request, *args, **kwargs):
-        users = User.objects.order_by('id').all()
-        return render(
-            request,
-            'users/index.html',
-            {'users': users}
-        )
-    
-    
-class UserRegister(View):
-    def post(self, request, *args, **kwargs):
-        form = UserRegForm(data=request.POST)
-        if form.is_valid():
-            form.save()
-            messages.add_message(request,
-                                 messages.SUCCESS,
-                                 'Пользователь успешно зарегистрирован')
-            return redirect(reverse('login'))
-        return render(request, 'users/create.html', {'form': form})
-    
-    def get(self, request, *args, **kwargs):
-        form = UserRegForm()
-        return render(
-            request,
-            'users/create.html',
-            {'form': form}
-        )
-        
+class UserOwnerMixin(LoginRequiredMixin, UserPassesTestMixin):
+    error_message_auth = 'Вы не авторизованы! Пожалуйста, выполните вход.'
+    error_message_permission = (
+        'У вас нет прав для изменения другого пользователя.')
+    error_message_relate = (
+        'Невозможно удалить пользователя, потому что он используется')
 
-class UserUpdate(View):
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                            'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('login'))
-        if request.user.id == kwargs.get('id'):
-            form = UserUpdateForm(initial={
-                'username': request.user.username,
-                'first_name': request.user.first_name,
-                'last_name': request.user.last_name,
-            })
-            return render(
-                request,
-                'users/update.html',
-                {'form': form,
-                 'id': request.user.id
-                }
-            )
-        messages.add_message(request,
-                             messages.ERROR,
-                        'У вас нет прав для изменения другого пользователя.')
-        return redirect(reverse('all_users'))
-    
-    def post(self, request, *args, **kwargs):
-        user_id = kwargs.get('id')
-        user = User.objects.get(id=user_id)
-        form = UserUpdateForm(data=request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            messages.add_message(request,
-                                 messages.SUCCESS,
-                                 'Пользователь успешно изменен')
-            return redirect(reverse('all_users'))
-        return render(
-            request,
-            'users/update.html',
-            {'form': form}
+    def test_func(self):
+        user = self.get_object()
+
+        return self.request.user == user and not (
+            user.tasks_created.exists() or
+            user.tasks_assigned.exists()
         )
-        
-    
-class DeleteUser(View):
-    def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            messages.add_message(request,
-                                 messages.ERROR,
-                        'Вы не авторизованы! Пожалуйста, выполните вход.')
-            return redirect(reverse('login'))
-        if request.user.id == kwargs.get('id'):
-            return render(
-                request,
-                'users/delete.html',
-            )
-        messages.add_message(request,
-                             messages.ERROR,
-                        'У вас нет прав для изменения другого пользователя.')
-        return redirect(reverse('all_users'))
-    
-    def post(self, request, *args, **kwargs):
-        user_id = kwargs.get('id')
-        user = User.objects.get(id=user_id)
-        if user.task_creator.all():
-            messages.add_message(request,
-                             messages.ERROR,
-            'Пользователь используется и не может быть удален')
-            return redirect(reverse('all_users'))
-        user.delete()
-        messages.add_message(request,
-                                messages.SUCCESS,
-                                'Пользователь успешно удален')
-        return redirect(reverse('all_users'))
+
+    def handle_no_permission(self):
+        user = self.get_object()
+
+        if not self.request.user.is_authenticated:
+            messages.error(self.request, self.error_message_auth)
+            return redirect('login')
+
+        if self.request.user != user:
+            messages.error(self.request, self.error_message_permission)
+            return redirect('users:list')
+
+        if user.tasks_created.exists() or user.tasks_assigned.exists():
+            messages.error(self.request, self.error_message_relate)
+            return redirect('users:list')
+
+
+class HomePageView(TemplateView):
+    template_name = 'home.html'
+
+
+class UserListView(ListView):
+    model = User
+    template_name = 'users/list.html'
+    context_object_name = 'users'
+
+
+class UserCreateView(SuccessMessageMixin, CreateView):
+    form_class = UserCreateForm
+    template_name = 'users/create.html'
+    success_url = reverse_lazy('login')
+    success_message = 'Пользователь успешно зарегистрирован'
+
+
+class UserLoginView(SuccessMessageMixin, LoginView):
+    form_class = UserLoginForm
+    template_name = 'users/login.html'
+    success_message = 'Вы залогинены'
+
+
+class UserLogoutView(LogoutView):
+
+    def dispatch(self, request):
+        messages.success(request, "Вы разлогинены")
+        return super().dispatch(request)
+
+
+class UserUpdateView(UserOwnerMixin, SuccessMessageMixin, UpdateView):
+    model = User
+    form_class = UserCreateForm
+    template_name = 'users/update.html'
+    success_url = reverse_lazy('users:list')
+    success_message = 'Пользователь успешно изменен'
+
+
+class UserDeleteView(UserOwnerMixin, SuccessMessageMixin, DeleteView):
+    model = User
+    template_name = 'users/delete.html'
+    success_url = reverse_lazy('users:list')
+    success_message = 'Пользователь успешно удален'

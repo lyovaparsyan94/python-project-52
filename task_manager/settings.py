@@ -12,11 +12,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
-
-import dj_database_url
 from dotenv import load_dotenv
+import dj_database_url
 
-# Load environment variables from .env
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,9 +28,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', False) == 'True'
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['python-project-52-zib0.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*', 'webserver']
+
 
 # Application definition
 
@@ -43,8 +42,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
+    
+    'widget_tweaks',
     'django_bootstrap5',
-    'django_filters',
     'task_manager',
     'task_manager.users',
     'task_manager.statuses',
@@ -54,21 +55,18 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
+    
     'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
 ]
 
-ROLLBAR_KEY = os.getenv('ROLLBAR_KEY')
-
 ROLLBAR = {
-    'access_token': ROLLBAR_KEY,
+    'access_token': os.getenv('ACCESS_TOKEN'),
     'environment': 'development' if DEBUG else 'production',
     'code_version': '1.0',
     'root': BASE_DIR,
@@ -97,27 +95,28 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default=os.getenv('DATABASE_URL'),
-        conn_max_age=600
-    )
-}
+if os.getenv('PROD') == 't':
+    DATABASES = {
+        'default':{
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('NAMEDB'),
+            'USER': os.getenv('USERDB'),
+            'PASSWORD': os.getenv('PASSWORDDB'),
+            'HOST': os.getenv('HOSTDB'),
+            'PORT': os.getenv('PORTDB'),
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL', 'sqlite:///db.sqlite3'),
+            conn_max_age=600
+        )
+    }
 
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
-AUTH_USER_MODEL = 'users.User'
-
-LOGIN_URL = 'login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend', 
-]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -125,6 +124,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 3,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -138,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -146,33 +148,14 @@ USE_I18N = True
 
 USE_TZ = True
 
-LANGUAGES = [
-    ('en', 'English'),
-    ('ru', 'Русский'),
-]
-
-# Path to the folder with translations
-LOCALE_PATHS = [
-    os.path.join(BASE_DIR, 'locale'),
-]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = '/static/'
-
-# This production code might break development mode, so we check whether we're in DEBUG mode
-if not DEBUG:
-    # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
-    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-    # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
-    # and renames the files with unique names for each version to support long-term caching
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-FIXTURE_DIRS = [BASE_DIR / 'task_manager' / 'fixtures']
+AUTH_USER_MODEL = 'users.User'

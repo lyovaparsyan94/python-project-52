@@ -1,16 +1,12 @@
 from django.contrib.auth.models import AbstractUser
-from django.db import models
 
 
 # Create your models here.
 class User(AbstractUser):
-    created_at = models.DateTimeField(auto_now_add=True)
-    username = models.CharField(
-        max_length=150,
-        unique=True,
-        blank=False,
-    )
-
+    class Meta:
+        db_table = 'users'
+        verbose_name = 'Пользователя'
+        verbose_name_plural = 'Пользователи'
+    
     def __str__(self):
-        full_name = self.first_name + ' ' + self.last_name
-        return full_name
+        return self.get_full_name()

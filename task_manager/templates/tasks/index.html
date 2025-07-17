@@ -1,50 +1,70 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
+
 {% block content %}
-{% load i18n %}
-{% load django_bootstrap5 %}
-<main>
-  <div class="container-md mt-3">
-    <h1>{% translate "Tasks" %}</h1>
-    <a href="{% url 'create_task' %}" class="btn btn-primary">{% translate "Create task" %}</a>
-    <div class="container-md bg-body-tertiary mt-3 mb-3 border rounded-3">
-        <div class="p-3">
-            <form action="{% url 'tasks' %}" method="get">
-                {% bootstrap_form form %}
-                {% bootstrap_button button_type="submit" content=_('Show') %}
+
+<div class="container wrapper flex-grow-1">
+    <h1 class="my-4">Задачи</h1><a class="btn btn-primary mb-3" href="/tasks/create/" role="button">Создать задачу</a>
+    <div class="card mb-3">
+        <div class="card-body bg-light">
+            <form class="form-inline center" action="{% url 'all_tasks' %}" method="get">
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.status.id_for_label }}">Статус</label>
+                    {{ form.status }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.executor.id_for_label }}">Исполнитель</label>
+                    {{ form.executor }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="{{ form.labels.id_for_label }}">Метка</label>
+                    {{ form.labels }}
+                </div>
+                <div class="mb-3">
+                    <div class="form-check">
+                        {{ form.own_task }}
+                        <label class="form-check-label" for="{{ form.own_task.id_for_label }}">Только свои задачи</label>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <input class="btn btn-primary" type="submit" value="Показать">
+                </div>
             </form>
         </div>
     </div>
-    <table class="table table-striped mt-2" data-test="checks">
-        <thead>
-            <tr>
-              <th>ID</th>
-              <th>{% translate "Name" %}</th>
-              <th>{% translate "Status" %}</th>
-              <th>{% translate "Autor" %}</th>
-              <th>{% translate "Executor" %}</th>
-              <th>{% translate "Create date" %}</th>
-              <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if tasks %}
-            {% for task in tasks %}
-            <tr>
-                <td>{{ task.id }}</td>
-                <td><a href="{% url 'view_task' task.id %}">{{ task.name }}</a></td>
-                <td>{{ task.status }}</td>
-                <td>{{ task.author }}</td>
-                <td>{{ task.executor|default_if_none:"" }}</td>
-                <td>{{ task.created_at|date:"d.m.Y H:i" }}</td>
-                <td>
-                    <a href="{% url 'update_task' task.id %}">{% translate "Edit" %}</a><br>
-                    <a href="{% url 'delete_task' task.id %}">{% translate "Delete" %}</a>
-                </td>
-            </tr>
-            {% endfor %}
-            {% endif %}
-        </tbody>
+    <table class="table table-striped">
+    <thead>
+        <tr>
+        <th>ID</th>
+        <th>Имя</th>
+        <th>Статус</th>
+        <th>Автор</th>
+        <th>Исполнитель</th>
+        <th>Дата создания</th>
+        <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in tasks %}
+        
+        <tr>
+            <td>{{ task.id }}</td>
+            <td>
+                <a href="{% url 'view_task' task.id %}">{{ task.name }}</a>
+            </td>
+            <td>{{ task.status }}</td>
+            <td>{{ task.creator }}</td>
+            <td>{{ task.executor }}</td>
+            <td>{{ task.created_at }}</td>
+            <td>
+                <a href="{% url 'task_update' task.id %}">Изменить</a>
+                <br>
+                <a href="{% url 'task_delete' task.id %}">Удалить</a>
+            </td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
     </table>
-  </div>
-</main>
-{% endblock %}
+</div>
+
+{% endblock  %}

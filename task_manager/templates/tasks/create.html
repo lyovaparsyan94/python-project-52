@@ -1,15 +1,42 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
+
 {% block content %}
-{% load i18n %}
-{% load django_bootstrap5 %}
-{% bootstrap_css %}
-<main>
-  <div class="container-md mt-3">
-    <h1>{% translate "Create task" %}</h1>
-    <form method="post">
+{% load widget_tweaks %} 
+
+<div class="container wrapper flex-grow-1">
+    <h1 class="my-4">Создать задачу</h1>
+    <form action="{% url 'task_create' %}" method="post">
         {% csrf_token %}
-        {% bootstrap_form form %}
-        {% bootstrap_button button_type="submit" content=_('Create') %}
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.name.id_for_label }}">Имя</label>
+            {% if form.name.errors %}
+            {{ form.name|add_class:"is-invalid" }}
+            <div class="invalid-feedback">
+                {{ form.name.errors }}
+            </div>
+            {% else %}
+            {{ form.name }}
+            {% endif %}
+        </div>
+        <div class="mb-3"><label class="form-label" for="{{ form.description.id_for_label }}">Описание</label>
+            {{ form.description }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.status.id_for_label }}">Статус</label>
+            {{ form.status }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.executor.id_for_label }}">Исполнитель</label>
+            {{ form.executor }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="{{ form.labels.id_for_label }}">Метки</label>
+            {{ form.labels }}
+        </div>
+        <div class="d-grid">
+            <input class="btn btn-primary" type="submit" value="Создать">
+        </div>
     </form>
-</main>
-{% endblock %}
+</div>
+
+{% endblock  %}

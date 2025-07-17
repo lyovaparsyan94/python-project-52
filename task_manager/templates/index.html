@@ -1,18 +1,25 @@
-{% extends "base.html" %}
+{% extends "layout.html" %}
+
 {% block content %}
-{% load i18n %}
-<main>
-  <div class="container">
-    <div class="row justify-content-center mt-3">
-      <div class="col-12 bg-light border rounded-3 p-5">
-        <h1 class="display-3">{% translate 'Greetings from Hexlet!' %}</h1>
-        <p class="lead">{% translate 'Practical programming courses' %}</p>
-        <hr>
-        <div>
-            <a href="https://ru.hexlet.io" class="btn btn-primary">{% translate 'Learn more' %}</a>
-        </div>        
-      </div>
+
+<div class="container wrapper flex-grow-1">
+    <h1 class="my-4"></h1>    
+    <h1 class="my-4"></h1>
+    <div class="card">
+        <div class="card-body p-5 bg-light">
+            <div class="display-4">Менеджер задач</div>
+                <p class="lead">Менеджер задач - это система управления жизненым циклом задачи</p> 
+                <hr>
+                <a class="btn btn-primary btn-lg" {% if user.is_authenticated %}
+                target="_blank"
+                {% endif %} href="{% if not user.is_authenticated %}
+                {% url "login" %}
+                {% else %}
+                https://ru.wikipedia.org/wiki/%D0%9C%D0%B5%D0%BD%D0%B5%D0%B4%D0%B6%D0%BC%D0%B5%D0%BD%D1%82
+                {% endif %}">{% if not user.is_authenticated %}
+                Войти {% else %}Больше о менеджменте{% endif %}</a>
+        </div>
     </div>
-  </div>
-</main>
-{% endblock %}
+</div>
+
+{% endblock  %}

@@ -1,140 +1,112 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import gettext_lazy as _
-from django.views import View
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.generic.base import View
 
-from task_manager.tasks.models import Task
-
-from .forms import UserForm
+from .forms import UserRegForm, UserUpdateForm
 from .models import User
 
 
-class BaseUserView(LoginRequiredMixin, View):
-    login_url = '/login/'
+# Create your views here.
+class IndexUserView(View):
+    def get(self, request, *args, **kwargs):
+        users = User.objects.order_by('id').all()
+        return render(
+            request,
+            'users/index.html',
+            {'users': users}
+        )
+    
+    
+class UserRegister(View):
+    def post(self, request, *args, **kwargs):
+        form = UserRegForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 'Пользователь успешно зарегистрирован')
+            return redirect(reverse('login'))
+        return render(request, 'users/create.html', {'form': form})
+    
+    def get(self, request, *args, **kwargs):
+        form = UserRegForm()
+        return render(
+            request,
+            'users/create.html',
+            {'form': form}
+        )
+        
 
-    def dispatch(self, request, *args, **kwargs):
+class UserUpdate(View):
+    def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
-            messages.error(request, _('You are not logged in! Please sign in.'))
-        return super().dispatch(request, *args, **kwargs)
-
-
-class UsersView(View):
-    def get(self, request):
-        users = User.objects.all().order_by('id')
-        return render(
-            request,
-            'user/index.html',
-            context={
-                'users': users
-            },
-        )
-    
-
-class UserCreateView(View):
-    def get(self, request):
-        return self._render_form(request, UserForm())
-
-    def post(self, request):
-        form = UserForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data['password'])
-            user.save()
-            messages.success(request, _('User registered successfully'))
-            return redirect('login')
-        return self._render_form(request, form)
-    
-    def _render_form(self, request, form):
-        return render(
-            request,
-            'user/create.html',
-            context={
-                'form': form
-            }
-        )
-    
-
-class UserUpdateView(BaseUserView):
-    def get(self, request, pk):
-        user = self._get_user(pk)
-        if isinstance(user, HttpResponseRedirect):
-            return user
-        form = UserForm(instance=user)
-        return self._render_form(request, form, user)
-    
-    def post(self, request, pk):
-        user = self._get_user(pk)
-        if isinstance(user, HttpResponseRedirect):
-            return user
-        form = UserForm(request.POST, instance=user)
-        if form.is_valid():
-            updated_user = form.save(commit=False)
-            updated_user.set_password(form.cleaned_data['password'])
-            updated_user.save()
-            messages.success(request, _("User successfully changed."))
-            return redirect('users')
-        return self._render_form(request, form, user)
-    
-    def _get_user(self, user_id):
-        user = get_object_or_404(User, id=user_id)
-        auth_user_id = self.request.user.id
-
-        if auth_user_id != int(user_id) and not self.request.user.is_superuser:
-            messages.error(
-                self.request, 
-                _('You do not have permission to change another user.')
+            messages.add_message(request,
+                                 messages.ERROR,
+                            'Вы не авторизованы! Пожалуйста, выполните вход.')
+            return redirect(reverse('login'))
+        if request.user.id == kwargs.get('id'):
+            form = UserUpdateForm(initial={
+                'username': request.user.username,
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name,
+            })
+            return render(
+                request,
+                'users/update.html',
+                {'form': form,
+                 'id': request.user.id
+                }
             )
-            return redirect('users')
-        return user
+        messages.add_message(request,
+                             messages.ERROR,
+                        'У вас нет прав для изменения другого пользователя.')
+        return redirect(reverse('all_users'))
     
-    def _render_form(self, request, form, user):
+    def post(self, request, *args, **kwargs):
+        user_id = kwargs.get('id')
+        user = User.objects.get(id=user_id)
+        form = UserUpdateForm(data=request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.add_message(request,
+                                 messages.SUCCESS,
+                                 'Пользователь успешно изменен')
+            return redirect(reverse('all_users'))
         return render(
             request,
-            'user/update.html',
-            context={
-                'form': form,
-                'user': user
-            }
+            'users/update.html',
+            {'form': form}
         )
+        
     
-
-class UserDeleteView(BaseUserView):    
-    def get(self, request, pk):
-        user = self._get_user(pk)
-        if isinstance(user, HttpResponseRedirect):
-            return user
-        return render(
-            request,
-            'user/delete.html',
-            context={
-                'user': user
-            }
-        )
-    
-    def post(self, request, pk):
-        user = self._get_user(pk)
-        if isinstance(user, HttpResponseRedirect):
-            return user
-        if Task.objects.filter(executor=user).exists():
-            messages.error(
-                request, 
-                _('Cannot delete user because it is in use')
+class DeleteUser(View):
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.add_message(request,
+                                 messages.ERROR,
+                        'Вы не авторизованы! Пожалуйста, выполните вход.')
+            return redirect(reverse('login'))
+        if request.user.id == kwargs.get('id'):
+            return render(
+                request,
+                'users/delete.html',
             )
-            return redirect('users')
+        messages.add_message(request,
+                             messages.ERROR,
+                        'У вас нет прав для изменения другого пользователя.')
+        return redirect(reverse('all_users'))
+    
+    def post(self, request, *args, **kwargs):
+        user_id = kwargs.get('id')
+        user = User.objects.get(id=user_id)
+        if user.task_creator.all():
+            messages.add_message(request,
+                             messages.ERROR,
+            'Пользователь используется и не может быть удален')
+            return redirect(reverse('all_users'))
         user.delete()
-        messages.success(request, _('User successfully deleted'))
-        return redirect('users')
-    
-    def _get_user(self, user_id):
-        user = get_object_or_404(User, id=user_id)
-        auth_user_id = self.request.user.id
-
-        if auth_user_id != int(user_id) and not self.request.user.is_superuser:
-            messages.error(
-                self.request, 
-                _('You do not have permission to change another user.')
-            )
-            return redirect('users')
-        return user
+        messages.add_message(request,
+                                messages.SUCCESS,
+                                'Пользователь успешно удален')
+        return redirect(reverse('all_users'))

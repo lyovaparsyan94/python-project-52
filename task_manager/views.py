@@ -1,58 +1,48 @@
-from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib import auth, messages
 from django.shortcuts import redirect, render
-from django.utils.translation import gettext_lazy as _
-from django.views import View
+from django.urls import reverse
+from django.views.generic.base import View
 
-from task_manager.forms import LoginForm
+from task_manager.users.forms import UserLoginForm
 
 
 class IndexView(View):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         return render(
             request,
             'index.html',
-            context={}
         )
+           
     
-
-class LoginView(View):
-    def get(self, request):
-        return self._render_form(request, LoginForm())
-
-    def post(self, request):
-        form = LoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-
-            user = authenticate(request, username=username, password=password)
-            
-            if user:
-                login(request, user)
-                messages.success(request, _('You are login'))
-                return redirect('index')
-            form.add_error(None, _(
-                    "Please enter a correct username and password. "
-                    "Note that both fields may be case-sensitive."
-                ))
-        return self._render_form(request, form)
-    
-    def _render_form(self, request, form):
+class LoginUser(View):
+    def get(self, request, *args, **kwargs):
+        form = UserLoginForm()
         return render(
             request,
-            'login.html',
+            'users/login.html',
             context={
-                'form': form
-            }
+                'form': form,
+            },
         )
+        
+    def post(self, request, *args, **kwargs):
+        form = UserLoginForm(data=request.POST)
+        if form.is_valid():
+            username = request.POST['username']
+            password = request.POST['password']
+            user = auth.authenticate(username=username, password=password)
+            if user:
+                auth.login(request, user)
+                messages.add_message(request, messages.SUCCESS, 'Вы залогинены')
+                return redirect(reverse('main_index'))
+        return render(request, 'users/login.html', {'form': form})
     
+    
+class LogoutUser(View):
+    def get(self, request, *args, **kwargs):
+        return redirect(reverse('main_index'))
 
-class LogoutView(View):
-    def get(self, request):
-        return redirect('index')
-
-    def post(self, request):
-        logout(request)
-        messages.info(request, _('You are logout'))
-        return redirect('index')
+    def post(self, request, *args, **kwargs):
+        messages.add_message(request, messages.INFO, 'Вы разлогинены')
+        auth.logout(request)
+        return redirect(reverse('main_index'))

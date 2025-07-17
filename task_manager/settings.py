@@ -175,4 +175,4 @@ if not DEBUG:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-FIXTURE_DIRS = [BASE_DIR / 'fixtures']
+FIXTURE_DIRS = [BASE_DIR / 'task_manager' / 'fixtures']

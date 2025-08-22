@@ -29,8 +29,8 @@ class UserCRUDTests(TestCase):
         url = reverse('user_create')
         data = {
             'username': 'newuser',
-            'password1': 'newpass123',
-            'password2': 'newpass123',
+            'password1': 'newpass123',  # NOSONAR
+            'password2': 'newpass123',  # NOSONAR
             'first_name': 'New',
             'last_name': 'User'
         }
@@ -49,11 +49,11 @@ class UserCRUDTests(TestCase):
         response = self.client.post(
             url,
             {
-                'username': 'user1',
-                'first_name': 'Updated',
-                'last_name': 'User',
-                'password1': 'newpass123',
-                'password2': 'newpass123',
+                'username': 'user1',  # NOSONAR
+                'first_name': 'Updated',  # NOSONAR
+                'last_name': 'User',  # NOSONAR
+                'password1': 'newpass123',  # NOSONAR
+                'password2': 'newpass123',  # NOSONAR
             }
         )
         self.assertRedirects(response, reverse('users_index'))

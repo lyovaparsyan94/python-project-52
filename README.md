@@ -21,7 +21,7 @@ A Django-based task management system that allows users to create, track, and ma
 ## Tech Stack
 
 - Python 3.11+
-- Django 4.2
+- Django 5.2
 - PostgreSQL
 - Bootstrap 5
 

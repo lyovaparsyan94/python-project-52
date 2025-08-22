@@ -10,7 +10,7 @@ start:
 test:
 	uv run python3 manage.py test
 
-testcov:
+test-coverage:
 	uv run coverage run --source='.' manage.py test
 	uv run coverage xml
 

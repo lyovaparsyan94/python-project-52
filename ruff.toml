@@ -1,11 +1,9 @@
 line-length = 80
-target-version = "py312"
+exclude = ["migrations", "settings.py"]
 
 [lint.per-file-ignores]
   # init modules can contain the local imports, logic, unused imports
 "__init__.py" = ["F401"]
-"*/migrations/*" = ["ALL"]
-"settings.py" = ["ALL"]
 
 [lint]
 preview = true

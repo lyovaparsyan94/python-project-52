@@ -1,110 +1,98 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils.translation import gettext_lazy as _
 
-from task_manager.mixins import FormStyleMixin
-from task_manager.users.models import User
+User = get_user_model()
 
 
-class BaseUserForm:
-    """Shared Meta config for user forms."""
+class UserCreateForm(UserCreationForm):
+    password1 = forms.CharField(
+        required=True,
+        label=_("Password"),
+        widget=forms.PasswordInput,
+        help_text=_("Your password must contain at least 3 characters.")
+    )
+    password2 = forms.CharField(
+        required=True,
+        label=_("Confirm Password"),
+        widget=forms.PasswordInput,
+        help_text=_("Enter the same password again for verification.")
+    )
+    
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'username')
-        help_texts = {
-            'username': _(
-                'Required. 150 characters or fewer. '
-                'Letters, digits and @/./+/-/_ only.'
-            ),
+        fields = [
+            'first_name',
+            'last_name',
+            'username',
+            'password1',
+            'password2'
+        ]
+        labels = {
+            'first_name': _('First name'),
+            'last_name': _('Last name'),
+            'username': _('Username'),
         }
-
-
-class CustomUserCreationForm(FormStyleMixin, UserCreationForm):
-    """User registration form with custom validation and styling."""
-    class Meta(BaseUserForm.Meta):
-        fields = (*BaseUserForm.Meta.fields, 'password1', 'password2')
-        help_texts = {
-            **BaseUserForm.Meta.help_texts,
-            'password1':
-                _('Your password must contain at least 3 characters.'),
-            'password2':
-                _('Please enter your password again to confirm.'),
+        widgets = {
+            'first_name': forms.TextInput(attrs={'required': True}),
+            'last_name': forms.TextInput(attrs={'required': True}),
+            'username': forms.TextInput(attrs={'required': True}),
         }
 
     def clean(self):
-        """Validate password length and equality."""
         cleaned_data = super().clean()
         password1 = cleaned_data.get("password1")
         password2 = cleaned_data.get("password2")
 
         if password1 and password2:
             if password1 != password2:
-                self.add_error(
-                    "password2",
-                    _("Passwords don't match.")
-                )
+                self.add_error("password2", _("Passwords do not match."))
 
             if len(password1) < 3:
                 self.add_error(
                     "password2",
-                    _(
-                        "This password is too short. "
-                        "It must contain at least 3 characters."
-                    ),
-                )
-        return cleaned_data
-
-
-class CustomUserChangeForm(FormStyleMixin, forms.ModelForm):
-    """User profile edit form with password update support."""
-    password1 = forms.CharField(
-        label=_("New Password"),
-        widget=forms.PasswordInput,
-        required=True,
-        help_text=_("Your password must contain at least 3 characters."),
-    )
-    password2 = forms.CharField(
-        label=_("Confirm Password"),
-        widget=forms.PasswordInput,
-        required=True,
-        help_text=_("Please enter your password again to confirm."),
-    )
-
-    class Meta(BaseUserForm.Meta):
-        fields = (*BaseUserForm.Meta.fields, 'password1', 'password2')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        if 'password' in self.fields:
-            del self.fields['password']
-
-    def clean(self):
-        """Validate password length and equality."""
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
-
-        if password1 and password2:
-            if password1 != password2:
-                self.add_error(
-                    "password2",
-                    _("Passwords don't match.")
-                )
-            elif len(password1) < 3:
-                self.add_error(
-                    "password2",
-                    _(
-                        "This password is too short. "
-                        "It must contain at least 3 characters."
-                    ),
+                    _("The entered password is too short. \
+                        It must contain at least 3 characters."),
                 )
         return cleaned_data
 
     def save(self, commit=True):
-        """Save updated user with new password if provided."""
         user = super().save(commit=False)
-        if password1 := self.cleaned_data.get("password1"):
-            user.set_password(password1)
+        password = self.cleaned_data.get("password1")
+        if password:
+            user.set_password(password)
         if commit:
             user.save()
         return user
+
+
+class UserRegistrationForm(UserCreateForm):
+    pass
+
+
+class UserUpdateForm(UserCreateForm):
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+
+        if username == self.instance.username:
+            return username
+
+        if User.objects.filter(username=username).exclude(
+            pk=self.instance.pk).exists():
+            raise forms.ValidationError(
+                User._meta.get_field('username').error_messages['unique']
+            )
+
+        return username
+
+
+class UserLoginForm(AuthenticationForm):
+    username = forms.CharField(
+        label=_('Username'),
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    password = forms.CharField(
+        label=_("Password"),
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )

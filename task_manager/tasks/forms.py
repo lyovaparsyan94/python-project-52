@@ -1,13 +1,12 @@
-from django.forms import ModelForm
+from django import forms
 
-from task_manager.mixins import FormStyleMixin
-from task_manager.tasks.models import Task
+from .models import Task
 
 
-class TaskCreationForm(FormStyleMixin, ModelForm):
-    """
-    Form for creating or updating tasks with labels, status, and executor.
-    """
+class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
         fields = ['name', 'description', 'status', 'executor', 'labels']
+        widgets = {
+            'labels': forms.SelectMultiple(attrs={'class': 'form-control'})
+        }

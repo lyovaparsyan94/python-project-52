@@ -1,35 +1,51 @@
-name: Python CI
+name: CI
 
 on:
   push:
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
 jobs:
-  build:
+  test-and-sonarqube:
     runs-on: ubuntu-latest
+
     env:
-      SECRET_KEY: ${{ secrets.SECRET_KEY }}
-      DEBUG: False
-      DATABASE_URL: sqlite:///db.sqlite3
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        DJANGO_SETTINGS_MODULE: task_manager.settings
+        ROLLBAR_ACCESS_TOKEN: ${{ secrets.ROLLBAR_ACCESS_TOKEN }}
+        ROLLBAR_ENV: development
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version-file: 'pyproject.toml'
+          python-version: '3.12'
 
-      - name: Install uv and project dependencies
+      - name: Install uv
         run: |
-          pip install uv
-          make install
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Run linter and tests
+      - name: Install dependencies
+        run: make ci-install
+
+      - name: Show versions
         run: |
-          make check
+          python --version
+          uv --version
+          uv run python -c "import django,sys; print('Django', django.get_version())"
+      
+      - name: Run Ruff linter
+        run: make lint
 
-      - name: Run test coverage
-        run: |
-          make test-coverage
+      - name: Run migrations
+        run: make ci-migrate
 
+      - name: Run tests with coverage
+        run: make ci-test

@@ -1,34 +1,16 @@
 from django.db import models
-from django.db.models.deletion import ProtectedError
-from django.utils.translation import gettext_lazy as _
 
 
 class Label(models.Model):
-    """Represents a label for categorizing tasks."""
     name = models.CharField(
-        max_length=255,
-        blank=False,
-        verbose_name=_('Name'),
+        max_length=100,
         unique=True,
-        error_messages={
-            'unique': _('This label with this name already exists. '
-                        'Please choose another name.'),
-        }
+        verbose_name="Имя"
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def delete(self, *args, **kwargs):
-        """Prevent deletion if label is assigned to any tasks."""
-        if self.task_set.exists():
-            raise ProtectedError(
-                _("Cannot delete this label because they are being used"),
-                self
-            )
-        super().delete(*args, **kwargs)
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Дата создания"
+    )
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        verbose_name = _('Label')
-        verbose_name_plural = _('Labels')

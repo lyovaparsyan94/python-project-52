@@ -1,11 +1,11 @@
 from django.forms import ModelForm
+from django.utils.translation import gettext_lazy as _
 
-from task_manager.mixins import FormStyleMixin
-from task_manager.statuses.models import Status
+from .models import Status
 
 
-class StatusCreationForm(FormStyleMixin, ModelForm):
-    """Form for creating or updating a Status."""
+class StatusForm(ModelForm):
     class Meta:
         model = Status
         fields = ['name']
+        labels = {'name': _('Name')}

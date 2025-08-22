@@ -4,7 +4,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
-    """Custom user model with required first and last names."""
     first_name = models.CharField(
         max_length=150,
         blank=False,

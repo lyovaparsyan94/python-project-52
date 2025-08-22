@@ -1,38 +1,45 @@
 install:
 	uv sync
 
+dev-install:
+	uv sync --group dev
+
 migrate:
-	uv run python3 manage.py migrate
-
-start:
-	uv run manage.py runserver 0.0.0.0:8000
-
-test:
-	uv run python3 manage.py test
-
-test-coverage:
-	uv run coverage run --source='.' manage.py test
-	uv run coverage xml
-
-makemessages:
-	uv run django-admin makemessages --ignore="static" --ignore=".env"  -l ru
-
-compilemessages:
-	uv run django-admin compilemessages
+	uv run python manage.py migrate
 
 collectstatic:
-	uv run python3 manage.py collectstatic --no-input
+	uv run python manage.py collectstatic --noinput
+
+run:
+	uv run python manage.py runserver
+
+render-start:
+	uv run gunicorn task_manager.wsgi
 
 build:
 	./build.sh
 
-render-start:
-	gunicorn task_manager.wsgi
-
 lint:
-	uv run ruff check task_manager
+	uv run ruff check
 
-format-app:
-	uv run ruff check --fix task_manager
+lint-fix:
+	uv run ruff check --fix
 
-check: test lint
+test:
+	uv run pytest --ds=task_manager.settings --reuse-db
+
+coverage:
+	uv run coverage run --omit='*/migrations/*,*/settings.py,*/venv/*,*/.venv/*' -m pytest --ds=task_manager.settings
+	uv run coverage report --show-missing --skip-covered
+
+ci-install:
+	uv sync --group dev
+
+ci-migrate:
+	uv run python manage.py makemigrations --noinput && \
+	uv run python manage.py migrate --noinput
+
+ci-test:
+	uv run coverage run --omit='*/migrations/*,*/settings.py,*/venv/*,*/.venv/*' -m pytest --ds=task_manager.settings --reuse-db
+	uv run coverage xml
+	uv run coverage report --show-missing --skip-covered

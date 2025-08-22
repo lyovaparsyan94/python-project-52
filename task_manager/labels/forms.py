@@ -1,11 +1,9 @@
-from django.forms import ModelForm
+from django import forms
 
-from task_manager.labels.models import Label
-from task_manager.mixins import FormStyleMixin
+from .models import Label
 
 
-class LabelCreationForm(FormStyleMixin, ModelForm):
-    """Form for creating and updating Label instances."""
+class LabelForm(forms.ModelForm):
     class Meta:
         model = Label
         fields = ['name']

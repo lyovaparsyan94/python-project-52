@@ -3,16 +3,11 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Status(models.Model):
-    """Represents a status for task state tracking."""
     name = models.CharField(
-        max_length=255,
+        max_length=100, 
+        unique=True, 
         blank=False,
         verbose_name=_('Name'),
-        unique=True,
-        error_messages={
-            'unique': _('This status with this name already exists. '
-                        'Please choose another name.'),
-        }
     )
     created_at = models.DateTimeField(auto_now_add=True)
 

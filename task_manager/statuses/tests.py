@@ -13,7 +13,8 @@ User = get_user_model()
 class TestStatusCRUD:
     @pytest.fixture
     def logged_client(self, client):
-        User.objects.create_user(username='user1', password='testpass123')  # NOSONAR
+        User.objects.create_user(username='user1',
+                                 password='testpass123')  # NOSONAR
         client.login(username='user1', password='testpass123')  # NOSONAR
         return client
 

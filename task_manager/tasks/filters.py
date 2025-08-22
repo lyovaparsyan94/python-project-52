@@ -1,46 +1,57 @@
-import django_filters
+import django_filters as df
 from django import forms
+from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 
 from task_manager.labels.models import Label
 from task_manager.statuses.models import Status
-from task_manager.users.models import User
+from task_manager.tasks.models import Task
 
-from .models import Task
+User = get_user_model()
 
 
-class TaskFilter(django_filters.FilterSet):
-
-    status = django_filters.ModelChoiceFilter(
+class TaskFilter(df.FilterSet):
+    status = df.ModelChoiceFilter(
         queryset=Status.objects.all(),
-        label="Статус"
+        label=_("Status"),
+        widget=forms.Select(attrs={"class": "form-control"}),
+        empty_label="---------",
+        required=False,
     )
 
-    executor = django_filters.ModelChoiceFilter(
+    executor = df.ModelChoiceFilter(
         queryset=User.objects.all(),
-        label='Исполнитель'
+        label=_("Executor"),
+        widget=forms.Select(attrs={"class": "form-control"}),
+        empty_label="---------",
+        required=False,
     )
 
-    labels = django_filters.ModelChoiceFilter(
+    labels = df.ModelChoiceFilter(
         queryset=Label.objects.all(),
-        label='Метка'
+        label=_("Label"),
+        widget=forms.Select(attrs={"class": "form-control"}),
+        empty_label="---------",
+        required=False,
     )
 
-    my_tasks = django_filters.BooleanFilter(
-        method='filter_my_tasks',
-        widget=forms.CheckboxInput,
-        label="Только свои задачи"
+    self_tasks = df.BooleanFilter(
+        label=_("Only my tasks"),
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        method="filter_self_tasks",
+        required=False,
     )
 
     class Meta:
         model = Task
-        fields = ['status', 'executor', 'labels']
-        labels = {
-            'status': 'Статус',
-            'executor': 'Исполнитель',
-            'labels': 'Метка'
-        }
+        fields = []
 
-    def filter_my_tasks(self, queryset, name, value):
+    def filter_self_tasks(self, queryset, name, value):
         if value:
             return queryset.filter(author=self.request.user)
         return queryset
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.data:
+            self.form.initial = {"status": "", "executor": "", "label": ""}

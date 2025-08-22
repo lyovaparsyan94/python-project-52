@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+{% load i18n %}
+<main>
+  <div class="container-md mt-3">
+    <h1>{% translate "Labels" %}</h1>
+    <a href="{% url 'labels:create' %}" class="btn btn-primary">{% translate "Create label" %}</a>
+    <table class="table table-striped mt-2" data-test="checks">
+        <thead>
+            <tr>
+              <th>ID</th>
+              <th>{% translate "Name" %}</th>
+              <th>{% translate "Create date" %}</th>
+              <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if labels %}
+            {% for label in labels %}
+            <tr>
+                <td>{{ label.id }}</td>
+                <td>{{ label.name }}</td>
+                <td>{{ label.created_at|date:"d.m.Y H:i" }}</td>
+                <td>
+                    <a href="{% url 'labels:update' label.id %}">{% translate "Edit" %}</a><br>
+                    <a href="{% url 'labels:delete' label.id %}">{% translate "Delete" %}</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+  </div>
+</main>
+{% endblock %}

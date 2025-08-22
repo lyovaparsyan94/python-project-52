@@ -15,16 +15,16 @@ class TestTaskCRUD:
     def setup_method(self):
         self.user1 = User.objects.create_user(
             username='user1',
-            password='pass123'
-            )
+            password='pass123'  # NOSONAR
+        )
         self.user2 = User.objects.create_user(
             username='user2',
-            password='pass123'
-            )
+            password='pass123'  # NOSONAR
+        )
         self.status = Status.objects.create(name='Новый')
 
     def test_create_task(self, client):
-        client.login(username='user1', password='pass123')
+        client.login(username='user1', password='pass123')  # NOSONAR
         url = reverse('task_create')
         data = {
             'name': 'Test Task',
@@ -42,7 +42,7 @@ class TestTaskCRUD:
             name='Old Task', status=self.status,
             author=self.user1
         )
-        client.login(username='user1', password='pass123')
+        client.login(username='user1', password='pass123')  # NOSONAR
         url = reverse('task_update', kwargs={'pk': task.id})
         response = client.post(url, {
             'name': 'Updated Task',
@@ -58,7 +58,7 @@ class TestTaskCRUD:
             name='Task', status=self.status,
             author=self.user1
         )
-        client.login(username='user1', password='pass123')
+        client.login(username='user1', password='pass123')  # NOSONAR
         url = reverse('task_delete', kwargs={'pk': task.id})
         response = client.post(url)
         assert response.status_code == 302
@@ -69,7 +69,7 @@ class TestTaskCRUD:
             name='Task', status=self.status,
             author=self.user1
         )
-        client.login(username='user2', password='pass123')
+        client.login(username='user2', password='pass123')  # NOSONAR
         url = reverse('task_delete', kwargs={'pk': task.id})
         response = client.post(url)
         assert Task.objects.count() == 1

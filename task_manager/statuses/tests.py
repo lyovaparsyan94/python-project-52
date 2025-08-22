@@ -13,8 +13,8 @@ User = get_user_model()
 class TestStatusCRUD:
     @pytest.fixture
     def logged_client(self, client):
-        User.objects.create_user(username='user1', password='testpass123')
-        client.login(username='user1', password='testpass123')
+        User.objects.create_user(username='user1', password='testpass123')  # NOSONAR
+        client.login(username='user1', password='testpass123')  # NOSONAR
         return client
 
     def test_create_status(self, logged_client):
@@ -40,7 +40,7 @@ class TestStatusCRUD:
         url = reverse('statuses_index')
         response = client.get(url)
         assert response.status_code == 302
-    
+
     def test_cannot_delete_status_in_use(self, logged_client):
         status = Status.objects.create(name='В работе')
         author = User.objects.get(username='user1')

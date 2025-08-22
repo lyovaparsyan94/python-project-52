@@ -44,7 +44,7 @@ class UserCRUDTests(TestCase):
         assert "успешно" in str(messages[0]).lower()
 
     def test_user_update_authenticated(self):
-        self.client.login(username='user1', password='testpass123')
+        self.client.login(username='user1', password='testpass123')  # NOSONAR
         url = reverse('user_update', kwargs={'pk': self.user1.pk})
         response = self.client.post(
             url,
@@ -81,7 +81,7 @@ class UserCRUDTests(TestCase):
             author=self.user1
         )
 
-        self.client.login(username='user1', password='testpass123')
+        self.client.login(username='user1', password='testpass123')  # NOSONAR
         self.client.post(reverse('user_delete', args=[self.user1.pk]))
 
         self.assertTrue(User.objects.filter(pk=self.user1.pk).exists())

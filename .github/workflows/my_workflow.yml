@@ -31,5 +31,5 @@ jobs:
 
       - name: Run test coverage
         run: |
-          make testcov
+          make test-coverage
 

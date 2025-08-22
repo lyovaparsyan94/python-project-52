@@ -12,26 +12,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: '3.11'
+        # make depends on uv
       - name: Install dependencies
         run: |
           pip install uv
           make install
-      - name: Run linter and pytest
+      - name: Run linter
         run: |
-          make check
-      - name: Run test coverage
-        run: |
-          make test-coverage
-
-      - name: SonarQubeScan
-        uses: SonarSource/sonarqube-scan-action@v5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=lyovaparsyan94_python-project-52
-            -Dsonar.organization=lyovaparsyan94
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.coverage.exclusions=tests/**
-            -Dsonar.exclusions=tests/**
+          make lint

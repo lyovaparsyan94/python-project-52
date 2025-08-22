@@ -69,7 +69,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'task_manager.rollbar_middleware.CustomRollbarNotifierMiddleware',
+    'task_manager.rollbar_middleware.CustomRollbarNotifierMiddleware',
 ]
 
 ROOT_URLCONF = 'task_manager.urls'
@@ -149,13 +149,13 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# ROLLBAR = {
-#     'access_token': os.getenv('ROLLBAR_ACCESS_TOKEN', 'ROOLBAR_TOKEN'),
-#     'environment': os.getenv('ROLLBAR_ENV', 'development'),
-#     'code_version': '1.0',
-#     'root': BASE_DIR,
-# }
-#
-#
-# if ROLLBAR['access_token']:
-#     rollbar.init(**ROLLBAR)
+ROLLBAR = {
+    'access_token': os.getenv('ROLLBAR_ACCESS_TOKEN', 'ROOLBAR_TOKEN'),
+    'environment': os.getenv('ROLLBAR_ENV', 'development'),
+    'code_version': '1.0',
+    'root': BASE_DIR,
+}
+
+
+if ROLLBAR['access_token']:
+    rollbar.init(**ROLLBAR)

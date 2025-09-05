@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% block content %}
+<div class="container">
+    <h1>{% trans "Task details" %}</h1>
+</div>
+<div class="container">
+    <p>{% trans "Name" %}: {{ task.name }}</p>
+    <p>{% trans "Description" %}: {{ task.description }}</p>
+    <p>{% trans "Status" %}: {{ task.status.name }}</p>
+    <p>{% trans "Owner" %}: {{ task.owner.get_full_name }}</p>
+    <p>{% trans "Executor" %}: {{ task.executor.get_full_name }}</p>
+    <p>{% trans "Created at" %}: {{ task.created_at|date:"Y-m-d H:i" }}</p>
+    <p>{% trans "Labels" %}</p>
+    <ul>
+        {% for label in task.labels.all %}
+            <li>{{ label.name }}</li>
+        {% endfor %}
+    </ul>
+    <p><a href="{% url 'task_update' task.id %}">{% trans "Update" %}</a></p>
+    <p><a href="{% url 'task_delete' task.id %}">{% trans "Delete" %}</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% load django_bootstrap5 %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard</title>
+    {% bootstrap_css %}
+</head>
+
+<body>
+    <header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+        <a class="navbar-brand" href="{% url 'index' %}">{% trans "Task Manager" %}</a>
+        <ul class="navbar-nav d-flex flex-row justify-content-evenly flex-grow-1">
+            <ul class="navbar-nav d-flex flex-row justify-content-evenly flex-grow-1">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'users' %}">{% trans "Users" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'statuses_index' %}">{% trans "Statuses" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'tasks_index' %}">{% trans "Tasks" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'label_list' %}">{% trans "Labels" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post">
+                            {% csrf_token %}
+                            <input class="nav-link" type="submit" value="{% trans 'Logout' %}">
+                        </form>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'users' %}">{% trans "Users" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">{% trans "Login" %}</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'user_create' %}">{% trans "Registration" %}</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </ul>
+    </header>
+    
+    <div class="container py-4">
+        {% bootstrap_messages %}
+        {% block content %}
+        {% endblock %}
+    </div>
+    {% bootstrap_javascript %}
+</body>
+
+</html>

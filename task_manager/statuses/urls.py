@@ -3,16 +3,17 @@ from django.urls import path
 from task_manager.statuses import views
 
 urlpatterns = [
-    path('', views.StatusListView.as_view(), name='statuses_index'),
-    path('create/', views.StatusCreateView.as_view(), name='status_create'),
+    path("", views.StatusesIndexView.as_view(), name="statuses_index"),
     path(
-        '<int:pk>/update/',
-        views.StatusUpdateView.as_view(),
-        name='status_update'
-        ),
+        "create/",
+        views.StatusesCreateView.as_view(),
+        name="statuses_create"),
     path(
-        '<int:pk>/delete/',
-        views.StatusDeleteView.as_view(),
-        name='status_delete'
-        ),
+        "<int:pk>/update/",
+        views.StatusesUpdateView.as_view(),
+        name="statuses_update"),
+    path(
+        "<int:pk>/delete/",
+        views.StatusesDeleteView.as_view(),
+        name="statuses_delete"),
 ]

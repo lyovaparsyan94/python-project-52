@@ -1,5 +1,6 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
@@ -7,82 +8,76 @@ from django.views.generic import (
     CreateView,
     DeleteView,
     DetailView,
+    ListView,
     UpdateView,
 )
-from django_filters.views import FilterView
 
-from task_manager.mixins import (
-    ContextDeleteMixin,
-    ContextMixin,
-    CustomLoginRequiredMixin,
-)
-
-from .forms import TaskFilter, TaskForm
+from .filters import TaskFilter
+from .forms import TaskForm
 from .models import Task
 
 
-class TaskListView(CustomLoginRequiredMixin, FilterView):
+class TaskListView(LoginRequiredMixin, ListView):
     model = Task
-    template_name = "tasks/index.html"
-    context_object_name = "tasks"
-    filterset_class = TaskFilter
+    template_name = 'tasks/index.html'
+    context_object_name = 'tasks'
+    
+    def get_queryset(self):
+        queryset = Task.objects.all()
+        self.filterset = TaskFilter(self.request.GET, queryset=queryset)
 
+        queryset = self.filterset.qs
 
-class TaskCreateView(CustomLoginRequiredMixin, ContextMixin, CreateView):
-    model = Task
-    form_class = TaskForm
-    success_url = reverse_lazy("tasks_index")
-    text = _("Create task")
-    button = _("Create")
-    success_message = _("Task created successfully")
-    error_message = _("Please correct the errors below.")
+        if self.request.GET.get('self_tasks'):
+            queryset = queryset.filter(author=self.request.user)
 
-    def form_valid(self, form):
-        form.instance.owner = self.request.user
-        return super().form_valid(form)
-
-
-class TaskUpdateView(CustomLoginRequiredMixin, ContextMixin, UpdateView):
-    model = Task
-    form_class = TaskForm
-    success_url = reverse_lazy("tasks_index")
-    text = _("Update task")
-    button = _("Update")
-    success_message = _("Task updated successfully")
-    error_message = _("Please correct the errors below.")
-
-
-class TaskDeleteView(
-    CustomLoginRequiredMixin,
-    UserPassesTestMixin,
-    ContextDeleteMixin,
-    DeleteView
-):
-    model = Task
-    template_name = "general_delete_form.html"
-    success_url = reverse_lazy("tasks_index")
-    text = _("Delete task")
-    success_delete_message = _("Task successfully deleted")
-
-    def test_func(self):
-        return self.request.user == self.get_object().owner
-
-    def handle_no_permission(self):
-        if not self.test_func():
-            messages.error(
-                self.request,
-                _("A task can only be deleted by its author."))
-            return redirect(self.success_url)
-        messages.error(self.request, self.permission_denied_message)
-        return super().handle_no_permission()
-
-
-class TaskDetailView(CustomLoginRequiredMixin, DetailView):
-    model = Task
-    template_name = "tasks/detail.html"
-    context_object_name = "task"
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["task"] = self.get_object()
+        context['filter'] = self.filterset
         return context
+
+
+class TaskDetailView(LoginRequiredMixin, DetailView):
+    model = Task
+    template_name = 'tasks/show.html'
+    context_object_name = 'task'
+
+
+class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'tasks/create.html'
+    success_url = reverse_lazy('tasks_index')
+    success_message = _("Task successfully created")
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+
+class TaskUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'tasks/update.html'
+    success_url = reverse_lazy('tasks_index')
+    success_message = _("Task successfully updated")
+
+
+class TaskDeleteView(LoginRequiredMixin, SuccessMessageMixin,
+                     UserPassesTestMixin, DeleteView):
+    model = Task
+    template_name = 'tasks/delete.html'
+    success_url = reverse_lazy('tasks_index')
+    success_message = _("Task successfully deleted")
+
+    def test_func(self):
+        task = self.get_object()
+        return task.author == self.request.user
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return super().handle_no_permission()
+        messages.error(self.request, _("Only the author can delete an issue."))
+        return redirect(self.success_url)

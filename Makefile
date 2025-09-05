@@ -1,33 +1,40 @@
-build:
-	./build.sh
-
-render-start:
-	gunicorn task_manager.wsgi
-
 install:
 	uv sync
 
-collectstatic:
-	uv run python manage.py collectstatic --noinput
+dev-install:
+	uv sync --group dev
 
 migrate:
 	uv run python manage.py migrate
 
-lint:
-	uv run ruff check .
-
-test:
-	uv run python manage.py test task_manager.tests
-
-coverage:
-	uv run pytest --cov=task_manager --cov-report=xml --cov-report=term
+collectstatic:
+	uv run python manage.py collectstatic --noinput
 
 run:
 	uv run python manage.py runserver
-	
+
+render-start:
+	uv run gunicorn task_manager.wsgi
+
+build:
+	./build.sh
+
+lint:
+	uv run ruff check
+
+lint-fix:
+	uv run ruff check --fix
+
+test:
+	uv run pytest --ds=task_manager.settings --reuse-db
+
+coverage:
+	uv run coverage run --omit='*/migrations/*,*/settings.py,*/venv/*,*/.venv/*' -m pytest --ds=task_manager.settings
+	uv run coverage report --show-missing --skip-covered
+
 ci-install:
 	uv sync --group dev
-	
+
 ci-migrate:
 	uv run python manage.py makemigrations --noinput && \
 	uv run python manage.py migrate --noinput

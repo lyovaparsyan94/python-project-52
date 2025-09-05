@@ -1,8 +1,10 @@
 [project]
 name = "hexlet-code"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = ""
+authors = [
+    { name = "Maxim Shevtsov", email= "Shevtsov_stv@mail.ru" }
+]
 requires-python = ">=3.12"
 dependencies = [
     "dj-database-url>=3.0.1",

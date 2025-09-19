@@ -1,0 +1,33 @@
+{% extends "base_template/index.html" %}
+{% load i18n %}
+{% block content %}
+    <main class="flex-column justify-content-center align-items-center px-3">
+        <div class="mb-5">
+        <h1>{% trans "List of users" %}</h1>
+    <table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>{% trans "User name" %}</th>
+          <th>{% trans "Full name" %}</th>
+          <th>{% trans "Created at" %}</th>
+          <th></th>
+        </tr>
+    </thead>
+    <tbody class='table-dark'>
+        {% for user in usrs %}
+        <tr>
+        <th>{{user.id}}</th>
+        <th>{{ user.username}}</th>
+        <th>{{ user.first_name }} {{user.last_name}}</th>
+        <th>{{ user.created_at }}</th>
+        <th><p><a class="nav-link mb-2" href="{% url 'update_user' pk=user.id %}">{% trans "Update" %}</a></p>
+        <p><a class="nav-link mb-2" href="{% url 'delete_user' pk=user.id %}">{% trans "Delete" %}</a></p></th>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+        </div>
+    </main>
+{% endblock %}
+

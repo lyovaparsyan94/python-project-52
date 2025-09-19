@@ -1,0 +1,10 @@
+{% extends "base_template/index.html" %}
+{% load i18n %}
+{% block content %}
+{% block title  %}<h2>{% trans "Create user" %}</h2>{% endblock %}
+<main class="d-flex flex-column align-items-left px-3">
+  <div class="container wrapper flex-grow-1 col-lg-6 mx-auto">
+{% include "base_template/form.html"%}
+  </div>
+</main>
+{% endblock %}

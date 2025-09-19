@@ -1,50 +1,33 @@
-from django.contrib.auth import get_user_model
 from django.db import models
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from task_manager.labels.models import Label
-from task_manager.statuses.models import Status
-
-User = get_user_model()
+from task_manager.labels.models import Labels
+from task_manager.status.models import Statuses
 
 
-class Task(models.Model):
-    name = models.CharField(max_length=100, verbose_name="Имя")
-    description = models.TextField(blank=True, verbose_name="Описание")
+
+class Tasks(models.Model):
+    name = models.CharField(max_length=150)
+    description = models.CharField(_("description"), max_length=1000)
     status = models.ForeignKey(
-        Status,
-        on_delete=models.PROTECT,
-        verbose_name=_('Status'),
-        related_name="tasks"
-    )
-    labels = models.ManyToManyField(
-        Label,
-        related_name='tasks',
-        blank=True,
-        verbose_name=_('Labels')
-    )
+        Statuses,
+        related_name='sts',
+        null=False,
+        on_delete=models.PROTECT)
     author = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        verbose_name=_('Author'),
-        related_name="authored_tasks"
-    )
+        settings.AUTH_USER_MODEL,
+        related_name='task_author',
+        null=False,
+        on_delete=models.PROTECT)
     executor = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        verbose_name=_('Executor'),
-        related_name="executed_tasks",
-        blank=True,
-        null=True
-    )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name=_('Creation date')
-        )
+        settings.AUTH_USER_MODEL,
+        related_name='task_maker',
+        null=False,
+        on_delete=models.PROTECT)
+    labels = models.ManyToManyField(
+        Labels, verbose_name=_("labels"), blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        verbose_name = _('Task')
-        verbose_name_plural = _('Tasks')

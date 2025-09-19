@@ -1,0 +1,8 @@
+{% extends 'user_template/delete.html' %}
+{% load i18n %}
+{% block delete %}
+<h1 class="my-4">{% trans "Delete status" %}</h1>
+<p>{% trans "Are you sure you want to delete the status?" %}</p>
+ <form action="{% url 'delete_status' name.id %}" method="post">
+{% csrf_token %}
+{% endblock %}

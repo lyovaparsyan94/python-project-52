@@ -1,9 +1,12 @@
-from django import forms
+from task_manager.labels.models import Labels
+from task_manager.status.forms import CreateStatusForm
 
-from .models import Label
 
-
-class LabelForm(forms.ModelForm):
+class CreateLabelForm(CreateStatusForm):
     class Meta:
-        model = Label
+        model = Labels
         fields = ['name']
+
+
+class UpdateLabelForm(CreateLabelForm):
+    pass

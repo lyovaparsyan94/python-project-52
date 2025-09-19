@@ -1,45 +1,26 @@
-install:
-	uv sync
-
-dev-install:
-	uv sync --group dev
-
-migrate:
-	uv run python manage.py migrate
-
-collectstatic:
-	uv run python manage.py collectstatic --noinput
-
-run:
-	uv run python manage.py runserver
+build:
+    ./build.sh
 
 render-start:
-	uv run gunicorn task_manager.wsgi
-
-build:
-	./build.sh
+    gunicorn task_manager.wsgi
 
 lint:
-	uv run ruff check
+    uv run flake8 task_manager
 
-lint-fix:
-	uv run ruff check --fix
+install:
+    uv sync
 
-test:
-	uv run pytest --ds=task_manager.settings --reuse-db
+start:
+    uv python manage.py runserver
 
-coverage:
-	uv run coverage run --omit='*/migrations/*,*/settings.py,*/venv/*,*/.venv/*' -m pytest --ds=task_manager.settings
-	uv run coverage report --show-missing --skip-covered
+collectstatic:
+    uv python manage.py collectstatic --noinput
 
-ci-install:
-	uv sync --group dev
+migrate:
+    uv run python manage.py migrate --noinput
 
-ci-migrate:
-	uv run python manage.py makemigrations --noinput && \
-	uv run python manage.py migrate --noinput
+test: migrate
+    uv run python manage.py test
 
-ci-test:
-	uv run coverage run --omit='*/migrations/*,*/settings.py,*/venv/*,*/.venv/*' -m pytest --ds=task_manager.settings --reuse-db
-	uv run coverage xml
-	uv run coverage report --show-missing --skip-covered
+test-verbose: migrate
+    uv run python manage.py test --verbosity=2

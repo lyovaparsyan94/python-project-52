@@ -1,98 +1,97 @@
 from django import forms
-from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-User = get_user_model()
+
+def get_user_model_lazy():
+    from django.contrib.auth import get_user_model
+    return get_user_model()
 
 
-class UserCreateForm(UserCreationForm):
+class RegistrationUserForm(forms.ModelForm):
+
     password1 = forms.CharField(
-        required=True,
         label=_("Password"),
-        widget=forms.PasswordInput,
-        help_text=_("Your password must contain at least 3 characters.")
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'autocomplete': 'new-password',
+            'minlength': '3',
+            'required': 'required',
+        }),
+        help_text=_('Your password must contain at least 3 characters.'),
     )
+
     password2 = forms.CharField(
-        required=True,
-        label=_("Confirm Password"),
-        widget=forms.PasswordInput,
-        help_text=_("Enter the same password again for verification.")
+        label=_("Password confirmation"),
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'autocomplete': 'new-password',
+        }),
+        help_text=_('Enter the same password as before, for verification.'),
     )
-    
+
     class Meta:
-        model = User
+        model = get_user_model_lazy()
         fields = [
             'first_name',
             'last_name',
             'username',
             'password1',
-            'password2'
-        ]
+            'password2']
         labels = {
             'first_name': _('First name'),
             'last_name': _('Last name'),
             'username': _('Username'),
         }
         widgets = {
-            'first_name': forms.TextInput(attrs={'required': True}),
-            'last_name': forms.TextInput(attrs={'required': True}),
-            'username': forms.TextInput(attrs={'required': True}),
+            'first_name': forms.TextInput(attrs={
+                'placeholder': _('First name'),
+                'class': 'form-control'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'placeholder': _('Last name'),
+                'class': 'form-control'
+            }),
+            'username': forms.TextInput(attrs={
+                'placeholder': _('Username'),
+                'class': 'form-control'
+            }),
         }
 
     def clean(self):
         cleaned_data = super().clean()
-        password1 = cleaned_data.get("password1")
-        password2 = cleaned_data.get("password2")
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
 
-        if password1 and password2:
-            if password1 != password2:
-                self.add_error("password2", _("Passwords do not match."))
+        if password1 and password2 and password1 != password2:
+            raise ValidationError({
+                'password2': _("The two password fields didn't match.")
+            })
 
-            if len(password1) < 3:
-                self.add_error(
-                    "password2",
-                    _("The entered password is too short. \
-                        It must contain at least 3 characters."),
-                )
         return cleaned_data
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        User = get_user_model_lazy()
+
+        if not username:
+            return username
+
+        if User.objects.filter(username__iexact=username).exists():
+            raise ValidationError(
+                _('A user with that username already exists.'))
+
+        return username
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        password = self.cleaned_data.get("password1")
-        if password:
-            user.set_password(password)
+        user.set_password(self.cleaned_data["password1"])
+        user.is_active = True
+
         if commit:
             user.save()
         return user
 
 
-class UserRegistrationForm(UserCreateForm):
+class UpdateUserForm(RegistrationUserForm):
     pass
-
-
-class UserUpdateForm(UserCreateForm):
-    def clean_username(self):
-        username = self.cleaned_data.get('username')
-
-        if username == self.instance.username:
-            return username
-
-        if User.objects.filter(username=username).exclude(
-            pk=self.instance.pk).exists():
-            raise forms.ValidationError(
-                User._meta.get_field('username').error_messages['unique']
-            )
-
-        return username
-
-
-class UserLoginForm(AuthenticationForm):
-    username = forms.CharField(
-        label=_('Username'),
-        widget=forms.TextInput(attrs={'class': 'form-control'})
-    )
-    password = forms.CharField(
-        label=_("Password"),
-        widget=forms.PasswordInput(attrs={'class': 'form-control'})
-    )

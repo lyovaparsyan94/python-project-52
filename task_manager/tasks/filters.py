@@ -1,29 +1,50 @@
 import django_filters
-from django.contrib.auth import get_user_model
+from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from task_manager.labels.models import Label
-from task_manager.statuses.models import Status
+from task_manager.labels.models import Labels
+from task_manager.status.models import Statuses
+from task_manager.tasks.models import Tasks
+from django.contrib.auth import get_user_model
 
-from .models import Task
 
 User = get_user_model()
 
-
 class TaskFilter(django_filters.FilterSet):
+
+    labels = django_filters.ModelChoiceFilter(
+        queryset=Labels.objects.all(),
+        label=_('Labels'),
+        widget=forms.Select(attrs={'class': 'form-select'}))
+
     status = django_filters.ModelChoiceFilter(
-        queryset=Status.objects.all(),
-        label=_("Status")
+        queryset=Statuses.objects.all(),
+        label=_('Status'),
+        widget=forms.Select(attrs={'class': 'form-select'})
     )
+
     executor = django_filters.ModelChoiceFilter(
         queryset=User.objects.all(),
-        label=_("Executor")
+        label=_('Author'),
+        widget=forms.Select(attrs={'class': 'form-select'})
     )
-    labels = django_filters.ModelChoiceFilter(
-        queryset=Label.objects.all(),
-        label=_("Label")
+
+    users_tasks = django_filters.BooleanFilter(
+        method='filter_users_tasks',
+        label=_('Show only my tasks'),
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        required=False
     )
 
     class Meta:
-        model = Task
-        fields = ['status', 'executor', 'labels']
+        model = Tasks
+        fields = ['executor', 'status', 'labels', 'users_tasks']
+
+    def filter_users_tasks(self, queryset, name, value):
+        if value and self.request.user.is_authenticated:
+            return queryset.filter(author=self.request.user)
+        return queryset
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.request = kwargs.get('request')

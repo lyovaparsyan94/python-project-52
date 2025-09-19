@@ -1,0 +1,88 @@
+{% extends "base_template/index.html" %}
+{% load i18n %}
+{% block content %}
+<main class="d-flex flex-column align-items-left px-3">
+<h1>{% trans "View task" %}</h1>
+<div class="card task-card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <h5 class="mb-0">
+      <i class="bi bi-card-checklist me-2"></i>{{ task.name }}
+    </h5>
+    <div class="dropdown">
+      <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+        {% trans "Actions" %}
+      </button>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="{% url 'update_task' pk=task.id %}">{% trans "Edit" %}</a></li>
+        <li><a class="dropdown-item text-danger" href="{% url 'delete_task' pk=task.id %}">{% trans "Delete" %}</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card-body bg-dark text-white">
+
+  <div class="mb-4">
+    <h5 class="card-title">{% trans "Description" %}</h5>
+    <div class="card-text bg-dark text-white p-3 rounded">
+      {{ task.description|linebreaks }}
+    </div>
+  </div>
+
+
+  <div class="task-meta">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="d-flex align-items-left mb-3">
+          <div>
+            <h6 class="mb-0 text-white big">{% trans "Author" %}</h6>
+            <p class="mb-0">{{ task.author }}</p>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-left mb-3">
+          <div>
+            <h6 class="mb-0 text-white big">{% trans "Executor" %}</h6>
+            <p class="mb-0">{{ task.executor }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="d-flex align-items-left mb-3">
+          <div>
+            <h6 class="mb-0 text-white big">{% trans "Status" %}</h6>
+            <span>
+              {{ task.status}}
+            </span>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-left mb-3">
+          <div>
+            <h6 class="mb-0 text-white big">{% trans "Created at" %}</h6>
+            <p class="mb-0">{{ task.created_at|date:"d.m.Y H:i" }}</p>
+          </div>
+        </div>
+      <div class="col-md-6">
+        <div class="d-flex align-items-left mb-3">
+          <div>
+            <h6 class="mb-0 text-white big">{% trans "Labels" %}:</h6>
+            
+                <p class="mb-0">
+    {% if labels %}
+        <ul>
+        {% for label in labels %}
+            <li>{{ label.name }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}         
+                </p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</main>
+{% endblock content %}

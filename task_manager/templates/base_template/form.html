@@ -1,0 +1,33 @@
+{% block title %}{% endblock %}
+<form method="post" novalidate>
+      {% csrf_token %}
+   
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+      {% for field in form %}
+      <div class="input-group mb-3 bg-white bg-dark rounded-3 p-1">
+        <span class="form-control bg-light text-dark border-0">
+          {{ field.label }}
+        </span>
+        {{ field }}
+         
+      </div>
+      {% if field.errors %}
+                <div class="invalid-feedback d-block">
+                    {% for error in field.errors %}
+                        {{ error }}
+                    {% endfor %}
+          {% endif %}
+      {% if field.help_text %}
+        <small class="form-text text-white d-block mb-1 fs-6">{{ field.help_text }}</small>
+      {% endif %}
+      {% endfor %}     
+      <div class="d-grid mt-4">
+        <button type="submit" class="btn btn-primary py-2">
+            {{ button_text|default:"Create" }}
+        </button>
+      </div>
+</form>

@@ -1,83 +1,104 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    ListView,
-    UpdateView,
-)
+from django.views.generic import CreateView, DeleteView, DetailView, UpdateView
+from django_filters.views import FilterView
+
+from task_manager.mixins import MessageMixin
 
 from .filters import TaskFilter
-from .forms import TaskForm
-from .models import Task
+from .forms import CreateTaskForm, UpdateTaskForm
+from .models import Tasks
 
 
-class TaskListView(LoginRequiredMixin, ListView):
-    model = Task
-    template_name = 'tasks/index.html'
+class TasksView(LoginRequiredMixin, FilterView):
+    model = Tasks
+    template_name = 'task_template/tasks.html'
     context_object_name = 'tasks'
-    
-    def get_queryset(self):
-        queryset = Task.objects.all()
-        self.filterset = TaskFilter(self.request.GET, queryset=queryset)
+    login_url = '/login/'
+    filterset_class = TaskFilter
 
-        queryset = self.filterset.qs
 
-        if self.request.GET.get('self_tasks'):
-            queryset = queryset.filter(author=self.request.user)
-
-        return queryset
+class TaskUpdate(LoginRequiredMixin, MessageMixin, UpdateView):
+    model = Tasks
+    template_name = 'task_template/task_update.html'
+    context_object_name = 'update_task'
+    login_url = '/login/'
+    form_class = UpdateTaskForm
+    success_url = reverse_lazy('tasks')
+    success_message = _('Task updated successfully')
+    error_message = _('Task with this Name already exists')
 
     def get_context_data(self, **kwargs):
+        task = self.object
         context = super().get_context_data(**kwargs)
-        context['filter'] = self.filterset
+        context['button_text'] = _("Update")
+        context['task_id'] = task.id
+        context['title_text'] = _('Update task')
         return context
 
 
-class TaskDetailView(LoginRequiredMixin, DetailView):
-    model = Task
-    template_name = 'tasks/show.html'
-    context_object_name = 'task'
-
-
-class TaskCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
-    model = Task
-    form_class = TaskForm
-    template_name = 'tasks/create.html'
-    success_url = reverse_lazy('tasks_index')
-    success_message = _("Task successfully created")
+class TaskCreate(LoginRequiredMixin, MessageMixin, CreateView):
+    model = Tasks
+    template_name = 'task_template/task_create.html'
+    context_object_name = 'create_task'
+    login_url = '/login/'
+    form_class = CreateTaskForm
+    success_url = reverse_lazy('tasks')
+    success_message = _('Task created successfully')
+    error_message = _('Task with this Name already exists')
 
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
 
-
-class TaskUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
-    model = Task
-    form_class = TaskForm
-    template_name = 'tasks/update.html'
-    success_url = reverse_lazy('tasks_index')
-    success_message = _("Task successfully updated")
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['button_text'] = _("Create")
+        context['title_text'] = _("Create Task")
+        return context
 
 
-class TaskDeleteView(LoginRequiredMixin, SuccessMessageMixin,
-                     UserPassesTestMixin, DeleteView):
-    model = Task
-    template_name = 'tasks/delete.html'
-    success_url = reverse_lazy('tasks_index')
-    success_message = _("Task successfully deleted")
+class TaskDelete(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Tasks
+    template_name = 'task_template/task_delete.html'
+    success_url = reverse_lazy('tasks')
+    login_url = '/login/'
 
     def test_func(self):
         task = self.get_object()
-        return task.author == self.request.user
+        return self.request.user == task.author
 
     def handle_no_permission(self):
-        if not self.request.user.is_authenticated:
-            return super().handle_no_permission()
-        messages.error(self.request, _("Only the author can delete an issue."))
+        messages.error(
+            self.request,
+            _('A task can only be deleted by its author'))
+        return redirect('tasks')
+
+    def delete(self, request, *args, **kwargs):
+        task = self.get_object()
+        task.delete()
+        messages.success(request, _('Task deleted successfully!'))
         return redirect(self.success_url)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['task'] = self.get_object()
+        return context
+
+
+class TaskView(LoginRequiredMixin, DetailView):
+    model = Tasks
+    template_name = 'task_template/task.html'
+    context_object_name = 'task'
+    login_url = 'login/'
+
+    def get_queryset(self):
+        return Tasks.objects.prefetch_related('labels')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['labels'] = self.object.labels.all()
+        return context

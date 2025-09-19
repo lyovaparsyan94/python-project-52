@@ -1,18 +1,10 @@
 from django.urls import path
 
-from task_manager.labels import views
+from .views import LabelCreate, LabelDelete, LabelsView, LabelUpdate
 
 urlpatterns = [
-    path('', views.LabelListView.as_view(), name='labels_index'),
-    path('create/', views.LabelCreateView.as_view(), name='label_create'),
-    path(
-        '<int:pk>/update/',
-        views.LabelUpdateView.as_view(),
-        name='label_update'
-        ),
-    path(
-        '<int:pk>/delete/',
-        views.LabelDeleteView.as_view(),
-        name='label_delete'
-        ),
+    path('', LabelsView.as_view(), name='labels'),
+    path('<int:pk>/update/', LabelUpdate.as_view(), name='update_label'),
+    path('create/', LabelCreate.as_view(), name='create_label'),
+    path('<int:pk>/delete/', LabelDelete.as_view(), name='delete_label'),
 ]

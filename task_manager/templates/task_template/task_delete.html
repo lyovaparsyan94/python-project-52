@@ -1,0 +1,10 @@
+{% extends "user_template/delete.html" %}
+{% load i18n %}
+{% block delete %}
+<h1 class="my-4">{% trans "Delete task" %}</h1>
+ <p>{% blocktrans with task_name=task.name %}
+    Are you sure you want to delete task {{ task_name }}?
+    {% endblocktrans %}</p>
+ <form action="{% url 'delete_task' task.id %}" method="post">
+    {% csrf_token %}
+{% endblock delete %}

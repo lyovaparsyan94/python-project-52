@@ -1,90 +1,116 @@
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import ProtectedError
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
-from django.http import HttpResponseForbidden
 
-from task_manager.mixins import MessageMixin
+from task_manager.users.forms import (
+    UserLoginForm,
+    UserRegistrationForm,
+    UserUpdateForm,
+)
 
-from task_manager.users.forms import RegistrationUserForm, UpdateUserForm
-
-
-class UsersView(ListView):
-    model = get_user_model()
-    template_name = 'base_template/users.html'
-    context_object_name = 'usrs'
+User = get_user_model()
 
 
-class UserCreateView(MessageMixin, CreateView):
-    model = get_user_model()
-    form_class = RegistrationUserForm
-    template_name = 'user_template/create.html'
-    success_url = reverse_lazy('home')
-    success_message = _('Registration successful!')
-    error_message = None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['button_text'] = _("Create")
-        return context
+class UsersIndexView(ListView):
+    model = User
+    template_name = 'users/index.html'
+    context_object_name = 'users'
 
 
-class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin,
-                     MessageMixin, UpdateView):
-    model = get_user_model()
-    form_class = UpdateUserForm
-    template_name = 'user_template/update.html'
-    success_url = reverse_lazy('usrs')
-    success_message = _('User successfully updated')
-    login_url = '/login/'
-    error_message = None
+class UserCreateView(SuccessMessageMixin, CreateView):
+    form_class = UserRegistrationForm
+    template_name = 'users/create.html'
+    success_url = reverse_lazy('login')
+    success_message = _('User created successfully')
+
+
+class UserUpdateView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    SuccessMessageMixin,
+    UpdateView
+    ):
+    model = User
+    form_class = UserUpdateForm
+    template_name = 'users/update.html'
+    success_url = reverse_lazy('users_index')
+    success_message = _('User updated successfully')
 
     def test_func(self):
         return self.request.user == self.get_object()
 
     def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            messages.error(
+                self.request,
+                _("You are not logged in! Please log in.")
+                )
+            return super(LoginRequiredMixin, self).handle_no_permission()
         messages.error(
             self.request,
-            _('You do not have permission to edit other users'))
-        return redirect(self.success_url)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['button_text'] = _("Update")
-        return context
+            _("You do not have permission to perform this action.")
+            )
+        return redirect('users_index')
 
 
-class UserDeleteView(LoginRequiredMixin, UserPassesTestMixin, SuccessMessageMixin, DeleteView):
-    model = get_user_model()
-    template_name = 'user_template/delete.html'
-    success_url = reverse_lazy('home')
-    permission_denied_template = 'usrs'
-    success_message = _('User successfully deleted')
-    login_url = '/login/'
+class UserDeleteView(
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+    SuccessMessageMixin,
+    DeleteView
+    ):
+    model = User
+    template_name = 'users/delete.html'
+    success_url = reverse_lazy('users_index')
+    success_message = _('User deleted successfully')
 
     def test_func(self):
-        user_to_delete = self.get_object()
-        return self.request.user == user_to_delete
-
-    def delete(self, request, *args, **kwargs):
-        user = self.get_object()
-
-        user.delete()
-
-        return redirect(self.success_url)
-
+        return self.request.user == self.get_object()
+    
     def handle_no_permission(self):
-        messages.error(
+        if not self.request.user.is_authenticated:
+            messages.error(
                 self.request,
-                _('You do not have permission to modify another user.')
+                _("You are not logged in! Please log in.")
+                )
+            return super(LoginRequiredMixin, self).handle_no_permission()
+        messages.error(
+            self.request,
+            _("You do not have permission to perform this action.")
             )
-        return HttpResponseForbidden("Forbidden")
+        return redirect('users_index')
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['user'] = self.get_object()
-        return context
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().post(request, *args, **kwargs)
+        except ProtectedError:
+            messages.error(
+                request,
+                _("It is impossible to delete the user \
+                    because it is being used")
+            )
+            return redirect(self.success_url)
+
+
+class UserLoginView(SuccessMessageMixin, LoginView):
+    form_class = UserLoginForm
+    template_name = 'users/login.html'
+    success_message = _("You are logged in")
+    
+    def get_success_url(self):
+        return reverse_lazy('index')
+
+
+class UserLogoutView(LogoutView):
+    next_page = reverse_lazy('index')
+
+    def dispatch(self, request, *args, **kwargs):
+        messages.success(request, _("You are logged out"))
+        return super().dispatch(request, *args, **kwargs)

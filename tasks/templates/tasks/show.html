@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ task.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ task.name }}</h1>
+            
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>{% trans "Описание" %}</h5>
+                    <p>{{ task.description|default:"—" }}</p>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <strong>{% trans "Статус" %}:</strong> <span class="badge bg-primary">{{ task.status.name }}</span>
+                </div>
+                <div class="col-md-3">
+                    <strong>{% trans "Автор" %}:</strong> {{ task.author.username }}
+                </div>
+                <div class="col-md-3">
+                    <strong>{% trans "Исполнитель" %}:</strong> {{ task.executor.username|default:"—" }}
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a href="{% url 'tasks:update' task.pk %}" class="btn btn-primary">{% trans "Изменить" %}</a>
+                <a href="{% url 'tasks:tasks' %}" class="btn btn-secondary">{% trans "К списку" %}</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,53 +1,49 @@
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
-from django.db.models import ProtectedError
-from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
-
-from .forms import StatusForm
-from .models import Status
+from task_manager.models import Status
+from django.shortcuts import redirect
 
 
 class StatusListView(LoginRequiredMixin, ListView):
     model = Status
-    template_name = 'statuses/index.html'
+    template_name = 'statuses/list.html'
     context_object_name = 'statuses'
 
-
-class StatusCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class StatusCreateView(LoginRequiredMixin, CreateView):
     model = Status
-    form_class = StatusForm
+    fields = ['name']
     template_name = 'statuses/create.html'
-    success_url = reverse_lazy('statuses_index')
-    success_message = _("Status successfully created")
+    success_url = reverse_lazy('statuses:statuses')
 
+    def form_valid(self, form):
+        messages.success(self.request, 'Статус успешно создан')
+        return super().form_valid(form)
 
-class StatusUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class StatusUpdateView(LoginRequiredMixin, UpdateView):
     model = Status
-    form_class = StatusForm
+    fields = ['name']
     template_name = 'statuses/update.html'
-    success_url = reverse_lazy('statuses_index')
-    success_message = _("Status successfully changed")
 
+    def get_success_url(self):
+        return reverse_lazy('statuses:statuses')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Статус успешно изменен')
+        return super().form_valid(form)
 
 class StatusDeleteView(LoginRequiredMixin, DeleteView):
     model = Status
     template_name = 'statuses/delete.html'
-    success_url = reverse_lazy('statuses_index')
-    success_message = _("Status successfully deleted")
+    success_url = reverse_lazy('statuses:statuses')
 
-    def post(self, request, *args, **kwargs):
-        try:
-            response = super().post(request, *args, **kwargs)
-            messages.success(self.request, self.success_message)
-            return response
-        except ProtectedError:
-            messages.error(
-                self.request,
-                _("It is impossible to delete the status \
-                    because it is being used")
-            )
-            return redirect(self.success_url)
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+
+        if self.object.task_set.exists():
+            messages.error(request, 'Невозможно удалить статус')
+            return redirect('statuses:statuses')
+
+        messages.success(self.request, 'Статус успешно удален')
+        return super().delete(request, *args, **kwargs)

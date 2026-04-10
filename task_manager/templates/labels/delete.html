@@ -1,16 +1,41 @@
-{% extends 'layout.html' %}
-{% load django_bootstrap5 %}
+{% extends 'base.html' %}
 {% load i18n %}
 
+{% block title %}{% trans "Удалить метку" %} «{{ object.name }}»{% endblock %}
+
 {% block content %}
-<div class="container wrapper flex-grow-1">
-    <h1 class="my-4">{% trans "Delete label" %}</h1>
-    <p>
-      {% blocktrans %}Are you sure you want to delete {{ label }}?{% endblocktrans %}
-    </p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">{% trans "Yes, delete" %}</button>
-    </form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-exclamation-triangle"></i> {% trans "Удалить метку" %}
+                    </h3>
+                </div>
+                <div class="card-body text-center py-5">
+
+                        <div class="alert alert-danger">
+                            <h4>{% trans "Вы уверены?" %}</h4>
+                            <p class="mb-4">
+                                {% trans "Метка" %} <strong>"{{ object.name }}"</strong> 
+                                {% trans "будет удалена навсегда" %}
+                            </p>
+                        </div>
+
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="bi bi-trash"></i> {% trans "Да, удалить" %}
+                            </button>
+
+                        </form>
+                        <a href="{% url 'labels:list' %}" class="btn btn-secondary btn-lg ms-3">
+                            {% trans "Отмена" %}
+                        </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Удалить задачу" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="alert alert-danger">
+        <h4>{% trans "Удалить задачу" %} «{{ object.name }}»?</h4>
+        <p class="mb-0">
+            {% trans "Автор" %}: {{ object.author.username }}<br>
+            {% trans "Статус" %}: {{ object.status.name }}
+        </p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">{% trans "Да, удалить" %}</button>
+            <a href="{% url 'tasks:tasks' %}" class="btn btn-secondary">{% trans "Отмена" %}</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

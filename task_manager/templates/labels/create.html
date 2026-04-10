@@ -1,14 +1,42 @@
-{% extends 'layout.html' %}
-{% load django_bootstrap5 %}
+{% extends 'base.html' %}
 {% load i18n %}
 
+{% block title %}{% trans "Создать метку" %}{% endblock %}
+
 {% block content %}
-<div class="container wrapper flex-grow-1">
-    <h1 class="my-4">{% trans "Create label" %}</h1>
-    <form method="post">
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        <button type="submit" class="btn btn-primary">{% trans "Create" %}</button>
-    </form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-plus-circle"></i> {% trans "Создать метку" %}
+                    </h3>
+                </div>
+                <div class="card-body">
+
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                {% trans "Имя" %} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> {% trans "Создать" %}
+                            </button>
+                            <a href="{% url 'labels:list' %}" class="btn btn-secondary">
+                                {% trans "Отмена" %}
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

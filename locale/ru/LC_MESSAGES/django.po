@@ -1,0 +1,391 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-03-30 18:23+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+
+#: .\task_manager\models.py:9 .\task_manager\templates\labels\create.html:23
+#: .\task_manager\templates\labels\list.html:20
+#: .\task_manager\templates\labels\update.html:24
+#: .\task_manager\templates\statuses\create.html:16
+#: .\task_manager\templates\statuses\list.html:18
+#: .\task_manager\templates\statuses\update.html:14
+#: .\task_manager\templates\users\create.html:12
+#: .\task_manager\templates\users\list.html:19 .\tasks\models.py:9
+#: .\tasks\templates\tasks\create.html:16 .\tasks\templates\tasks\list.html:43
+#: .\tasks\templates\tasks\update.html:14
+msgid "Имя"
+msgstr "First Name"
+
+#: .\task_manager\models.py:12 .\tasks\models.py:11
+#: .\tasks\templates\tasks\create.html:29
+#: .\tasks\templates\tasks\delete.html:12 .\tasks\templates\tasks\show.html:21
+#: .\tasks\templates\tasks\update.html:24
+msgid "Статус"
+msgstr "Status"
+
+#: .\task_manager\models.py:13 .\task_manager\templates\statuses\list.html:4
+#: .\task_manager\templates\statuses\list.html:9 .\templates\base.html:29
+msgid "Статусы"
+msgstr "Statuses"
+
+#: .\task_manager\models.py:20 .\tasks\models.py:27
+msgid "уже существует"
+msgstr "already exists"
+
+#: .\task_manager\models.py:24
+#, fuzzy
+#| msgid "Имя"
+msgid "имя"
+msgstr "First Name"
+
+#: .\task_manager\models.py:27
+msgid "Уникальное название метки"
+msgstr "Unique tag name"
+
+#: .\task_manager\models.py:30
+msgid "дата создания"
+msgstr "date of creation"
+
+#: .\task_manager\models.py:35
+msgid "метка"
+msgstr "tag"
+
+#: .\task_manager\models.py:36 .\tasks\models.py:17
+msgid "метки"
+msgstr "tags"
+
+#: .\task_manager\templates\labels\create.html:4
+#: .\task_manager\templates\labels\create.html:13
+#: .\task_manager\templates\labels\list.html:11
+#: .\task_manager\templates\labels\list.html:60
+#, fuzzy
+#| msgid "Начать работу"
+msgid "Создать метку"
+msgstr "Get Started"
+
+#: .\task_manager\templates\labels\create.html:30
+#: .\task_manager\templates\statuses\create.html:25
+#: .\task_manager\templates\users\create.html:27
+#: .\tasks\templates\tasks\create.html:49
+#, fuzzy
+#| msgid "Начать работу"
+msgid "Создать"
+msgstr "Get Started"
+
+#: .\task_manager\templates\labels\create.html:33
+#: .\task_manager\templates\labels\delete.html:52
+#: .\task_manager\templates\labels\update.html:34
+#: .\task_manager\templates\statuses\create.html:26
+#: .\task_manager\templates\statuses\delete.html:17
+#: .\task_manager\templates\statuses\update.html:21
+#: .\task_manager\templates\users\delete.html:11
+#: .\task_manager\templates\users\update.html:13
+#: .\tasks\templates\tasks\create.html:50
+#: .\tasks\templates\tasks\delete.html:20
+#: .\tasks\templates\tasks\update.html:35
+msgid "Отмена"
+msgstr "Cancel"
+
+#: .\task_manager\templates\labels\delete.html:4
+#: .\task_manager\templates\labels\delete.html:13
+#, fuzzy
+#| msgid "Удалить"
+msgid "Удалить метку"
+msgstr "Delete"
+
+#: .\task_manager\templates\labels\delete.html:20
+msgid "Невозможно удалить метку"
+msgstr "Impossible to delete the tag"
+
+#: .\task_manager\templates\labels\delete.html:22
+msgid "Метка используется в"
+msgstr "Tag is being used in"
+
+#: .\task_manager\templates\labels\delete.html:24
+msgid ""
+"\n"
+"                                    задаче\n"
+"                                "
+msgid_plural ""
+"\n"
+"                                    задачах\n"
+"                                "
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: .\task_manager\templates\labels\delete.html:32
+msgid "Вернуться"
+msgstr "Get back"
+
+#: .\task_manager\templates\labels\delete.html:36
+#: .\task_manager\templates\labels\delete.html:46
+#: .\task_manager\templates\users\delete.html:9
+msgid "Вы уверены?"
+msgstr "Are you sure?"
+
+#: .\task_manager\templates\labels\delete.html:38
+msgid "Метка"
+msgstr "Tag"
+
+#: .\task_manager\templates\labels\delete.html:39
+msgid "будет удалена навсегда"
+msgstr "will be deleted forever"
+
+#: .\task_manager\templates\labels\delete.html:47
+#: .\task_manager\templates\statuses\delete.html:16
+#: .\task_manager\templates\users\delete.html:10
+#: .\tasks\templates\tasks\delete.html:19
+#, fuzzy
+#| msgid "Удалить"
+msgid "Да, удалить"
+msgstr "Delete"
+
+#: .\task_manager\templates\labels\list.html:4
+#: .\task_manager\templates\labels\list.html:9
+#: .\tasks\templates\tasks\create.html:38
+#: .\tasks\templates\tasks\update.html:37 .\templates\base.html:31
+msgid "Метки"
+msgstr "Tags"
+
+#: .\task_manager\templates\labels\list.html:21
+#: .\task_manager\templates\statuses\list.html:19
+#: .\task_manager\templates\users\list.html:22
+#: .\tasks\templates\tasks\list.html:47
+msgid "Действия"
+msgstr "Actions"
+
+#: .\task_manager\templates\labels\list.html:31
+msgid "задач"
+msgstr "tasks"
+
+#: .\task_manager\templates\labels\list.html:39
+#: .\task_manager\templates\labels\update.html:31
+#: .\task_manager\templates\statuses\list.html:27
+#: .\task_manager\templates\statuses\update.html:8
+#: .\task_manager\templates\statuses\update.html:20
+#: .\task_manager\templates\users\list.html:34
+#: .\task_manager\templates\users\update.html:8
+#: .\task_manager\templates\users\update.html:12
+#: .\tasks\templates\tasks\list.html:58 .\tasks\templates\tasks\show.html:32
+#: .\tasks\templates\tasks\update.html:8 .\tasks\templates\tasks\update.html:34
+msgid "Изменить"
+msgstr "Edit"
+
+#: .\task_manager\templates\labels\list.html:44
+#: .\task_manager\templates\statuses\list.html:28
+#: .\task_manager\templates\users\delete.html:6
+#: .\task_manager\templates\users\list.html:38
+#: .\tasks\templates\tasks\list.html:59
+msgid "Удалить"
+msgstr "Delete"
+
+#: .\task_manager\templates\labels\list.html:57
+msgid "Меток пока нет"
+msgstr "No tags yet"
+
+#: .\task_manager\templates\labels\list.html:58
+msgid "Создайте первую метку"
+msgstr "Make the first tag"
+
+#: .\task_manager\templates\labels\update.html:4
+#: .\task_manager\templates\labels\update.html:13
+#, fuzzy
+#| msgid "Изменить"
+msgid "Изменить метку"
+msgstr "Edit"
+
+#: .\task_manager\templates\statuses\create.html:4
+#: .\task_manager\templates\statuses\create.html:10
+#: .\task_manager\templates\statuses\list.html:11
+#, fuzzy
+#| msgid "Начать работу"
+msgid "Создать статус"
+msgstr "Get Started"
+
+#: .\task_manager\templates\statuses\delete.html:4
+#: .\task_manager\templates\statuses\delete.html:9
+#, fuzzy
+#| msgid "Начать работу"
+msgid "Удалить статус"
+msgstr "Get Started"
+
+#: .\task_manager\templates\statuses\delete.html:10
+msgid "Эта операция необратима!"
+msgstr "This operation cannot be reversed!"
+
+#: .\task_manager\templates\statuses\list.html:32
+#, fuzzy
+#| msgid "Пользователи"
+msgid "Статусы не найдены"
+msgstr "Users"
+
+#: .\task_manager\templates\statuses\update.html:4
+#, fuzzy
+#| msgid "Начать работу"
+msgid "Изменить статус"
+msgstr "Get Started"
+
+#: .\task_manager\templates\task_manager\index.html:8
+msgid "Добро пожаловать!"
+msgstr "Welcome!"
+
+#: .\task_manager\templates\task_manager\index.html:10
+msgid ""
+"Это менеджер задач. Здесь вы можете управлять своими задачами, "
+"пользователями и статусами."
+msgstr ""
+"This is a task manager. Here you can manage your tasks, users and statuses."
+
+#: .\task_manager\templates\task_manager\index.html:13
+msgid "Начать работу"
+msgstr "Get Started"
+
+#: .\task_manager\templates\task_manager\index.html:14
+msgid "Подробнее"
+msgstr "Learn More"
+
+#: .\task_manager\templates\users\create.html:4 .\templates\base.html:36
+#: .\templates\login.html:40
+msgid "Регистрация"
+msgstr "Register"
+
+#: .\task_manager\templates\users\create.html:8
+#, fuzzy
+#| msgid "Пользователи"
+msgid "Создать пользователя"
+msgstr "Users"
+
+#: .\task_manager\templates\users\create.html:16
+#: .\task_manager\templates\users\list.html:20
+msgid "Фамилия"
+msgstr "Last Name"
+
+#: .\task_manager\templates\users\create.html:20
+msgid "Логин"
+msgstr "Login"
+
+#: .\task_manager\templates\users\create.html:24 .\templates\login.html:26
+msgid "Пароль"
+msgstr "Password"
+
+#: .\task_manager\templates\users\list.html:4
+#: .\task_manager\templates\users\list.html:9 .\templates\base.html:28
+msgid "Пользователи"
+msgstr "Users"
+
+#: .\task_manager\templates\users\list.html:11
+#, fuzzy
+#| msgid "Регистрация"
+msgid "Зарегистрировать"
+msgstr "Register"
+
+#: .\task_manager\templates\users\list.html:21 .\templates\login.html:19
+#, fuzzy
+#| msgid "Пользователи"
+msgid "Имя пользователя"
+msgstr "Users"
+
+#: .\task_manager\templates\users\list.html:45
+#, fuzzy
+#| msgid "Пользователи"
+msgid "Пользователи не найдены"
+msgstr "Users"
+
+#: .\task_manager\templates\users\update.html:4
+#, fuzzy
+#| msgid "Пользователи"
+msgid "Изменить пользователя"
+msgstr "Users"
+
+#: .\tasks\models.py:10 .\tasks\templates\tasks\create.html:24
+#: .\tasks\templates\tasks\show.html:14 .\tasks\templates\tasks\update.html:19
+msgid "Описание"
+msgstr "Description"
+
+#: .\tasks\models.py:12 .\tasks\templates\tasks\delete.html:11
+#: .\tasks\templates\tasks\show.html:24
+msgid "Автор"
+msgstr "Author"
+
+#: .\tasks\models.py:13 .\tasks\templates\tasks\create.html:34
+#: .\tasks\templates\tasks\show.html:27 .\tasks\templates\tasks\update.html:29
+msgid "Исполнитель"
+msgstr "Executor"
+
+#: .\tasks\models.py:30
+msgid "Задача"
+msgstr "Task"
+
+#: .\tasks\models.py:31 .\tasks\templates\tasks\list.html:4
+#: .\templates\base.html:30
+msgid "Задачи"
+msgstr "Tasks"
+
+#: .\tasks\templates\tasks\create.html:4 .\tasks\templates\tasks\create.html:10
+#: .\tasks\templates\tasks\list.html:10
+#, fuzzy
+#| msgid "Начать работу"
+msgid "Создать задачу"
+msgstr "Get Started"
+
+#: .\tasks\templates\tasks\create.html:45
+#: .\tasks\templates\tasks\update.html:47
+msgid "Зажмите Ctrl (Cmd) для выбора нескольких меток"
+msgstr "Hold Ctrl (Cmd) to choose multiple tags"
+
+#: .\tasks\templates\tasks\delete.html:4 .\tasks\templates\tasks\delete.html:9
+#, fuzzy
+#| msgid "Удалить"
+msgid "Удалить задачу"
+msgstr "Delete"
+
+#: .\tasks\templates\tasks\list.html:63
+#, fuzzy
+#| msgid "Пользователи"
+msgid "Задачи не найдены"
+msgstr "Users"
+
+#: .\tasks\templates\tasks\show.html:33
+msgid "К списку"
+msgstr "List"
+
+#: .\tasks\templates\tasks\update.html:4
+#, fuzzy
+#| msgid "Изменить"
+msgid "Изменить задачу"
+msgstr "Edit"
+
+#: .\templates\base.html:26
+msgid "Менеджер задач"
+msgstr "Task Manager"
+
+#: .\templates\base.html:33
+msgid "Выход"
+msgstr "Logout"
+
+#: .\templates\base.html:35 .\templates\login.html:4 .\templates\login.html:12
+msgid "Вход"
+msgstr "Login"
+
+#: .\templates\login.html:33
+msgid "Войти"
+msgstr "Sign in"

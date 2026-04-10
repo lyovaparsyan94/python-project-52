@@ -1,14 +1,14 @@
-{% extends "layout.html" %}
-{% load django_bootstrap5 %}
+{% extends 'base.html' %}
 {% load i18n %}
 
 {% block content %}
-<h1 class="my-4">{% trans "Delete user" %}</h1>
-  <form action="{% url 'user_delete' user.pk %}" method="post">
-    {% csrf_token %}
-    <p>
-      {% blocktrans with username=user.get_full_name %}Are you sure you want to delete {{ username }}?{% endblocktrans %}
-    </p>
-    <input class="btn btn-danger" type="submit" value="{% trans 'Yes, delete' %}">
-  </form>
+<div class="container mt-4">
+    <h2>{% trans "Удалить" %} {{ object.username }}?</h2>
+    <form method="post">
+        {% csrf_token %}
+        <p>{% trans "Вы уверены?" %}</p>
+        <button type="submit" class="btn btn-danger">{% trans "Да, удалить" %}</button>
+        <a href="{% url 'users:users' %}" class="btn btn-secondary">{% trans "Отмена" %}</a>
+    </form>
+</div>
 {% endblock %}

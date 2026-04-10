@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Изменить задачу" %}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% trans "Изменить" %} «{{ object.name }}»</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label">{% trans "Имя" %}</label>
+            {{ form.name }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">{% trans "Описание" %}</label>
+            {{ form.description }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">{% trans "Статус" %}</label>
+            {{ form.status }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">{% trans "Исполнитель" %}</label>
+            {{ form.executor }}
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+            <button type="submit" class="btn btn-warning me-md-2">{% trans "Изменить" %}</button>
+            <a href="{% url 'tasks:tasks' %}" class="btn btn-secondary">{% trans "Отмена" %}</a>
+            
+            <label class="form-label mt-3">{% trans "Метки" %}</label>
+            <select name="labels" multiple class="form-control" size="6">
+                {% for label in form.labels.field.queryset %}
+                <option value="{{ label.pk }}" 
+                    {% if label in object.labels.all %}selected{% endif %}>
+                    {{ label.name }}
+                </option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">
+                {% trans "Зажмите Ctrl (Cmd) для выбора нескольких меток" %}
+            </small>
+        </div>
+    </form>
+</div>
+{% endblock %}

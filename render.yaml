@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: task-manager
+    env: python
+    buildCommand: |
+      uv sync --frozen --no-install-isolation
+      python -m manage collectstatic --noinput
+    startCommand: uv run --with gunicorn task_manager.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: ROLLBAR_ACCESS_TOKEN
+        sync: false
+      - key: ROLLBAR_ENVIRONMENT
+        value: production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"

@@ -1,54 +1,50 @@
-from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
-from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
-
-from .forms import LabelForm
-from .models import Label
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from task_manager.models import Label
 
 
 class LabelListView(LoginRequiredMixin, ListView):
     model = Label
-    template_name = 'labels/index.html'
+    template_name = 'labels/list.html'
     context_object_name = 'labels'
 
 
-class LabelCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+class LabelCreateView(LoginRequiredMixin, CreateView):
     model = Label
-    form_class = LabelForm
+    fields = ['name']
     template_name = 'labels/create.html'
-    success_url = reverse_lazy('labels_index')
-    success_message = _("Label created successfully")
+    success_url = reverse_lazy('labels:list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Метка успешно создана')
+        return super().form_valid(form)
 
 
-class LabelUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
+class LabelUpdateView(LoginRequiredMixin, UpdateView):
     model = Label
-    form_class = LabelForm
+    fields = ['name']
     template_name = 'labels/update.html'
-    success_url = reverse_lazy('labels_index')
-    success_message = _("Label updated successfully")
+    success_url = reverse_lazy('labels:list')
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Метка успешно изменена')
+        return super().form_valid(form)
 
 
 class LabelDeleteView(LoginRequiredMixin, DeleteView):
     model = Label
     template_name = 'labels/delete.html'
-    success_url = reverse_lazy('labels_index')
-    success_message = _("Label deleted successfully")
-    
-    def post(self, request, *args, **kwargs):
+    success_url = reverse_lazy('labels:list')
+
+    def delete(self, request, *args, **kwargs):
         self.object = self.get_object()
-        
+
         if self.object.tasks.exists():
-            messages.error(
-                request,
-                _("It is impossible to delete the label \
-                    because it is being used")
-            )
+            messages.error(request, 'Невозможно удалить метку')
             return redirect(self.success_url)
-            
-        response = super().post(request, *args, **kwargs)
-        messages.success(self.request, self.success_message)
-        return response
+
+        messages.success(request, 'Метка успешно удалена')
+        return super().delete(request, *args, **kwargs)

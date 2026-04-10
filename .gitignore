@@ -1,14 +1,46 @@
-*.egg-info
+# Byte-compiled / optimized files
 __pycache__/
-dist/
-*.pyc
-.venv/
-.vscode/
-.coverage
-coverage.xml
-.pytest_cache/
-.python-version
-.env
-*_cache/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+local.sqlite3
+db.sqlite3
+media/
 staticfiles/
-*.sqlite3
+
+# uv / Python environments
+.venv
+.env
+
+
+# uv cache
+.cache/
+
+
+# IDE / Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Testing / Coverage
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.tox/
+coverage.xml
+*.cover

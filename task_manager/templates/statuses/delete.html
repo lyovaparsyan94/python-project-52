@@ -1,16 +1,21 @@
-{% extends 'layout.html' %}
-{% load django_bootstrap5 %}
+{% extends 'base.html' %}
 {% load i18n %}
 
+{% block title %}{% trans "Удалить статус" %}{% endblock %}
+
 {% block content %}
-<div class="container wrapper flex-grow-1">
-    <h1 class="my-4">{% trans "Delete status" %}</h1>
-    <p>
-      {% blocktrans %}Are you sure you want to delete {{ status }}?{% endblocktrans %}
-    </p>
-    <form method="post">
+<div class="container mt-4">
+    <div class="alert alert-warning">
+        <h4>{% trans "Удалить статус" %} «{{ object.name }}»?</h4>
+        <p class="mb-0">{% trans "Эта операция необратима!" %}</p>
+    </div>
+
+    <form method="post" action="" class="d-inline">
         {% csrf_token %}
-        <button type="submit" class="btn btn-danger">{% trans "Yes, delete" %}</button>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">{% trans "Да, удалить" %}</button>
+            <a href="{% url 'statuses:statuses' %}" class="btn btn-secondary">{% trans "Отмена" %}</a>
+        </div>
     </form>
 </div>
 {% endblock %}

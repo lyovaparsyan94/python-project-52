@@ -1,12 +1,42 @@
-{% extends "layout.html" %}
-{% load django_bootstrap5 %}
+{% extends 'base.html' %}
 {% load i18n %}
 
+{% block title %}{% trans "Изменить пользователя" %}{% endblock %}
+
 {% block content %}
-<h1 class="my-4">{% trans "Update user" %}</h1>
-  <form action="{% url 'user_update' user.pk %}" method="post">
-    {% csrf_token %}
-    {% bootstrap_form form %}
-    <input class="btn btn-primary" type="submit" value="{% trans 'Update' %}">
-  </form>
+<div class="container mt-4">
+    <h2>{% trans "Изменить" %} {{ object.username }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="id_first_name">Имя</label>
+            {{ form.first_name }}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_last_name">Фамилия</label>
+            {{ form.last_name }}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_username">Имя пользователя</label>
+            {{ form.username }}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_password1">Пароль</label>
+            {{ form.password1 }}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_password2">Подтверждение пароля</label>
+            {{ form.password2 }}
+        </div>
+
+        <button type="submit" class="btn btn-warning">{% trans "Изменить" %}</button>
+        <a href="{% url 'users:users' %}" class="btn btn-secondary">{% trans "Отмена" %}</a>
+    </form>
+</div>
 {% endblock %}

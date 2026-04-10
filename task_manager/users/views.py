@@ -51,10 +51,17 @@ class UserDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'users/delete.html'
     success_url = reverse_lazy('users:users')
 
-    def delete(self, request, *args, **kwargs):
-        if request.user != self.get_object():
-            messages.error(request, 'Вы не можете удалить другого пользователя')
+    def form_valid(self, form):
+        if self.request.user != self.object:
+            messages.error(self.request, 'Вы не можете удалить другого пользователя')
             return redirect('users:users')
-        
+
+        if self.object.author_tasks.exists() or self.object.executor_tasks.exists():
+            messages.error(
+                self.request,
+                'Невозможно удалить пользователя, потому что он используется',
+            )
+            return redirect('users:users')
+
         messages.success(self.request, 'Пользователь успешно удален')
-        return super(UserDeleteView, self).delete(request, *args, **kwargs)
+        return super().form_valid(form)

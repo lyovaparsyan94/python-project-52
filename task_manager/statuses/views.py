@@ -1,4 +1,6 @@
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.views.generic import (
+    ListView, CreateView, UpdateView, DeleteView,
+)
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
@@ -11,6 +13,7 @@ class StatusListView(LoginRequiredMixin, ListView):
     template_name = 'statuses/list.html'
     context_object_name = 'statuses'
 
+
 class StatusCreateView(LoginRequiredMixin, CreateView):
     model = Status
     fields = ['name']
@@ -20,6 +23,7 @@ class StatusCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         messages.success(self.request, 'Статус успешно создан')
         return super().form_valid(form)
+
 
 class StatusUpdateView(LoginRequiredMixin, UpdateView):
     model = Status
@@ -33,6 +37,7 @@ class StatusUpdateView(LoginRequiredMixin, UpdateView):
         messages.success(self.request, 'Статус успешно изменен')
         return super().form_valid(form)
 
+
 class StatusDeleteView(LoginRequiredMixin, DeleteView):
     model = Status
     template_name = 'statuses/delete.html'
@@ -40,8 +45,12 @@ class StatusDeleteView(LoginRequiredMixin, DeleteView):
 
     def form_valid(self, form):
         if self.object.task_set.exists():
-            messages.error(self.request, 'Невозможно удалить статус')
+            messages.error(
+                self.request, 'Невозможно удалить статус'
+            )
             return redirect('statuses:statuses')
 
-        messages.success(self.request, 'Статус успешно удален')
+        messages.success(
+            self.request, 'Статус успешно удален'
+        )
         return super().form_valid(form)

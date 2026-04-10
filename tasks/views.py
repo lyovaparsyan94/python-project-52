@@ -1,6 +1,7 @@
-from django import forms
 from django.shortcuts import redirect
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.views.generic import (
+    CreateView, UpdateView, DeleteView, DetailView,
+)
 from django_filters.views import FilterView
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -15,17 +16,25 @@ class TaskListView(LoginRequiredMixin, FilterView):
     context_object_name = 'tasks'
     filterset_class = TaskFilter
     paginate_by = 10
-    
+
     def get_queryset(self):
-        queryset = Task.objects.select_related('author', 'executor', 'status').prefetch_related('labels')
+        queryset = (
+            Task.objects
+            .select_related('author', 'executor', 'status')
+            .prefetch_related('labels')
+        )
         is_owner = self.request.GET.get('is_owner')
         if is_owner:
-            queryset = queryset.filter(author=self.request.user)
-        
+            queryset = queryset.filter(
+                author=self.request.user
+            )
+
         return queryset
-    
+
     def get_filterset_kwargs(self, filterset_class):
-        kwargs = super().get_filterset_kwargs(filterset_class)
+        kwargs = super().get_filterset_kwargs(
+            filterset_class
+        )
         kwargs['request'] = self.request
         return kwargs
 
@@ -38,8 +47,11 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        messages.success(self.request, 'Задача успешно создана')
+        messages.success(
+            self.request, 'Задача успешно создана'
+        )
         return super().form_valid(form)
+
 
 class TaskUpdateView(LoginRequiredMixin, UpdateView):
     model = Task
@@ -48,8 +60,11 @@ class TaskUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('tasks:tasks')
 
     def form_valid(self, form):
-        messages.success(self.request, 'Задача успешно изменена')
+        messages.success(
+            self.request, 'Задача успешно изменена'
+        )
         return super().form_valid(form)
+
 
 class TaskDeleteView(LoginRequiredMixin, DeleteView):
     model = Task
@@ -59,12 +74,19 @@ class TaskDeleteView(LoginRequiredMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.author != request.user:
-            messages.error(request, 'Задачу может удалить только ее автор')
+            messages.error(
+                request,
+                'Задачу может удалить только ее автор',
+            )
             return redirect('tasks:tasks')
-        return super().dispatch(request, *args, **kwargs)
+        return super().dispatch(
+            request, *args, **kwargs
+        )
 
     def form_valid(self, form):
-        messages.success(self.request, 'Задача успешно удалена')
+        messages.success(
+            self.request, 'Задача успешно удалена'
+        )
         return super().form_valid(form)
 
 

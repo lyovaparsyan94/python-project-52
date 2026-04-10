@@ -6,11 +6,28 @@ from task_manager.models import Status, Label
 
 
 class Task(models.Model):
-    name = models.CharField(max_length=150, unique=True, verbose_name=_('Имя'))
-    description = models.TextField(verbose_name=_('Описание'))
-    status = models.ForeignKey(Status, on_delete=models.CASCADE, verbose_name=_('Статус'))
-    author = models.ForeignKey(User, on_delete=models.PROTECT, related_name='author_tasks', verbose_name=_('Автор'))
-    executor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='executor_tasks', verbose_name=_('Исполнитель'))
+    name = models.CharField(
+        max_length=150, unique=True,
+        verbose_name=_('Имя'),
+    )
+    description = models.TextField(
+        verbose_name=_('Описание'),
+    )
+    status = models.ForeignKey(
+        Status, on_delete=models.CASCADE,
+        verbose_name=_('Статус'),
+    )
+    author = models.ForeignKey(
+        User, on_delete=models.PROTECT,
+        related_name='author_tasks',
+        verbose_name=_('Автор'),
+    )
+    executor = models.ForeignKey(
+        User, on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='executor_tasks',
+        verbose_name=_('Исполнитель'),
+    )
 
     labels = models.ManyToManyField(
         Label,
@@ -23,8 +40,12 @@ class Task(models.Model):
         return self.name
 
     def clean(self):
-        if self.pk is None and Task.objects.filter(name=self.name).exists():
-            raise ValidationError({'name': _('уже существует')})
+        if self.pk is None and Task.objects.filter(
+            name=self.name
+        ).exists():
+            raise ValidationError(
+                {'name': _('уже существует')}
+            )
 
     class Meta:
         verbose_name = _('Задача')

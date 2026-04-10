@@ -7,30 +7,39 @@ from django.urls import reverse_lazy
 from django.http import HttpResponse
 import rollbar
 
+
 def test_rollbar(request):
     """Тест Rollbar на Render"""
-    rollbar.report_message('✅ Render + Rollbar работает!', 'info')
-    
+    rollbar.report_message(
+        '✅ Render + Rollbar работает!', 'info'
+    )
+
     try:
         1 / 0
     except Exception:
         rollbar.report_exc_info()
-    
-    return HttpResponse('✅ Проверь Rollbar Dashboard через 30 сек!')
+
+    return HttpResponse(
+        '✅ Проверь Rollbar Dashboard через 30 сек!'
+    )
+
 
 class IndexView(TemplateView):
     template_name = 'task_manager/index.html'
 
+
 class BaseLoginView(LoginView):
     template_name = 'login.html'
     redirect_authenticated_user = True
-    
+
     def get_success_url(self):
         messages.success(self.request, 'Вы залогинены')
         return reverse_lazy('index')
-    
+
     def form_invalid(self, form):
-        messages.error(self.request, 'Неверный логин/пароль')
+        messages.error(
+            self.request, 'Неверный логин/пароль'
+        )
         return super().form_invalid(form)
 
 

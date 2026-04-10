@@ -18,3 +18,10 @@ dependencies = [
     "pytest-django>=4.12.0",
     "django-bootstrap4>=26.1",
 ]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["task_manager"]

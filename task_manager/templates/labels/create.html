@@ -23,6 +23,9 @@
                                 {% trans "Имя" %} <span class="text-danger">*</span>
                             </label>
                             {{ form.name }}
+                            {% for error in form.name.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
                         </div>
 
                         <div class="d-grid gap-2 d-md-flex justify-content-md-start">

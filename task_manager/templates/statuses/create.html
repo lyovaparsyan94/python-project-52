@@ -16,6 +16,9 @@
                         {% trans "Имя" %}
                     </label>
                     {{ form.name }}
+                    {% for error in form.name.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
                     {% if form.name.help_text %}
                         <div class="form-text">{{ form.name.help_text }}</div>
                     {% endif %}
